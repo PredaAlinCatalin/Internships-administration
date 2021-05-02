@@ -12,7 +12,7 @@ namespace Licenta.Models
         public int IdInternship { get; set; }
         public virtual Internship Internship { get; set; }
         public string ApplicationDate { get; set; }
-        public int InternshipGrade { get; set; }
+        public string CompanyFeedback { get; set; }
         public string Status { get; set; }
     }
 }

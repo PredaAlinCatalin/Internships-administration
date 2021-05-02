@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Collapse,
   Container,
@@ -11,20 +12,54 @@ import {
 import { Link } from "react-router-dom";
 import "./NavMenu.css";
 import { useIsCompany, useIsStudent } from "./Authentication/Authentication";
+import Avatar from "@material-ui/core/Avatar";
+import IconButton from "@material-ui/core/IconButton";
+import { lightBlue } from "@material-ui/core/colors";
+import { Block } from "@material-ui/icons";
+import {useAuthentication} from "./Authentication/Authentication";
+
+const useStyles = makeStyles((theme) => ({
+  avatar: {
+    backgroundColor: lightBlue[500],
+    width: 15,
+    height: 15,
+    // display: "inline-block"
+  },
+}));
 
 const NavMenu = () => {
   const [collapsed, setCollapsed] = useState(true);
-
+  const [loading, setLoading] = useState(true);
+  const classes = useStyles();
   const isCompany = useIsCompany();
   const isStudent = useIsStudent();
-
+  const [student, setStudent] = useState(null);
+  const auth = useAuthentication();
   const toggleNavbar = () => {
     setCollapsed(!collapsed);
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    // console.log(sessionStorage.getItem("user"));
+    // console.log(isStudent);
+    // async function PopulateWithData() {
+    //   const userData = JSON.parse(sessionStorage.getItem("user"));
+    //   if (userData !== null) {
+    //     let studentData = "";
+    //     const response = await fetch("api/students/" + userData.id);
+    //     if (response.ok) {
+    //       console.log(studentData);
+    //       studentData = await response.json();
+    //       setStudent(studentData);
+    //     }
+    //   }
+    //   setLoading(false);
+    // }
+    // PopulateWithData();
+    setLoading(false);
+  }, []);
 
-  return (
+  return !loading ? (
     <header>
       <Navbar
         className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3"
@@ -32,7 +67,7 @@ const NavMenu = () => {
       >
         <Container>
           <NavbarBrand tag={Link} to="/">
-            Licenta
+            HaiLaStagii
           </NavbarBrand>
           <NavbarToggler onClick={toggleNavbar} className="mr-2" />
           <Collapse
@@ -44,7 +79,7 @@ const NavMenu = () => {
               {!isCompany && (
                 <>
                   <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/">
+                    <NavLink tag={Link} className="text-dark" to="/internships">
                       Stagii
                     </NavLink>
                   </NavItem>
@@ -78,6 +113,26 @@ const NavMenu = () => {
                       Profil
                     </NavLink>
                   </NavItem>
+                  {/* <NavItem tag={Link} className="text-dark" to="/profile">
+                    <NavLink>
+                      <IconButton
+                        aria-label="account of current user"
+                        aria-controls="primary-search-account-menu"
+                        aria-haspopup="true"
+                        color="inherit"
+                      >
+                        <Avatar
+                          aria-label="recipe"
+                          className={classes.avatar}
+                          alt="logo"
+                          src={"/photos/" + student.photoPath}
+                          variant="rounded"
+                        ></Avatar>
+                        <br />
+                        Profil
+                      </IconButton>
+                    </NavLink>
+                  </NavItem> */}
                   <NavItem>
                     <NavLink tag={Link} className="text-dark" to="/internshipHistory">
                       Istoric stagii
@@ -90,6 +145,11 @@ const NavMenu = () => {
                       to="/internshipApplications"
                     >
                       Aplicări la stagii
+                    </NavLink>
+                  </NavItem>
+                  <NavItem>
+                    <NavLink tag={Link} className="text-dark" to="/savedInternships">
+                      Stagii salvate
                     </NavLink>
                   </NavItem>
                 </>
@@ -153,6 +213,8 @@ const NavMenu = () => {
         </Container>
       </Navbar>
     </header>
+  ) : (
+    ""
   );
 };
 

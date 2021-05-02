@@ -10,7 +10,7 @@ namespace Licenta.DTOs
         public string IdStudent { get; set; }
         public int IdInternship { get; set; }
         public string ApplicationDate { get; set; }
-        public int InternshipGrade { get; set; }
+        public string CompanyFeedback { get; set; }
         public string Status { get; set; }
     }
 }

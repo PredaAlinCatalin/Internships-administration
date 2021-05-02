@@ -12,6 +12,7 @@ td {
   border-top: 2px solid lightgray;
   border-right: 2px solid lightgray;
   border-bottom: 2px solid lightgray;
+  padding: 0;
 }
 
 .centerBorders {
@@ -31,7 +32,7 @@ td {
 }
 
 .stars {
-  display: inline-block;
+  /* display: inline-block; */
 }
 
 .description {
@@ -39,10 +40,15 @@ td {
 }
 
 .website {
-  color:#0366d6;
+  color: #0366d6;
 }
 
 .website:hover {
   cursor: pointer;
   text-decoration: underline;
+}
+
+ul {
+  /* padding: 0; */
+  font-size: 14px;
 }

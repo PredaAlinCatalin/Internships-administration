@@ -5,6 +5,29 @@ import { withRouter, Link } from "react-router-dom";
 import Loading from "../Universal/Loading";
 import "./Internship.css";
 import ReactStars from "react-rating-stars-component";
+import Button from "@material-ui/core/Button";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+import { makeStyles } from "@material-ui/core/styles";
+import DeleteIcon from "@material-ui/icons/Delete";
+import SaveIcon from "@material-ui/icons/Save";
+import {
+  getFormattedDate,
+  getFormattedDateNoTime,
+  checkDateIsPast,
+} from "../Utility/Utility";
+import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
+import BookmarkIcon from "@material-ui/icons/Bookmark";
+import SendIcon from "@material-ui/icons/Send";
+import Avatar from "@material-ui/core/Avatar";
+import Rating from "@material-ui/lab/Rating";
+import Typography from "@material-ui/core/Typography";
+import Box from "@material-ui/core/Box";
+import { Paper } from "@material-ui/core";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 class Internship extends Component {
   constructor(props) {
@@ -25,6 +48,10 @@ class Internship extends Component {
       internshipGrading: 0,
       nrGrades: 0,
       nrStudents: 0,
+      open: false,
+      isSaved: false,
+      userId: "",
+      userRole: "",
     };
   }
 
@@ -37,6 +64,7 @@ class Internship extends Component {
     if (user !== null)
       this.setState({
         userId: user.id,
+        userRole: user.role,
         isAuthenticated: true,
       });
 
@@ -92,7 +120,7 @@ class Internship extends Component {
       );
       if (studentInternshipResponse.ok) {
         let studentInternshipData = await studentInternshipResponse.json();
-        if (this.verifyDateIsPast(internshipData.endDate)) {
+        if (checkDateIsPast(internshipData.endDate)) {
           this.setState({
             canGrade: true,
             internshipGrade: studentInternshipData.internshipGrade,
@@ -101,7 +129,7 @@ class Internship extends Component {
 
         this.setState({ isApplied: true });
 
-        if (this.verifyDateIsPast(internshipData.deadline)) {
+        if (checkDateIsPast(internshipData.deadline)) {
           console.log(internshipData.deadline);
           console.log(studentInternshipData.status);
           if (studentInternshipData.status === StudentInternshipStatus.accepted) {
@@ -138,6 +166,22 @@ class Internship extends Component {
         nrStudents: studentInternshipsByInternshipData.length,
       });
     }
+    if (user !== null && user.role == "Student") {
+      let aux =
+        "api/savedStudentInternships/student/" +
+        user.id +
+        "/internship/" +
+        this.state.internship.id;
+      await fetch(aux)
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          if (data.status === 404) return;
+          this.setState({ isSaved: true });
+          console.log("SAVED");
+        });
+    }
 
     this.setState({
       categories: categoriesData,
@@ -146,37 +190,8 @@ class Internship extends Component {
     });
   };
 
-  getFormattedApplicationDate = (fullDate) => {
-    let year = fullDate.getFullYear();
-    let month = fullDate.getMonth() + 1;
-    if (month < 10) month = "0" + month;
-    let day = fullDate.getDate();
-    if (day < 10) day = "0" + day;
-    let hours = fullDate.getHours();
-    if (hours < 10) hours = "0" + hours;
-    let minutes = fullDate.getMinutes();
-    if (minutes < 10) minutes = "0" + minutes;
-    let seconds = fullDate.getSeconds();
-    if (seconds < 10) seconds = "0" + seconds;
-
-    let result =
-      year + "-" + month + "-" + day + "-" + hours + ":" + minutes + ":" + seconds;
-    return result;
-  };
-
-  verifyDateIsPast = (date) => {
-    let currentFullDate = new Date();
-    let year = currentFullDate.getFullYear();
-    let month = currentFullDate.getMonth() + 1;
-    if (month < 10) month = "0" + month;
-    let day = currentFullDate.getDate();
-    if (day < 10) day = "0" + day;
-    let currentDate = year + "-" + month + "-" + day;
-    return date < currentDate;
-  };
-
   handleStudentInternshipCreate = async () => {
-    let currentDate = this.getFormattedApplicationDate(new Date());
+    let currentDate = getFormattedDate(new Date());
 
     let newStudentInternship = {
       idStudent: this.state.userId,
@@ -197,27 +212,32 @@ class Internship extends Component {
     if (studentInternshipResponse.ok)
       this.setState({
         isApplied: true,
+        open: true,
       });
   };
 
   handleStudentInternshipDelete = async () => {
-    const studentInternshipResponse = await fetch(
-      "api/studentInternships/student/" +
-        this.state.userId +
-        "/internship/" +
-        this.state.internship.id,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const answer = window.confirm("Confirmă stergerea");
 
-    if (studentInternshipResponse.ok)
-      this.setState({
-        isApplied: false,
-      });
+    if (answer) {
+      const studentInternshipResponse = await fetch(
+        "api/studentInternships/student/" +
+          this.state.userId +
+          "/internship/" +
+          this.state.internship.id,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (studentInternshipResponse.ok)
+        this.setState({
+          isApplied: false,
+        });
+    }
   };
 
   handleNotLoggedIn = () => {
@@ -290,199 +310,344 @@ class Internship extends Component {
     console.log(newRating);
   };
 
-  renderInternshipData = () => {
+  handleClick = () => {
+    this.setState({ open: true });
+  };
+
+  handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({ open: false });
+  };
+
+  handleSavedStudentInternshipCreate = async (event) => {
+    event.stopPropagation();
+    const body = {
+      idInternship: this.state.internship.id,
+      idStudent: this.state.userId,
+    };
+
+    console.log(body);
+
+    await fetch("api/savedStudentInternships", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }).then((res) => {
+      if (res.ok) this.setState({ isSaved: true });
+      console.log("saved");
+    });
+  };
+
+  handleSavedStudentInternshipDelete = async (event) => {
+    event.stopPropagation();
+    await fetch(
+      "api/savedStudentInternships/student/" +
+        this.state.userId +
+        "/internship/" +
+        this.state.internship.id,
+      {
+        method: "DELETE",
+      }
+    ).then((res) => {
+      if (res.ok) this.setState({ isSaved: false });
+      console.log("Deleted");
+    });
+  };
+
+  renderInternshipHeader = () => {
     return (
-      <div>
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-9">
-              <div className="text-center">
-                <h3 style={{ textAlign: "center" }}>
-                  {" "}
-                  {this.state.internship.name}{" "}
-                  <div className="stars">
-                    <ReactStars
-                      count={5}
-                      onChange={this.ratingChanged}
-                      size={24}
-                      isHalf={true}
-                      emptyIcon={<i className="far fa-star"></i>}
-                      halfIcon={<i className="fa fa-star-half-alt"></i>}
-                      fullIcon={<i className="fa fa-star"></i>}
-                      activeColor="#ffd700"
-                      edit={false}
-                      value={this.state.internshipGrading}
-                    />
-                  </div>
-                </h3>
-
-                <Link to={"/internshipReviews/" + this.state.internship.id}>
-                  ({this.state.nrGrades} review-uri)
-                </Link>
-
-                <div className="centered"></div>
-
-                <p> </p>
-                <div style={{ textAlign: "center" }}>
-                  Stagiu <b>{this.state.internship.paid ? "Plătit" : "Neplătit"}</b> la{" "}
-                  <Link to={"/company/" + this.state.company.id}>
-                    {this.state.company.name}
+      <div className="container">
+        <div className="row">
+          <div className="column">
+            <Avatar
+              style={{ width: 100, height: 100, marginRight: 10 }}
+              aria-label="recipe"
+              alt="logo"
+              src={"logos/" + this.state.company.logoPath}
+              variant="rounded"
+              onMouseOver={(e) => (e.target.style.cursor = "pointer")}
+              onMouseOut={(e) => (e.target.style.cursor = "normal")}
+              onClick={() =>
+                this.props.history.push("/company/" + this.state.internship.idCompany)
+              }
+            ></Avatar>
+          </div>
+          <div className="column">
+            <div className="container">
+              <div className="row">
+                <div className="col-md-12">
+                  <Link to={"/internship/" + this.state.internship.id}>
+                    <b
+                      style={{
+                        // fontFamily: theme.typography.fontFamily,
+                        color: "black",
+                      }}
+                    >
+                      {this.state.internship.name}
+                    </b>
                   </Link>
                   <br />
-                  Perioada: <b>{this.state.internship.startDate}</b> -{" "}
-                  <b>{this.state.internship.endDate}</b>
-                  <br />
-                  Oraș: <b>{this.state.city.name}</b>
-                  <Icon.GeoAltFill />
+                  <Link to={"/company/" + this.state.internship.idCompany}>
+                    <b
+                      style={{
+                        fontSize: 14,
+                      }}
+                    >
+                      {this.state.company.name}
+                    </b>
+                  </Link>
+                  <span
+                    style={{
+                      paddingLeft: 6,
+                      fontSize: 14,
+                    }}
+                  >
+                    {this.state.internship.paid ? "Platit" : "Neplatit"}
+                  </span>
+                  <span
+                    style={{
+                      paddingLeft: 6,
+                      fontSize: 14,
+                    }}
+                  >
+                    {this.state.city.name}
+                    <Icon.GeoAltFill />
+                  </span>
                 </div>
               </div>
+            </div>
 
-              <p></p>
-              <table>
-                <tbody>
-                  <tr>
-                    <td className="leftBorders">
-                      <b>Categorii:</b>
-                      <p> </p>
-                      <ul>
-                        <span style={{ fontSize: 14 }}>
-                          {this.state.categories !== []
-                            ? this.state.categories.map((category) => (
-                                <li>
-                                  {category.name}
-                                  <p> </p>
-                                </li>
-                              ))
-                            : ""}
-                        </span>
-                      </ul>
-                    </td>
-
-                    <td className="centerBorders">
-                      <b>Aptitudini:</b>
-                      <p> </p>
-                      <span style={{ fontSize: 14 }}>
-                        <ul>
-                          {this.state.aptitudes !== []
-                            ? this.state.aptitudes.map((aptitude) => (
-                                <li>
-                                  {aptitude.name}
-                                  <p> </p>
-                                </li>
-                              ))
-                            : ""}
-                        </ul>
-                      </span>
-                    </td>
-
-                    <td className="rightBorders">
-                      <b>Detalii:</b>
-                      <p></p>
-                      <ul>
-                        <li>{this.state.internship.maxNumberStudents} locuri</li>
-                        <li>{this.state.nrStudents} participanți</li>
-                      </ul>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div>
-                <b>Descriere: </b>
-                <p className="description">{this.state.internship.description}</p>
+            <div className="container">
+              <div className="row">
+                <div className="col-md-6">
+                  <Box
+                    component="fieldset"
+                    mb={3}
+                    borderColor="transparent"
+                    onClick={() =>
+                      this.props.history.push(
+                        "/internshipReviews/" + this.state.internship.id
+                      )
+                    }
+                    onMouseOver={(event) => (event.target.style.cursor = "pointer")}
+                    onMouseOut={(event) => (event.target.style.cursor = "normal")}
+                  >
+                    <Rating
+                      name="read-only"
+                      value={this.state.internshipGrading}
+                      readOnly
+                    />
+                  </Box>
+                </div>
+                <div className="col-md-6">
+                  <Link to={"/internshipReviews/" + this.state.internship.id}>
+                    {this.state.nrGrades} review-uri
+                  </Link>
+                </div>
               </div>
-              <p> </p>
-              {this.state.isAuthenticated ? (
-                this.state.canGrade ? (
-                  <form onSubmit={this.handleInternshipGradeForm}>
-                    <div>
-                      Gradingul tau al stagiului:
-                      <input
-                        type="text"
-                        name="internshipGrade"
-                        value={this.state.internshipGrade}
-                        onChange={this.handleInternshipGradeChange}
-                      />
-                    </div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
-                    <div>
-                      <button className="btn btn-primary mt-2" type="submit">
-                        Salveaza
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  ""
-                )
-              ) : (
-                ""
-              )}
-              <div
-                class="center"
-                style={{
-                  display: "table",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                }}
-              >
-                {this.state.isAuthenticated && this.state.isAccepted && (
-                  <b className="text-success">Aplicat si acceptat</b>
-                )}
+  isStudent = () => {
+    return this.state.userRole === "Student";
+  };
 
-                {this.state.isAuthenticated &&
-                  this.state.isApplied &&
-                  !this.state.isAccepted && (
+  renderInternshipData = () => {
+    return (
+      <div class="container p-4 mb-5">
+        <div class="row">
+          <div class="col-lg-9">
+            {this.renderInternshipHeader()}
+
+            <br />
+
+            <div className="container">
+              <div className="row">
+                <div className="column mr-3">
+                  {this.isStudent() && this.state.isAccepted && (
+                    <b className="text-success">Aplicat si acceptat</b>
+                  )}
+
+                  {this.isStudent() && this.state.isApplied && !this.state.isAccepted && (
                     <div>
-                      <b className="text-danger">Ai aplicat deja la stagiu</b>
-                      <br />
-                      <button
-                        className="btn btn-danger mt-2"
+                      <Button
+                        variant="contained"
+                        color="secondary"
                         onClick={this.handleStudentInternshipDelete}
+                        startIcon={<DeleteIcon />}
                       >
                         Șterge aplicarea
-                      </button>
+                      </Button>
                     </div>
                   )}
 
-                {this.state.isAuthenticated && !this.state.isApplied && (
-                  <button
-                    className="btn btn-primary mt-2"
-                    onClick={this.handleStudentInternshipCreate}
-                  >
-                    Aplică
-                  </button>
-                )}
+                  {this.isStudent() && !this.state.isApplied && (
+                    <div>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<SendIcon />}
+                        onClick={this.handleStudentInternshipCreate}
+                      >
+                        Candidează
+                      </Button>
+                      <Snackbar
+                        open={this.state.open}
+                        autoHideDuration={6000}
+                        onClose={this.handleClose}
+                      >
+                        <Alert onClose={this.handleClose} severity="success">
+                          Ai aplicat cu succes la stagiu!
+                        </Alert>
+                      </Snackbar>
+                    </div>
+                  )}
 
-                {!this.state.isAuthenticated && (
-                  <button
-                    className="btn btn-primary mt-2"
-                    onClick={this.handleNotLoggedIn}
-                  >
-                    Loghează-te pentru a aplica
-                  </button>
-                )}
+                  {!this.state.isAuthenticated && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => this.props.history.push("/login")}
+                    >
+                      Loghează-te pentru a aplica
+                    </Button>
+                  )}
+                </div>
+
+                <div className="column">
+                  {this.isStudent() && !this.state.isSaved && (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={this.handleSavedStudentInternshipCreate}
+                      startIcon={<BookmarkBorderIcon />}
+                    >
+                      Salvează
+                    </Button>
+                  )}
+
+                  {this.isStudent() && this.state.isSaved && (
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={this.handleSavedStudentInternshipDelete}
+                      startIcon={<BookmarkIcon />}
+                    >
+                      Anulează salvarea
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div class="col-sm-3">
-              <h5>{this.state.company["name"]}</h5>
-              {this.state.company["description"]}
-              <br />
-              <br />
-              <img
-                onMouseOver={(e) => (e.target.style.cursor = "pointer")}
-                onMouseOut={(e) => (e.target.style.cursor = "normal")}
-                onClick={() => this.handleClickedAddress(this.state.company.address)}
-                width="32"
-                alt="Google Maps icon"
-                src="googlemaps.png"
-              />
+            <br />
+            <div>
+              <b>Perioada: </b>
+              {getFormattedDateNoTime(new Date(this.state.internship.startDate))} -{" "}
+              {getFormattedDateNoTime(new Date(this.state.internship.endDate))}
+            </div>
+            <p></p>
+            <table>
+              <tbody>
+                <tr>
+                  <td className="leftBorders">
+                    <b>Aptitudini:</b>
+                    <p> </p>
+                    <ul>
+                      {this.state.aptitudes !== []
+                        ? this.state.aptitudes.map((aptitude) => <li>{aptitude.name}</li>)
+                        : ""}
+                    </ul>
+                  </td>
+                  <td className="rightBorders">
+                    <b>Categorii:</b>
+                    <p> </p>
+                    <ul>
+                      {this.state.categories !== []
+                        ? this.state.categories.map((category) => (
+                            <li>{category.name}</li>
+                          ))
+                        : ""}
+                    </ul>
+                  </td>
 
-            <span className="website"
-                onClick={() => this.handleClickedWebsite(this.state.company.website)}>
+                  <td className="rightBorders">
+                    <b className="b-text">Detalii:</b>
+                    <p></p>
+                    <ul>
+                      <li>{this.state.internship.maxNumberStudents} locuri</li>
+                      <li>{this.state.nrStudents} participanți</li>
+                      <li>{this.state.company.industry}</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <div>
+              <b>Descriere: </b>
+              <p className="description" style={{ fontSize: 15 }}>
+                {this.state.internship.description}
+              </p>
+            </div>
+            <p> </p>
+            {this.state.isAuthenticated ? (
+              this.state.canGrade ? (
+                <form onSubmit={this.handleInternshipGradeForm}>
+                  <div>
+                    Gradingul tau al stagiului:
+                    <input
+                      type="text"
+                      name="internshipGrade"
+                      value={this.state.internshipGrade}
+                      onChange={this.handleInternshipGradeChange}
+                    />
+                  </div>
+
+                  <div>
+                    <button className="btn btn-primary mt-2" type="submit">
+                      Salveaza
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                ""
+              )
+            ) : (
+              ""
+            )}
+          </div>
+          <br />
+          <div class="col-sm-3">
+            <h5>{this.state.company["name"]}</h5>
+            {this.state.company["description"]}
+            <br />
+            <br />
+            <img
+              onMouseOver={(e) => (e.target.style.cursor = "pointer")}
+              onMouseOut={(e) => (e.target.style.cursor = "normal")}
+              onClick={() => this.handleClickedAddress(this.state.company.address)}
+              width="32"
+              alt="Google Maps icon"
+              src="googlemaps.png"
+            />
+
+            <span
+              className="website"
+              onClick={() => this.handleClickedWebsite(this.state.company.website)}
+            >
               Website
             </span>
-            </div>
           </div>
         </div>
       </div>
@@ -492,7 +657,7 @@ class Internship extends Component {
   render() {
     let contents = this.state.loading ? <Loading /> : this.renderInternshipData();
 
-    return <div>{contents}</div>;
+    return <Paper>{contents}</Paper>;
   }
 }
 

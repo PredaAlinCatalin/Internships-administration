@@ -9,6 +9,8 @@ using Licenta.Data;
 using Licenta.Models;
 using Microsoft.AspNetCore.Identity;
 using IdentityServer4.Models;
+using Licenta.DTOs;
+using AutoMapper;
 
 namespace Licenta.Controllers
 {
@@ -17,20 +19,22 @@ namespace Licenta.Controllers
     public class InternshipsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public InternshipsController(ApplicationDbContext context)
+        public InternshipsController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
 
         }
 
-        // GET: api/Internships
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Internship>>> GetInternships()
-        {
-            return await _context.Internships
-                            .ToListAsync();
-        }
+        //GET: api/Internships
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Internship>>> GetInternships()
+        //{
+        //    return await _context.Internships
+        //                    .ToListAsync();
+        //}
 
         [HttpGet("company/{id}")]
         public async Task<ActionResult<IEnumerable<Internship>>> GetInternshipsByCompany(string id)
@@ -50,39 +54,70 @@ namespace Licenta.Controllers
             return internshipsResult;
         }
 
-        [HttpGet("category/{idCategory}/city/{idCity}/search/{searchString?}")]
-        public async Task<ActionResult<IEnumerable<Internship>>> GetInternshipsByCategoryCitySearch(int idCategory, int idCity, string? searchString)
+        [HttpGet("")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByCategoryCitySearch(string searchString, string city, string category)
         {
             if (!string.IsNullOrEmpty(searchString))
                 searchString = searchString.ToLower();
+            if (!string.IsNullOrEmpty(city))
+                city = city.ToLower();
+            if (!string.IsNullOrEmpty(category))
+                category = category.ToLower();
             List<Internship> internships = await _context.Internships
                                                     .Include(i => i.InternshipCategories)
                                                     .Include(i => i.City)
                                                     .Include(i => i.Company)
                                                     .ToListAsync();
-            List<Internship> internshipsResult = new List<Internship>();
+            //bool allEmpty = false;
+            //if (string.IsNullOrEmpty(searchString) && string.IsNullOrEmpty(city) && string.IsNullOrEmpty(category))
+            //    allEmpty = true;
+
+            List<InternshipDTO> internshipsResult = new List<InternshipDTO>();
+            //if (allEmpty)
+            //{
+            //    internshipsResult = _mapper.Map<List<InternshipDTO>>(internships);
+            //    return internshipsResult;
+            //}
+
+
             foreach (Internship internship in internships)
             {
-                if (idCity != -1 && internship.IdCity != idCity)
-                    continue;
+                if (!string.IsNullOrEmpty(city))
+                    if (string.IsNullOrEmpty(internship.City.Name) || internship.City.Name.ToLower() != city)
+                        continue;
 
-                if (!string.IsNullOrEmpty(searchString) && 
-                    (!(internship.Name.ToLower().Contains(searchString) || 
-                    internship.Company.Name.ToLower().Contains(searchString))))
-                    continue;
+                //if (!string.IsNullOrEmpty(city) && !string.IsNullOrEmpty(internship.City.Name) && internship.City.Name.ToLower() != city)
+                //    continue;
 
-                if (idCategory == -1)
+                bool found = false;
+                if (!string.IsNullOrEmpty(searchString))
+                    if ((string.IsNullOrEmpty(internship.Name) || !internship.Name.ToLower().Contains(searchString)) &&
+                            (string.IsNullOrEmpty(internship.Company.Name) || !internship.Company.Name.ToLower().Contains(searchString)))
+                        continue;
+
+                //if (!string.IsNullOrEmpty(searchString))
+                //    if (string.IsNullOrEmpty(internship.Company.Name) || !internship.Company.Name.ToLower().Contains(searchString))
+                //        continue;
+
+                //if (!string.IsNullOrEmpty(searchString) && !string.IsNullOrEmpty(internship.Name) && internship.Name.ToLower().Contains(searchString))
+                //    found = true;
+
+                //if (!string.IsNullOrEmpty(searchString) && !string.IsNullOrEmpty(internship.Company.Name) && internship.Company.Name.ToLower().Contains(searchString))
+                //    found = true;
+
+                //if (!found || !string.IsNullOrEmpty(searchString))
+                //    continue;
+
+                if (string.IsNullOrEmpty(category))
                 {
-                    var searchedInternship = _context.Internships.FirstOrDefault(i => i.Id == internship.Id);
-                    internshipsResult.Add(searchedInternship);
+                    internshipsResult.Add(_mapper.Map<InternshipDTO>(internship));
                 }
 
                 else {
                     foreach (InternshipCategory internshipCategory in internship.InternshipCategories)
-                        if (internshipCategory.IdCategory == idCategory)
+                        if (internshipCategory.Category.Name.ToLower() == category)
                         {
-                            var searchedInternship = _context.Internships.FirstOrDefault(i => i.Id == internship.Id);
-                            internshipsResult.Add(searchedInternship);
+                            internshipsResult.Add(_mapper.Map<InternshipDTO>(internship)); ;
                             break;
                         }
                 }
@@ -90,9 +125,6 @@ namespace Licenta.Controllers
                 
                         
             }
-
-            if (internshipsResult.Count == 0)
-                return NotFound();
 
             return internshipsResult;
         }
@@ -166,6 +198,30 @@ namespace Licenta.Controllers
                     Internship searchedInternship = await _context.Internships.FirstOrDefaultAsync(i => i.Id == studentInternship.IdInternship);
                     searchedInternship.StudentInternships = null;
                     internships.Add(searchedInternship);
+                }
+            }
+
+            if (internships.Count == 0)
+                return NotFound();
+
+            return internships;
+
+        }
+
+        [HttpGet("studentSaved/{id}")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByStudentIdSaved(string id)
+        {
+            List<InternshipDTO> internships = new List<InternshipDTO>();
+            List<SavedStudentInternship> savedStudentInternships = await _context.SavedStudentInternships
+                                                                .ToListAsync();
+
+            foreach (SavedStudentInternship savedStudentInternship in savedStudentInternships)
+            {
+                if (savedStudentInternship.IdStudent == id)
+                {
+                    Internship searchedInternship = await _context.Internships.FirstOrDefaultAsync(i => i.Id == savedStudentInternship.IdInternship);
+                    searchedInternship.SavedStudentInternships = null;
+                    internships.Add(_mapper.Map<InternshipDTO>(searchedInternship));
                 }
             }
 

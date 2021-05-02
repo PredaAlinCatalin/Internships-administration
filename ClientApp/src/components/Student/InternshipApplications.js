@@ -1,8 +1,30 @@
 ﻿import React, { Component } from "react";
 import * as Icon from "react-bootstrap-icons";
 import { StudentInternshipStatus } from "../Constants";
+import { checkDateIsPast } from "../Utility/Utility";
+import { Link } from "react-router-dom";
+import { Avatar, Paper } from "@material-ui/core";
+import { withRouter } from "react-router-dom";
+import { createMuiTheme } from "@material-ui/core/styles";
 
-export default class InternshipApplications extends Component {
+const theme = createMuiTheme({
+  typography: {
+    fontFamily: [
+      "-apple-system",
+      "BlinkMacSystemFont",
+      '"Segoe UI"',
+      "Roboto",
+      '"Helvetica Neue"',
+      "Arial",
+      "sans-serif",
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(","),
+  },
+});
+
+class InternshipApplications extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -12,7 +34,6 @@ export default class InternshipApplications extends Component {
       cities: [],
       loading: true,
     };
-    this.renderStudentInternshipsData = this.renderStudentInternshipsData.bind(this);
   }
 
   componentDidMount() {
@@ -76,354 +97,163 @@ export default class InternshipApplications extends Component {
       if (this.state.cities[i].id === id) return this.state.cities[i];
   };
 
-  renderStudentInternshipsData() {
+  renderInternshipApplication = (studentInternship, status) => {
+    return (
+      <>
+        <td className="col-7">
+          <div className="container">
+            <div className="row">
+              <div className="column">
+                <Avatar
+                  style={{ width: 65, height: 65, marginRight: 10 }}
+                  aria-label="recipe"
+                  alt="logo"
+                  src={
+                    "logos/" +
+                    this.getCompany(
+                      this.getInternship(studentInternship.idInternship).idCompany
+                    ).logoPath
+                  }
+                  variant="rounded"
+                  onMouseOver={(e) => (e.target.style.cursor = "pointer")}
+                  onMouseOut={(e) => (e.target.style.cursor = "normal")}
+                  onClick={() =>
+                    this.handleSelectCompany(
+                      this.getInternship(studentInternship.idInternship).idCompany
+                    )
+                  }
+                ></Avatar>
+              </div>
+              <div className="column">
+                <Link to={"internship/" + studentInternship.idInternship}>
+                  <b
+                    style={{
+                      // fontFamily: theme.typography.fontFamily,
+                      color: "black",
+                    }}
+                  >
+                    {this.getInternship(studentInternship.idInternship).name}
+                  </b>
+                </Link>
+                <br />
+                <Link
+                  to={
+                    "company/" +
+                    this.getInternship(studentInternship.idInternship).idCompany
+                  }
+                >
+                  <b
+                    style={{
+                      fontSize: 14,
+                    }}
+                  >
+                    {
+                      this.getCompany(
+                        this.getInternship(studentInternship.idInternship).idCompany
+                      ).name
+                    }
+                  </b>
+                </Link>
+                <span
+                  style={{
+                    paddingLeft: 6,
+                    fontSize: 14,
+                  }}
+                >
+                  {this.getInternship(studentInternship.idInternship).paid
+                    ? "Platit"
+                    : "Neplatit"}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 6,
+                    fontSize: 14,
+                  }}
+                >
+                  {
+                    this.getCity(
+                      this.getInternship(studentInternship.idInternship).idCity
+                    ).name
+                  }
+                  <Icon.GeoAltFill />
+                </span>
+              </div>
+            </div>
+          </div>
+        </td>
+
+        <td className="col-3">{studentInternship.applicationDate}</td>
+
+        <td className="col-2">{status}</td>
+      </>
+    );
+  };
+
+  renderStudentInternshipsData = () => {
     return (
       <>
         <h5>Aplicarile tale la stagii:</h5>
         <br />
 
-        <table aria-labelledby="tabelLabel" className="table table-striped">
-          <thead>
-            <tr>
-              <th>Companie</th>
-              <th>Stagiu</th>
-              <th>Data aplicarii</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.studentInternships !== []
-              ? this.state.studentInternships.map((studentInternship) => (
-                  <tr>
-                    {studentInternship.status === StudentInternshipStatus.pending ? (
-                      <>
-                        <td
-                          style={{
-                            paddingRight: 10,
-                          }}
-                        >
-                          <img
-                            width="100"
-                            alt="lenovo"
-                            src={
-                              "logos/" +
-                              this.getCompany(
-                                this.getInternship(studentInternship.idInternship)
-                                  .idCompany
-                              ).logoPath
-                            }
-                            onMouseOver={(e) => (e.target.style.cursor = "pointer")}
-                            onMouseOut={(e) => (e.target.style.cursor = "normal")}
-                            onClick={() =>
-                              this.handleSelectCompany(
-                                this.getInternship(studentInternship.idInternship)
-                                  .idCompany
-                              )
-                            }
-                          />
-                          <br />
-                          <br />
-                        </td>
-                        <td style={{ width: 700 }}>
-                          <a href={"internship/" + studentInternship.idInternship}>
-                            <b
-                              style={{
-                                color: "black",
-                              }}
-                            >
-                              {this.getInternship(studentInternship.idInternship).name}
-                            </b>
-                          </a>
-                          <br />
-                          <a
-                            href={
-                              "company/" +
-                              this.getInternship(studentInternship.idInternship).idCompany
-                            }
-                          >
-                            <b
-                              style={{
-                                fontSize: 14,
-                              }}
-                            >
-                              {
-                                this.getCompany(
-                                  this.getInternship(studentInternship.idInternship)
-                                    .idCompany
-                                ).name
-                              }
-                            </b>
-                          </a>
-                          <span
-                            style={{
-                              paddingLeft: 6,
-                              fontSize: 14,
-                            }}
-                          >
-                            {this.getInternship(studentInternship.idInternship).paid
-                              ? "Platit"
-                              : "Neplatit"}
-                          </span>
-                          <span
-                            style={{
-                              paddingLeft: 6,
-                              fontSize: 14,
-                            }}
-                          >
-                            {
-                              this.getCity(
-                                this.getInternship(studentInternship.idInternship).idCity
-                              ).name
-                            }
-                            <Icon.GeoAltFill />
-                          </span>
-                          <br />
-                          <br />
-                        </td>
+        <Paper>
+          <div className="container pb-2">
+            <div className="table-responsive"></div>
+            <table aria-labelledby="tabelLabel" className="table table-hover">
+              <thead>
+                <tr className="d-flex">
+                  <th className="col-7">Stagiu</th>
+                  <th className="col-3">Data aplicarii</th>
+                  <th className="col-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.studentInternships !== []
+                  ? this.state.studentInternships.map((studentInternship) => (
+                      <tr className="d-flex">
+                        {studentInternship.status === StudentInternshipStatus.accepted &&
+                        checkDateIsPast(
+                          this.getInternship(studentInternship.idInternship).deadline
+                        )
+                          ? this.renderInternshipApplication(
+                              studentInternship,
+                              "accepted"
+                            )
+                          : null}
+                      </tr>
+                    ))
+                  : ""}
+                {this.state.studentInternships !== []
+                  ? this.state.studentInternships.map((studentInternship) => (
+                      <tr className="d-flex">
+                        {studentInternship.status === StudentInternshipStatus.pending ||
+                        !checkDateIsPast(
+                          this.getInternship(studentInternship.idInternship).deadline
+                        )
+                          ? this.renderInternshipApplication(studentInternship, "pending")
+                          : null}
+                      </tr>
+                    ))
+                  : ""}
 
-                        <td
-                          style={{
-                            paddingRight: 20,
-                          }}
-                        >
-                          {studentInternship.applicationDate}
-                          <br />
-                          <br />
-                        </td>
-
-                        <td>
-                          {studentInternship.status}
-                          <br />
-                          <br />
-                        </td>
-                      </>
-                    ) : null}
-                  </tr>
-                ))
-              : ""}
-            {this.state.studentInternships !== []
-              ? this.state.studentInternships.map((studentInternship) => (
-                  <tr>
-                    {studentInternship.status === StudentInternshipStatus.accepted ? (
-                      <>
-                        <td
-                          style={{
-                            paddingRight: 10,
-                          }}
-                        >
-                          <img
-                            width="100"
-                            alt="lenovo"
-                            src={
-                              "logos/" +
-                              this.getCompany(
-                                this.getInternship(studentInternship.idInternship)
-                                  .idCompany
-                              ).logoPath
-                            }
-                            onMouseOver={(e) => (e.target.style.cursor = "pointer")}
-                            onMouseOut={(e) => (e.target.style.cursor = "normal")}
-                            onClick={() =>
-                              this.handleSelectCompany(
-                                this.getInternship(studentInternship.idInternship)
-                                  .idCompany
-                              )
-                            }
-                          />
-                          <br />
-                          <br />
-                        </td>
-                        <td style={{ width: 700 }}>
-                          <a href={"internship/" + studentInternship.idInternship}>
-                            <b
-                              style={{
-                                color: "black",
-                              }}
-                            >
-                              {this.getInternship(studentInternship.idInternship).name}
-                            </b>
-                          </a>
-                          <br />
-                          <a
-                            href={
-                              "company/" +
-                              this.getInternship(studentInternship.idInternship).idCompany
-                            }
-                          >
-                            <b
-                              style={{
-                                fontSize: 14,
-                              }}
-                            >
-                              {
-                                this.getCompany(
-                                  this.getInternship(studentInternship.idInternship)
-                                    .idCompany
-                                ).name
-                              }
-                            </b>
-                          </a>
-                          <span
-                            style={{
-                              paddingLeft: 6,
-                              fontSize: 14,
-                            }}
-                          >
-                            {this.getInternship(studentInternship.idInternship).paid
-                              ? "Platit"
-                              : "Neplatit"}
-                          </span>
-                          <span
-                            style={{
-                              paddingLeft: 6,
-                              fontSize: 14,
-                            }}
-                          >
-                            {
-                              this.getCity(
-                                this.getInternship(studentInternship.idInternship).idCity
-                              ).name
-                            }
-                            <Icon.GeoAltFill />
-                          </span>
-                          <br />
-                          <br />
-                        </td>
-
-                        <td
-                          style={{
-                            paddingRight: 20,
-                          }}
-                        >
-                          {studentInternship.applicationDate}
-                          <br />
-                          <br />
-                        </td>
-
-                        <td>
-                          {studentInternship.status}
-                          <br />
-                          <br />
-                        </td>
-                      </>
-                    ) : null}
-                  </tr>
-                ))
-              : ""}
-            {this.state.studentInternships !== []
-              ? this.state.studentInternships.map((studentInternship) => (
-                  <tr>
-                    {studentInternship.status === StudentInternshipStatus.refused ? (
-                      <>
-                        <td
-                          style={{
-                            paddingRight: 10,
-                          }}
-                        >
-                          <img
-                            width="100"
-                            alt="lenovo"
-                            src={
-                              "logos/" +
-                              this.getCompany(
-                                this.getInternship(studentInternship.idInternship)
-                                  .idCompany
-                              ).logoPath
-                            }
-                            onMouseOver={(e) => (e.target.style.cursor = "pointer")}
-                            onMouseOut={(e) => (e.target.style.cursor = "normal")}
-                            onClick={() =>
-                              this.handleSelectCompany(
-                                this.getInternship(studentInternship.idInternship)
-                                  .idCompany
-                              )
-                            }
-                          />
-                          <br />
-                          <br />
-                        </td>
-                        <td style={{ width: 700 }}>
-                          <a href={"internship/" + studentInternship.idInternship}>
-                            <b
-                              style={{
-                                color: "black",
-                              }}
-                            >
-                              {this.getInternship(studentInternship.idInternship).name}
-                            </b>
-                          </a>
-                          <br />
-                          <a
-                            href={
-                              "company/" +
-                              this.getInternship(studentInternship.idInternship).idCompany
-                            }
-                          >
-                            <b
-                              style={{
-                                fontSize: 14,
-                              }}
-                            >
-                              {
-                                this.getCompany(
-                                  this.getInternship(studentInternship.idInternship)
-                                    .idCompany
-                                ).name
-                              }
-                            </b>
-                          </a>
-                          <span
-                            style={{
-                              paddingLeft: 6,
-                              fontSize: 14,
-                            }}
-                          >
-                            {this.getInternship(studentInternship.idInternship).paid
-                              ? "Platit"
-                              : "Neplatit"}
-                          </span>
-                          <span
-                            style={{
-                              paddingLeft: 6,
-                              fontSize: 14,
-                            }}
-                          >
-                            {
-                              this.getCity(
-                                this.getInternship(studentInternship.idInternship).idCity
-                              ).name
-                            }
-                            <Icon.GeoAltFill />
-                          </span>
-                          <br />
-                          <br />
-                        </td>
-
-                        <td
-                          style={{
-                            paddingRight: 20,
-                          }}
-                        >
-                          {studentInternship.applicationDate}
-                          <br />
-                          <br />
-                        </td>
-
-                        <td>
-                          {studentInternship.status}
-                          <br />
-                          <br />
-                        </td>
-                      </>
-                    ) : null}
-                  </tr>
-                ))
-              : ""}
-          </tbody>
-        </table>
+                {this.state.studentInternships !== []
+                  ? this.state.studentInternships.map((studentInternship) => (
+                      <tr className="d-flex">
+                        {studentInternship.status === StudentInternshipStatus.refused &&
+                        checkDateIsPast(
+                          this.getInternship(studentInternship.idInternship).deadline
+                        )
+                          ? this.renderInternshipApplication(studentInternship, "refused")
+                          : null}
+                      </tr>
+                    ))
+                  : ""}
+              </tbody>
+            </table>
+          </div>
+        </Paper>
       </>
     );
-  }
+  };
 
   render() {
     let contents = this.state.loading ? (
@@ -437,3 +267,5 @@ export default class InternshipApplications extends Component {
     return <div>{contents}</div>;
   }
 }
+
+export default withRouter(InternshipApplications);

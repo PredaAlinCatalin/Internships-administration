@@ -2,6 +2,7 @@
 import { Link, withRouter } from "react-router-dom";
 import * as Icon from "react-bootstrap-icons";
 import Loading from "../Universal/Loading";
+import { Paper } from "@material-ui/core";
 
 class Company extends Component {
   constructor(props) {
@@ -51,6 +52,7 @@ class Company extends Component {
   };
 
   getInternshipDescriptionShort(description, length) {
+    description = description.replaceAll("<br/>", "\n");
     if (description.length > length) return description.substring(0, length) + "...";
     else return description;
   }
@@ -70,78 +72,100 @@ class Company extends Component {
 
   handleWebsiteMouseOver = (event) => {
     event.target.style.cursor = "pointer";
-    event.target.style.color = "#0366d6";
+    event.target.style.textDecoration = "underline";
   };
 
   handleWebsiteMouseOut = (event) => {
     event.target.style.cursor = "normal";
-    event.target.style.color = "black";
+    event.target.style.textDecoration = "none";
   };
 
   renderCompanyData = () => {
     return (
       <div>
+        <br/>
+        <div className="text-center">
+          <h3>{this.state.company.name}</h3>
+        </div>
+        <br />
+
         <div class="container">
           <div class="row">
-            <div class="col-lg-9">
-              {this.state.internships !== []
-                ? this.state.internships.map((internship) => (
-                    <span id={internship.id}>
-                      <Link to={"/internship/" + internship.id}>
-                        <b
-                          style={{
-                            fontSize: 18,
-                          }}
-                        >
-                          {" "}
-                          {internship.name}{" "}
-                        </b>
-                      </Link>
-                      <br />
-                      <span style={{ fontSize: 14 }}>
-                        {internship.paid ? "Platit" : "Neplatit"}
-                      </span>
-                      <span
-                        style={{
-                          paddingLeft: 6,
-                          fontSize: 14,
-                        }}
-                      >
-                        {this.getCity(internship.idCity).name}
-                        <Icon.GeoAltFill />
-                      </span>
-                      <br />
-                      <span>
-                        {this.getInternshipDescriptionShort(internship.description, 200)}
-                      </span>
-                      <p> </p>
-                    </span>
-                  ))
-                : ""}
+            <div class="col-lg-8">
+              <Paper>
+                <div className="p-4 mb-5">
+                  {this.state.internships !== []
+                    ? this.state.internships.map((internship) => (
+                        <span id={internship.id}>
+                          <Link to={"/internship/" + internship.id}>
+                            <b
+                              style={{
+                                fontSize: 18,
+                              }}
+                            >
+                              {" "}
+                              {internship.name}{" "}
+                            </b>
+                          </Link>
+                          <br />
+                          <span style={{ fontSize: 14 }}>
+                            {internship.paid ? "Platit" : "Neplatit"}
+                          </span>
+                          <span
+                            style={{
+                              paddingLeft: 6,
+                              fontSize: 14,
+                            }}
+                          >
+                            {this.getCity(internship.idCity).name}
+                            <Icon.GeoAltFill />
+                          </span>
+                          <br />
+                          <span>
+                            {this.getInternshipDescriptionShort(
+                              internship.description,
+                              200
+                            )}
+                          </span>
+                          <p> </p>
+                        </span>
+                      ))
+                    : ""}
+                </div>
+              </Paper>
             </div>
 
-            <div class="col-sm-3">
-              <h5>{this.state.company["name"]}</h5>
-              {this.state.company["description"]}
-              <br />
-              <br />
-              <img
-                onMouseOver={(e) => (e.target.style.cursor = "pointer")}
-                onMouseOut={(e) => (e.target.style.cursor = "normal")}
-                onClick={() => this.handleClickedAddress(this.state.company.address)}
-                width="32"
-                alt="Google Maps icon"
-                src="googlemaps.png"
-              />
+            <div class="col-sm-4">
+              <Paper>
+                <div className="p-3">
+                  <img
+                    width="70"
+                    alt={this.state.company.name}
+                    src={"/logos/" + this.state.company.logoPath}
+                  />
+                  <br />
+                  {this.state.company["description"]}
+                  <br />
+                  <br />
+                  <img
+                    onMouseOver={(e) => (e.target.style.cursor = "pointer")}
+                    onMouseOut={(e) => (e.target.style.cursor = "normal")}
+                    onClick={() => this.handleClickedAddress(this.state.company.address)}
+                    width="32"
+                    alt="Google Maps icon"
+                    src="googlemaps.png"
+                  />
 
-              <span
-                style={{ marginLeft: 15 }}
-                onMouseOver={this.handleWebsiteMouseOver}
-                onMouseOut={this.handleWebsiteMouseOut}
-                onClick={() => this.handleClickedWebsite(this.state.company.website)}
-              >
-                Website
-              </span>
+                  <span
+                    style={{ marginLeft: 15, color: "#0366d6" }}
+                    onMouseOver={this.handleWebsiteMouseOver}
+                    onMouseOut={this.handleWebsiteMouseOut}
+                    onClick={() => this.handleClickedWebsite(this.state.company.website)}
+                  >
+                    Website
+                  </span>
+                </div>
+              </Paper>
             </div>
           </div>
         </div>

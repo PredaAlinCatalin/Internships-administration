@@ -34,6 +34,8 @@ namespace Licenta.Data
         public DbSet<City> Cities { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<InternshipAptitude> InternshipAptitudes { get; set; }
+        public DbSet<SavedStudentInternship> SavedStudentInternships { get; set; }
+        public DbSet<StudentInternshipReview> StudentInternshipReviews { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -180,6 +182,33 @@ namespace Licenta.Data
                       .WithMany(a => a.InternshipAptitudes)
                       .HasForeignKey(sa => sa.IdAptitude);
             });
+
+            modelBuilder.Entity<SavedStudentInternship>(entity =>
+            {
+                entity.HasKey(si => new { si.IdStudent, si.IdInternship });
+
+                entity.HasOne(si => si.Student)
+                      .WithMany(s => s.SavedStudentInternships)
+                      .HasForeignKey(si => si.IdStudent);
+
+                entity.HasOne(si => si.Internship)
+                      .WithMany(i => i.SavedStudentInternships)
+                      .HasForeignKey(si => si.IdInternship);
+            });
+
+            modelBuilder.Entity<StudentInternshipReview>(entity =>
+            {
+                entity.HasKey(si => new { si.IdStudent, si.IdInternship });
+
+                entity.HasOne(si => si.Student)
+                      .WithMany(s => s.StudentInternshipReviews)
+                      .HasForeignKey(si => si.IdStudent);
+
+                entity.HasOne(si => si.Internship)
+                      .WithMany(i => i.StudentInternshipReviews)
+                      .HasForeignKey(si => si.IdInternship);
+            });
+
 
         }
     }

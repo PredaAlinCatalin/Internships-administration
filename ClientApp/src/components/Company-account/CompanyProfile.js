@@ -3,7 +3,7 @@ import Modal from "../Modal";
 import "./CompanyProfile.css";
 import { withRouter } from "react-router-dom";
 import Loading from "../Universal/Loading";
-import {Form} from 'react-bootstrap';
+import { Form } from "react-bootstrap";
 
 class CompanyProfile extends Component {
   constructor(props) {
@@ -472,18 +472,17 @@ class CompanyProfile extends Component {
         >
           <form onSubmit={this.handleCompanyDescriptionForm}>
             <div>
-
-            <Form.Group className="col-md-8">
-            <Form.Label>Descriere</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              name="description"
-              value={this.state.companyDescription}
-              onChange={this.handleCompanyDescriptionChange}
-              required={true}
-            />
-          </Form.Group>
+              <Form.Group className="col-md-8">
+                <Form.Label>Descriere</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  name="description"
+                  value={this.state.companyDescription}
+                  onChange={this.handleCompanyDescriptionChange}
+                  required={true}
+                />
+              </Form.Group>
             </div>
 
             <div>

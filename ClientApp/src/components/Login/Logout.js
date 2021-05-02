@@ -12,9 +12,7 @@ const Logout = () => {
   useEffect(() => {
     async function LogoutFunction() {
       try {
-        console.log("DA");
         await auth.signOut("/auth/logout");
-        console.log("DA");
         history.push("/login");
       } catch (error) {
         const response = error?.response;

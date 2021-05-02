@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from "react";
-import API from "../../api";
 
 // Hook-based access to authentication state.
 // Implementation based on https://usehooks.com/useAuth/
@@ -21,7 +20,7 @@ const parseRole = (role: string): UserRole => {
   if (role in UserRole) {
     return UserRole[role as keyof typeof UserRole];
   } else {
-    throw new Error(`Invalid user role '${role}'`);
+    throw new Error(`Nume sau parolă greșite`);
   }
 };
 
@@ -80,12 +79,18 @@ const useProvideAuthentication = () => {
 
   const signIn: SignInFunction = async (email, password) => {
     const body = { email, password };
-    const response = await API.post("/Auth/Login", body);
+    const response = await fetch("api/Auth/Login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
     type LoginResponse = {
       userId: string;
       userRole: string;
     };
-    const data = response.data as LoginResponse;
+    const data = (await response.json()) as LoginResponse;
     const id = data.userId;
     const role = parseRole(data.userRole);
 
@@ -97,8 +102,10 @@ const useProvideAuthentication = () => {
   };
 
   const signOut: SignOutFunction = async () => {
-    const response = await API.post("/Auth/Logout");
-    if (response.status === 200) {
+    const response = await fetch("api/Auth/Logout", {
+      method: "POST",
+    });
+    if (response.ok) {
       const user = undefined;
       sessionStorage.removeItem("user");
 
@@ -124,6 +131,9 @@ export const useIsStudent = () => {
   return auth.user?.role === UserRole.Student;
 };
 
+/**
+ * Hook returning true if the current user is logged into a company account.
+ */
 export const useIsCompany = () => {
   const auth = useAuthentication();
   return auth.user?.role === UserRole.Company;

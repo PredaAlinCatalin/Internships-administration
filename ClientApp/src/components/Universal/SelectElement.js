@@ -1,6 +1,9 @@
 ﻿import React, { Component } from "react";
-import * as Icon from 'react-bootstrap-icons';
-import './SelectElement.css';
+import "./SelectElement.css";
+import DeleteIcon from "@material-ui/icons/Delete";
+import Icon from "@material-ui/core/Icon";
+import Button from "@material-ui/core/Button";
+
 class SelectElement extends Component {
   onDelete = (event) => {
     event.preventDefault();
@@ -9,7 +12,14 @@ class SelectElement extends Component {
   render() {
     return (
       <span className="elem">
-        <button className="btn btn-danger mt-2" onClick={this.onDelete}><b><Icon.XCircle color="white" size={20} /></b>{" "} {this.props.name}</button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={this.onDelete}
+          startIcon={<DeleteIcon />}
+        >
+          {this.props.name}
+        </Button>
       </span>
     );
   }

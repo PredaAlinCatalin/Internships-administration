@@ -1,15 +1,52 @@
 ﻿import React, { useState, useEffect } from "react";
-import Select from "react-select";
-import Category from "./Category";
+// import Modal from "../Modal";
+import BaseSelect from "react-select";
+import FixRequiredSelect from "../Universal/FixRequiredSelect";
 import SelectElement from "../Universal/SelectElement";
-import { useHistory } from "react-router-dom";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Input from "../Universal/Input";
-import { Form, Modal, Button} from "react-bootstrap";
-import API from "../../api";
+import { Form, Row, Modal } from "react-bootstrap";
+import { withRouter, Link } from "react-router-dom";
 import Loading from "../Universal/Loading";
+import MyEditor from "../Universal/MyEditor";
+import "../Universal/Div3D.scss";
+import TextField from "@material-ui/core/TextField";
+import "date-fns";
+import Grid from "@material-ui/core/Grid";
+import DateFnsUtils from "@date-io/date-fns";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
+import { makeStyles } from "@material-ui/core/styles";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
+// import Select from '@material-ui/core/Select';
+import Button from "@material-ui/core/Button";
+import { useHistory } from "react-router-dom";
+import { FormGroup } from "@material-ui/core";
+import "./CreateInternship.css";
+import Fab from "@material-ui/core/Fab";
+import Icon from "@material-ui/core/Icon";
+import SaveIcon from "@material-ui/icons/Save";
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: "25ch",
+  },
+}));
 
+const Select = (props) => (
+  <FixRequiredSelect {...props} SelectComponent={BaseSelect} options={props.options} />
+);
 const ModifyInternship = ({ internshipId }) => {
   const history = useHistory();
   const [internship, setInternship] = useState(null);
@@ -69,7 +106,6 @@ const ModifyInternship = ({ internshipId }) => {
         await fetch("api/internships/" + internshipId)
           .then((res) => res.json())
           .then((data) => {
-            console.log(data);
             internshipData = data;
             setInternship(internshipData);
           });
@@ -80,7 +116,6 @@ const ModifyInternship = ({ internshipId }) => {
         let internshipCategoriesData = "";
         if (internshipCategoriesResponse.ok) {
           internshipCategoriesData = await internshipCategoriesResponse.json();
-          console.log(internshipCategoriesData);
         }
 
         let internshipAptitudesResponse = await fetch(
@@ -156,14 +191,8 @@ const ModifyInternship = ({ internshipId }) => {
         setAptitudesOptions(aptitudesOptions);
         setLoading(false);
       } catch (error) {
-        const response = error?.response;
-        if (response && response.status === 400) {
-          const identityErrors = response.data;
-          const errorDescriptions = identityErrors.map((error) => error.description);
-          setError(errorDescriptions.join(" "));
-        } else {
-          setError("Eroare la comunicarea cu serverul");
-        }
+        setError(error.message);
+        console.log(error);
       }
     };
 
@@ -213,15 +242,15 @@ const ModifyInternship = ({ internshipId }) => {
   };
 
   const handleInternshipStartDateChange = (changeEvent) => {
-    setInternshipStartDate(changeEvent.target.value);
+    setInternshipStartDate(changeEvent);
   };
 
   const handleInternshipEndDateChange = (changeEvent) => {
-    setInternshipEndDate(changeEvent.target.value);
+    setInternshipEndDate(changeEvent);
   };
 
   const handleInternshipDeadlineChange = (changeEvent) => {
-    setInternshipDeadline(changeEvent.target.value);
+    setInternshipDeadline(changeEvent);
   };
 
   const handleInternshipMaxNumberStudentsChange = (changeEvent) => {
@@ -231,8 +260,6 @@ const ModifyInternship = ({ internshipId }) => {
   const handleInternshipPaidChange = (changeEvent) => {
     if (internshipPaid) setInternshipPaid(false);
     else setInternshipPaid(true);
-
-    console.log(internshipPaid);
   };
 
   const handleInternshipDescriptionChange = (changeEvent) => {
@@ -245,7 +272,6 @@ const ModifyInternship = ({ internshipId }) => {
 
   const handleInternshipCategoryChange = (changeEvent) => {
     let searchedCategory = categories.find((obj) => obj.name === changeEvent.value);
-    console.log(searchedCategory);
 
     if (
       internshipCategoriesAux.find((obj) => obj.name === searchedCategory.name) ===
@@ -271,14 +297,10 @@ const ModifyInternship = ({ internshipId }) => {
       setInternshipCategoriesAux(modifiedInternshipCategoriesAux);
       setIdInternshipCategoriesToInsertAux(idInternshipCategoriesToInsertCopy);
       setIdInternshipCategoriesToDeleteAux(idInternshipCategoriesToDeleteCopy);
-      console.log("CHANGE");
-      console.log(idInternshipCategoriesToInsertCopy);
     }
   };
 
   const handleInternshipCategoryDelete = async (idCategory) => {
-    console.log("INSERT");
-    console.log(idInternshipCategoriesToInsert.filter((obj) => obj !== idCategory));
     const idInternshipCategoriesToInsertCopy = JSON.parse(
       JSON.stringify(
         idInternshipCategoriesToInsertAux.filter((obj) => obj !== idCategory)
@@ -297,11 +319,6 @@ const ModifyInternship = ({ internshipId }) => {
     setInternshipCategoriesAux(filteredInternshipCategoriesAux);
     setIdInternshipCategoriesToDeleteAux(idInternshipCategoriesToDeleteCopy);
     setIdInternshipCategoriesToInsertAux(idInternshipCategoriesToInsertCopy);
-
-    console.log(idInternshipCategoriesToDelete);
-    console.log(idInternshipCategoriesToInsert);
-    console.log(internshipCategories);
-    console.log(internshipCategoriesAux);
   };
 
   const handleInternshipCategoryForm = (clickEvent) => {
@@ -309,12 +326,10 @@ const ModifyInternship = ({ internshipId }) => {
     // setInternshipCategories(internshipCategoriesAux);
     setIdInternshipCategoriesToDelete(idInternshipCategoriesToDeleteAux);
     setIdInternshipCategoriesToInsert(idInternshipCategoriesToInsertAux);
-    console.log(idInternshipCategoriesToInsertAux);
   };
 
   const handleInternshipAptitudeChange = (changeEvent) => {
     let searchedAptitude = aptitudes.find((obj) => obj.name === changeEvent.value);
-    console.log(searchedAptitude);
 
     if (
       internshipAptitudesAux.find((obj) => obj.name === searchedAptitude.name) ===
@@ -344,8 +359,6 @@ const ModifyInternship = ({ internshipId }) => {
   };
 
   const handleInternshipAptitudeDelete = async (idAptitude) => {
-    console.log("INSERT");
-    console.log(idInternshipAptitudesToInsert.filter((obj) => obj !== idAptitude));
     const idInternshipAptitudesToInsertCopy = JSON.parse(
       JSON.stringify(idInternshipAptitudesToInsertAux.filter((obj) => obj !== idAptitude))
     );
@@ -362,11 +375,6 @@ const ModifyInternship = ({ internshipId }) => {
     setInternshipAptitudesAux(filteredInternshipAptitudesAux);
     setIdInternshipAptitudesToDeleteAux(idInternshipAptitudesToDeleteCopy);
     setIdInternshipAptitudesToInsertAux(idInternshipAptitudesToInsertCopy);
-
-    console.log(idInternshipAptitudesToDelete);
-    console.log(idInternshipAptitudesToInsert);
-    console.log(internshipAptitudes);
-    console.log(internshipAptitudesAux);
   };
 
   const handleInternshipAptitudeForm = (clickEvent) => {
@@ -378,12 +386,10 @@ const ModifyInternship = ({ internshipId }) => {
 
   const handleInternshipModifyForm = async (formSubmitEvent) => {
     formSubmitEvent.preventDefault();
-    console.log("HERE");
     let searchedCity = cities.find(
       (obj) => obj.name === internshipCitySelectedOption.value
     );
 
-    console.log(searchedCity);
     let modifiedInternship = {
       id: internship.id,
       name: internshipName,
@@ -397,327 +403,332 @@ const ModifyInternship = ({ internshipId }) => {
       idCity: searchedCity !== undefined ? searchedCity.id : null,
     };
 
+    console.log(modifiedInternship);
+
     modifiedInternship.description = modifiedInternship.description.replaceAll(
       "\n",
       "<br/>"
     );
-    console.log(modifiedInternship);
 
-    try {
-      let internshipResponse = await API.put(
-        "/internships/" + internship.id,
-        modifiedInternship
-      );
+    // try {
+    await fetch("api/internships/" + internship.id, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(modifiedInternship),
+    }).then((res) => {
+      console.log(res);
+    });
 
-      console.log(internshipResponse);
+    for (let i = 0; i < idInternshipCategoriesToDelete.length; i++) {
+      if (
+        internshipCategories.find(
+          (obj) => obj.id === idInternshipCategoriesToDelete[i]
+        ) !== undefined
+      ) {
+        let aux =
+          "api/internshipCategories/internship/" +
+          internship.id +
+          "/category/" +
+          idInternshipCategoriesToDelete[i];
 
-      console.log("FINAL");
-      console.log(idInternshipCategoriesToDelete);
-      console.log(idInternshipCategoriesToInsert);
-      console.log(internshipCategories);
-      console.log(internshipCategoriesAux);
-
-      for (let i = 0; i < idInternshipCategoriesToDelete.length; i++) {
-        if (
-          internshipCategories.find(
-            (obj) => obj.id === idInternshipCategoriesToDelete[i]
-          ) !== undefined
-        ) {
-          let aux =
-            "/internshipCategories/internship/" +
-            internship.id +
-            "/category/" +
-            idInternshipCategoriesToDelete[i];
-          await API.delete(aux);
-        }
-      }
-
-      for (let i = 0; i < idInternshipCategoriesToInsert.length; i++) {
-        if (
-          internshipCategories.find(
-            (obj) => obj.id === idInternshipCategoriesToInsert[i]
-          ) === undefined
-        ) {
-          let internshipCategory = {
-            idInternship: internship.id,
-            idCategory: idInternshipCategoriesToInsert[i],
-          };
-          console.log("INSERT-internship-categ");
-          console.log(internshipCategory);
-          let aux = "/internshipCategories";
-          await API.post(aux, internshipCategory);
-        }
-      }
-      setInternshipCategories(internshipCategoriesAux);
-
-      for (let i = 0; i < idInternshipAptitudesToDelete.length; i++) {
-        if (
-          internshipAptitudes.find(
-            (obj) => obj.id === idInternshipAptitudesToDelete[i]
-          ) !== undefined
-        ) {
-          let aux =
-            "/internshipAptitudes/internship/" +
-            internship.id +
-            "/aptitude/" +
-            idInternshipAptitudesToDelete[i];
-          await API.delete(aux);
-        }
-      }
-
-      for (let i = 0; i < idInternshipAptitudesToInsert.length; i++) {
-        if (
-          internshipAptitudes.find(
-            (obj) => obj.id === idInternshipAptitudesToInsert[i]
-          ) === undefined
-        ) {
-          console.log("DA");
-          let internshipAptitude = {
-            idInternship: internship.id,
-            idAptitude: idInternshipAptitudesToInsert[i],
-          };
-
-          let aux = "/internshipAptitudes";
-          await API.post(aux, internshipAptitude);
-        }
-      }
-      setInternshipAptitudes(internshipAptitudesAux);
-      history.push("/companyInternships");
-    } catch (error) {
-      const response = error?.response;
-      if (response && response.status === 400) {
-        const identityErrors = response.data;
-        const errorDescriptions = identityErrors.map((error) => error.description);
-        setError(errorDescriptions.join(" "));
-      } else {
-        setError("Eroare la comunicarea cu serverul");
+        await fetch(aux, {
+          method: "DELETE",
+        });
       }
     }
+
+    for (let i = 0; i < idInternshipCategoriesToInsertAux.length; i++) {
+      if (
+        internshipCategories.find(
+          (obj) => obj.id === idInternshipCategoriesToInsertAux[i]
+        ) === undefined
+      ) {
+        let internshipCategory = {
+          idInternship: internship.id,
+          idCategory: idInternshipCategoriesToInsertAux[i],
+        };
+
+        let aux = "api/internshipCategories";
+        await fetch(aux, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(internshipCategory),
+        });
+      }
+    }
+    setInternshipCategories(internshipCategoriesAux);
+
+    for (let i = 0; i < idInternshipAptitudesToDeleteAux.length; i++) {
+      if (
+        internshipAptitudes.find(
+          (obj) => obj.id === idInternshipAptitudesToDeleteAux[i]
+        ) !== undefined
+      ) {
+        let aux =
+          "api/internshipAptitudes/internship/" +
+          internship.id +
+          "/aptitude/" +
+          idInternshipAptitudesToDeleteAux[i];
+        await fetch(aux, {
+          method: "DELETE",
+        });
+      }
+    }
+
+    for (let i = 0; i < idInternshipAptitudesToInsertAux.length; i++) {
+      if (
+        internshipAptitudes.find(
+          (obj) => obj.id === idInternshipAptitudesToInsertAux[i]
+        ) === undefined
+      ) {
+        let internshipAptitude = {
+          idInternship: internship.id,
+          idAptitude: idInternshipAptitudesToInsertAux[i],
+        };
+
+        let aux = "api/internshipAptitudes";
+        await fetch(aux, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(internshipAptitude),
+        });
+      }
+    }
+    setInternshipAptitudes(internshipAptitudesAux);
+    history.push("/companyInternships");
+    // } catch (error) {
+    //   const response = error?.response;
+    //   if (response && response.status === 400) {
+    //     const identityErrors = response.data;
+    //     const errorDescriptions = identityErrors.map((error) => error.description);
+    //     setError(errorDescriptions.join(" "));
+    //   } else {
+    //     setError("Eroare la comunicarea cu serverul");
+    //   }
+    // }
   };
 
   const handleClose = () => {
     if (categoriesIsOpen) {
-        setCategoriesIsOpen(false);
-        setInternshipCategoriesAux(internshipCategories);
+      setCategoriesIsOpen(false);
+      setInternshipCategoriesAux(internshipCategories);
+    } else if (aptitudesIsOpen) {
+      setAptitudesIsOpen(false);
+      setInternshipAptitudesAux(internshipAptitudes);
     }
-    else if (aptitudesIsOpen) {
-        setAptitudesIsOpen(false);
-        setInternshipAptitudesAux(internshipAptitudes);
-    }  
-  }
+  };
 
   const handleShowCategories = () => {
     setCategoriesIsOpen(true);
-  }
+  };
 
   const handleShowAptitudes = () => {
     setAptitudesIsOpen(true);
-  }
+  };
 
   return loading ? (
     <Loading />
   ) : (
-    <div>
-      <>
+    <div className="box">
+      <div className="text-center">
+        <h3>Modifică stagiu </h3>
+      </div>
+
+      <Link to="/MyEditor">Mergi la editor</Link>
+
+      <Form onSubmit={handleInternshipModifyForm}>
+        <TextField
+          id="standard-full-width"
+          label="Nume"
+          style={{ margin: 15 }}
+          placeholder="Nume"
+          fullWidth
+          margin="normal"
+          // InputLabelProps={{
+          //   shrink: true,
+          // }}
+          value={internshipName}
+          onChange={handleInternshipNameChange}
+          required={true}
+        />
+
+        <TextField
+          id="standard-full-width"
+          type="number"
+          label="Număr maxim studenți"
+          style={{ margin: 15 }}
+          placeholder="Număr maxim studenți"
+          fullWidth
+          margin="normal"
+          // InputLabelProps={{
+          //   shrink: true,
+          // }}
+          value={internshipMaxNumberStudents}
+          onChange={handleInternshipMaxNumberStudentsChange}
+          required={true}
+        />
+
+        <FormControlLabel
+          value={internshipPaid}
+          control={<Checkbox color="primary" />}
+          label="Plătit"
+          labelPlacement="start"
+          checked={internshipPaid === true}
+          onChange={handleInternshipPaidChange}
+          required={true}
+        />
+
         <div className="col-md-4">
-          <h3>Modificare stagiu </h3>
+          Oraș:
+          <Select
+            placeholder="Selectează oraș"
+            value={internshipCitySelectedOption}
+            options={citiesOptions}
+            onChange={handleInternshipCityChange}
+            isSearchable
+            required
+          />
+        </div>
+        <br />
+
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          <Grid container justify="space-between">
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="dd/MM/yyyy"
+              margin="normal"
+              style={{ margin: 15 }}
+              id="date-picker-inline"
+              label="Dată începere"
+              value={internshipStartDate}
+              onChange={handleInternshipStartDateChange}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+            />
+
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="dd/MM/yyyy"
+              margin="normal"
+              style={{ margin: 15 }}
+              id="date-picker-inline"
+              label="Dată sfârșit"
+              value={internshipEndDate}
+              onChange={handleInternshipEndDateChange}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+            />
+
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="dd/MM/yyyy"
+              margin="normal"
+              style={{ margin: 15 }}
+              id="date-picker-inline"
+              label="Deadline aplicări"
+              value={internshipDeadline}
+              onChange={handleInternshipDeadlineChange}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+            />
+          </Grid>
+        </MuiPickersUtilsProvider>
+
+        <Form.Group className="col-md-12">
+          <Form.Label>Descriere</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={5}
+            name="description"
+            value={internshipDescription}
+            onChange={handleInternshipDescriptionChange}
+            required={true}
+          />
+        </Form.Group>
+
+        <p></p>
+
+        <p></p>
+        <div className="col-md-12">
+          Categorii:{" "}
+          {internshipCategoriesAux !== []
+            ? internshipCategoriesAux.map((category) => (
+                <>
+                  <SelectElement
+                    key={category.id}
+                    id={category.id}
+                    name={category.name}
+                    onDelete={handleInternshipCategoryDelete}
+                  />
+                </>
+              ))
+            : ""}
         </div>
 
-        <Form onSubmit={handleInternshipModifyForm}>
-          <Input
-            type="text"
-            name="name"
-            label="Nume"
-            value={internshipName}
-            handleChange={handleInternshipNameChange}
-            required={true}
+        <p></p>
+        <div className="col-md-4">
+          <Select
+            placeholder="Selecteaza categorie"
+            value={categoriesSelectedOption}
+            options={categoriesOptions}
+            onChange={handleInternshipCategoryChange}
+            required
           />
+        </div>
 
-          <Input
-            type="date"
-            name="startDate"
-            label="Dată începere"
-            value={internshipStartDate}
-            handleChange={handleInternshipStartDateChange}
-            required={true}
-          />
-
-          <Input
-            type="date"
-            name="endDate"
-            label="Dată sfârșit"
-            value={internshipEndDate}
-            handleChange={handleInternshipEndDateChange}
-            required={true}
-          />
-
-          <Input
-            type="date"
-            name="deadline"
-            label="Deadline înscrieri"
-            value={internshipDeadline}
-            handleChange={handleInternshipDeadlineChange}
-            required={true}
-          />
-
-          <Input
-            type="number"
-            name="maxNumberStudents"
-            label="Număr maxim de studenți"
-            value={internshipMaxNumberStudents}
-            handleChange={handleInternshipMaxNumberStudentsChange}
-            required={true}
-          />
-
-          <FormControlLabel
-            value={internshipPaid}
-            control={<Checkbox color="primary" />}
-            label="Plătit"
-            labelPlacement="start"
-            checked={internshipPaid === true}
-            onChange={handleInternshipPaidChange}
-            required={true}
-          />
-
-          <Form.Group className="col-md-4">
-            <Form.Label>Descriere</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              name="description"
-              value={internshipDescription}
-              onChange={handleInternshipDescriptionChange}
-              required={true}
-            />
-          </Form.Group>
-
+        <br />
+        <div className="col-md-12">
+          Aptitudini:{" "}
+          {internshipAptitudesAux !== []
+            ? internshipAptitudesAux.map((aptitude) => (
+                <>
+                  <SelectElement
+                    key={aptitude.id}
+                    id={aptitude.id}
+                    name={aptitude.name}
+                    onDelete={handleInternshipAptitudeDelete}
+                  />
+                </>
+              ))
+            : ""}
           <p></p>
+        </div>
+        <div className="col-md-4">
+          <Select
+            placeholder="Selecteaza aptitudine"
+            value={aptitudesSelectedOption}
+            options={aptitudesOptions}
+            onChange={handleInternshipAptitudeChange}
+            required
+          />
+        </div>
 
-          <div className="col-md-4">
-            <label>Oras:</label>
-            <Select
-              placeholder="Selectează oraș"
-              value={internshipCitySelectedOption}
-              options={citiesOptions}
-              onChange={handleInternshipCityChange}
-              isSearchable
-              required
-            />
-          </div>
-
-          <p></p>
-
-
-          <div className="col-md-4">
-          Categorii:
-          <Button variant="primary" onClick={handleShowCategories}>
-          {JSON.stringify(internshipCategories) !== JSON.stringify([])
-                ? internshipCategories
-                    .map((category) => category.name)
-                    .join(", ")
-                : "Nicio categorie"}
-      </Button>
-          </div>
-          
-          
-
-      <Modal show={categoriesIsOpen} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Categorii</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        {internshipCategoriesAux !== []
-              ? internshipCategoriesAux.map((category) => (
-                  <>
-                    <SelectElement
-                      key={category.id}
-                      id={category.id}
-                      name={category.name}
-                      onDelete={handleInternshipCategoryDelete}
-                    />
-                  </>
-                ))
-              : ""}
-            <br/>
-            <Select
-              placeholder="Selecteaza categorie"
-              value={categoriesSelectedOption}
-              options={categoriesOptions}
-              onChange={handleInternshipCategoryChange}
-            />
-
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Închide
-          </Button>
-          <Button variant="primary" onClick={handleInternshipCategoryForm}>
+        <div className="text-center">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            onClick={handleInternshipModifyForm}
+          >
+            {" "}
             Salvează
           </Button>
-        </Modal.Footer>
-      </Modal>
+        </div>
 
-          
-
-          <div className="col-md-4">
-          Aptitudini:
-          <Button variant="primary" onClick={handleShowAptitudes}>
-          {JSON.stringify(internshipAptitudes) !== JSON.stringify([])
-                ? internshipAptitudes
-                    .map((aptitude) => aptitude.name)
-                    .join(", ")
-                : "Nicio aptitudine"}
-      </Button>
-          </div>
-          
-          
-
-      <Modal show={aptitudesIsOpen} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Aptitudini</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-        {internshipAptitudesAux !== []
-              ? internshipAptitudesAux.map((aptitude) => (
-                  <>
-                    <SelectElement
-                      key={aptitude.id}
-                      id={aptitude.id}
-                      name={aptitude.name}
-                      onDelete={handleInternshipAptitudeDelete}
-                    />
-                  </>
-                ))
-              : ""}
-                      <br/>
-
-            <Select
-              placeholder="Selecteaza aptitudine"
-              value={aptitudesSelectedOption}
-              options={aptitudesOptions}
-              onChange={handleInternshipAptitudeChange}
-            />
-
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Închide
-          </Button>
-          <Button variant="primary" onClick={handleInternshipAptitudeForm}>
-            Salvează
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-          <div className="col-md-4">
-            <button className="btn btn-primary mt-2" type="submit">
-              Salveaza
-            </button>
-          </div>
-
-          <div className="text-danger m-3 justify-content-center">{error}</div>
-        </Form>
-      </>
+        <div className="text-danger m-3 justify-content-center">{error}</div>
+      </Form>
     </div>
   );
 };

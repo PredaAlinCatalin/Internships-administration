@@ -352,6 +352,21 @@ namespace Licenta.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("Licenta.Models.SavedStudentInternship", b =>
+                {
+                    b.Property<string>("IdStudent")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("IdInternship")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdStudent", "IdInternship");
+
+                    b.HasIndex("IdInternship");
+
+                    b.ToTable("SavedStudentInternships");
+                });
+
             modelBuilder.Entity("Licenta.Models.Student", b =>
                 {
                     b.Property<string>("Id")
@@ -435,8 +450,8 @@ namespace Licenta.Migrations
                     b.Property<string>("ApplicationDate")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("InternshipGrade")
-                        .HasColumnType("int");
+                    b.Property<string>("CompanyFeedback")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
@@ -446,6 +461,30 @@ namespace Licenta.Migrations
                     b.HasIndex("IdInternship");
 
                     b.ToTable("StudentInternships");
+                });
+
+            modelBuilder.Entity("Licenta.Models.StudentInternshipReview", b =>
+                {
+                    b.Property<string>("IdStudent")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("IdInternship")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Grade")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("IdStudent", "IdInternship");
+
+                    b.HasIndex("IdInternship");
+
+                    b.ToTable("StudentInternshipReviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -477,15 +516,15 @@ namespace Licenta.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "4d700469-f085-48c8-b9a6-c4cce668fd45",
-                            ConcurrencyStamp = "96b4ea0b-51bc-4090-afed-949e6d66b331",
+                            Id = "effd1bf6-0f2f-49f7-8331-56ee256a9440",
+                            ConcurrencyStamp = "9db51011-a60b-4223-b554-6bac12c5c106",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         },
                         new
                         {
-                            Id = "419851ab-3b1a-4d40-96f7-351da182572f",
-                            ConcurrencyStamp = "6c0e562f-4119-4750-ab5b-f7b4fd69cc9f",
+                            Id = "8e7bdc53-cd29-4faf-95ea-de79144db53d",
+                            ConcurrencyStamp = "15af1922-b75d-4ee4-9dd6-8188031bb3ee",
                             Name = "Company",
                             NormalizedName = "COMPANY"
                         });
@@ -751,6 +790,25 @@ namespace Licenta.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("Licenta.Models.SavedStudentInternship", b =>
+                {
+                    b.HasOne("Licenta.Models.Internship", "Internship")
+                        .WithMany("SavedStudentInternships")
+                        .HasForeignKey("IdInternship")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Licenta.Models.Student", "Student")
+                        .WithMany("SavedStudentInternships")
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Internship");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("Licenta.Models.Student", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
@@ -808,6 +866,25 @@ namespace Licenta.Migrations
 
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("StudentInternships")
+                        .HasForeignKey("IdStudent")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Internship");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("Licenta.Models.StudentInternshipReview", b =>
+                {
+                    b.HasOne("Licenta.Models.Internship", "Internship")
+                        .WithMany("StudentInternshipReviews")
+                        .HasForeignKey("IdInternship")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Licenta.Models.Student", "Student")
+                        .WithMany("StudentInternshipReviews")
                         .HasForeignKey("IdStudent")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -901,6 +978,10 @@ namespace Licenta.Migrations
 
                     b.Navigation("InternshipCategories");
 
+                    b.Navigation("SavedStudentInternships");
+
+                    b.Navigation("StudentInternshipReviews");
+
                     b.Navigation("StudentInternships");
                 });
 
@@ -912,9 +993,13 @@ namespace Licenta.Migrations
 
                     b.Navigation("Projects");
 
+                    b.Navigation("SavedStudentInternships");
+
                     b.Navigation("StudentAptitudes");
 
                     b.Navigation("StudentForeignLanguages");
+
+                    b.Navigation("StudentInternshipReviews");
 
                     b.Navigation("StudentInternships");
                 });

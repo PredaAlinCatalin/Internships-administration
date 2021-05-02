@@ -1,7 +1,30 @@
 ﻿import React, { Component } from "react";
 import * as Icon from "react-bootstrap-icons";
+import { StudentInternshipStatus } from "../Constants";
+import { checkDateIsPast } from "../Utility/Utility";
+import { Link } from "react-router-dom";
+import { Avatar, Paper } from "@material-ui/core";
+import { withRouter } from "react-router-dom";
+import { createMuiTheme } from "@material-ui/core/styles";
 
-export default class InternshipHistory extends Component {
+const theme = createMuiTheme({
+  typography: {
+    fontFamily: [
+      "-apple-system",
+      "BlinkMacSystemFont",
+      '"Segoe UI"',
+      "Roboto",
+      '"Helvetica Neue"',
+      "Arial",
+      "sans-serif",
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(","),
+  },
+});
+
+class InternshipHistory extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -11,7 +34,6 @@ export default class InternshipHistory extends Component {
       cities: [],
       loading: true,
     };
-    this.renderInternshipHistoryData = this.renderInternshipHistoryData.bind(this);
   }
 
   componentDidMount() {
@@ -20,16 +42,27 @@ export default class InternshipHistory extends Component {
 
   async populateInternshipHistoryData() {
     let user = JSON.parse(sessionStorage.getItem("user"));
-    var studentInternshipsData = [];
-    const studentInternshipsResponse = await fetch(
-      "api/studentinternships/student/" + user.id
-    );
-    if (studentInternshipsResponse.ok)
-      studentInternshipsData = await studentInternshipsResponse.json();
 
-    const internshipsResponse = await fetch("api/internships/student/" + user.id);
+    var studentInternshipsData = [];
+
+    const internshipsResponse = await fetch("api/internships");
     var internshipsData = [];
-    if (internshipsResponse.ok) internshipsData = await internshipsResponse.json();
+    if (internshipsResponse.ok) {
+      internshipsData = await internshipsResponse.json();
+      const studentInternshipsResponse = await fetch(
+        "api/studentInternships/student/" + user.id
+      );
+      if (studentInternshipsResponse.ok) {
+        studentInternshipsData = await studentInternshipsResponse.json();
+        studentInternshipsData = studentInternshipsData.filter(
+          (si) =>
+            si.status === "accepted" &&
+            !checkDateIsPast(
+              this.getInternship(internshipsData, si.idInternship).deadline
+            )
+        );
+      }
+    }
 
     const companiesResponse = await fetch("api/companies");
     var companiesData = [];
@@ -48,179 +81,159 @@ export default class InternshipHistory extends Component {
     });
   }
 
-  handleSelectCompany(name) {
-    this.props.history.push("/company/" + name);
+  handleSelectCompany(id) {
+    this.props.history.push("/company/" + id);
   }
 
   handleSelectInternship = (id) => {
     this.props.history.push("/internship/" + id);
   };
 
-  getInternship = (id) => {
-    for (var i = 0; i < this.state.internships.length; i++)
-      if (this.state.internships[i].id === id) return this.state.internships[i];
+  getInternship = (internships, id) => {
+    for (let i = 0; i < internships.length; i++) {
+      if (internships[i].id === id) {
+        return internships[i];
+      }
+    }
   };
 
   getCompany = (id) => {
-    for (var i = 0; i < this.state.companies.length; i++)
+    for (let i = 0; i < this.state.companies.length; i++)
       if (this.state.companies[i].id === id) return this.state.companies[i];
   };
 
   getCity = (id) => {
-    for (var i = 0; i < this.state.cities.length; i++)
+    for (let i = 0; i < this.state.cities.length; i++)
       if (this.state.cities[i].id === id) return this.state.cities[i];
   };
 
-  renderInternshipHistoryData() {
+  renderInternshipHistoryHeader = (studentInternship) => {
+    return (
+      <>
+        <td className="col-7">
+          <div className="container">
+            <div className="row">
+              <div className="column">
+                <Avatar
+                  style={{ width: 65, height: 65, marginRight: 10 }}
+                  aria-label="recipe"
+                  alt="logo"
+                  src={
+                    "logos/" +
+                    this.getCompany(
+                      this.getInternship(studentInternship.idInternship).idCompany
+                    ).logoPath
+                  }
+                  variant="rounded"
+                  onMouseOver={(e) => (e.target.style.cursor = "pointer")}
+                  onMouseOut={(e) => (e.target.style.cursor = "normal")}
+                  onClick={() =>
+                    this.handleSelectCompany(
+                      this.getInternship(studentInternship.idInternship).idCompany
+                    )
+                  }
+                ></Avatar>
+              </div>
+              <div className="column">
+                <Link to={"internship/" + studentInternship.idInternship}>
+                  <b
+                    style={{
+                      // fontFamily: theme.typography.fontFamily,
+                      color: "black",
+                    }}
+                  >
+                    {this.getInternship(studentInternship.idInternship).name}
+                  </b>
+                </Link>
+                <br />
+                <Link
+                  to={
+                    "company/" +
+                    this.getInternship(studentInternship.idInternship).idCompany
+                  }
+                >
+                  <b
+                    style={{
+                      fontSize: 14,
+                    }}
+                  >
+                    {
+                      this.getCompany(
+                        this.getInternship(studentInternship.idInternship).idCompany
+                      ).name
+                    }
+                  </b>
+                </Link>
+                <span
+                  style={{
+                    paddingLeft: 6,
+                    fontSize: 14,
+                  }}
+                >
+                  {this.getInternship(studentInternship.idInternship).paid
+                    ? "Platit"
+                    : "Neplatit"}
+                </span>
+                <span
+                  style={{
+                    paddingLeft: 6,
+                    fontSize: 14,
+                  }}
+                >
+                  {
+                    this.getCity(
+                      this.getInternship(studentInternship.idInternship).idCity
+                    ).name
+                  }
+                  <Icon.GeoAltFill />
+                </span>
+              </div>
+            </div>
+          </div>
+        </td>
+
+        <td className="col-3">{studentInternship.applicationDate}</td>
+      </>
+    );
+  };
+
+  renderInternshipHistory = () => {
     return (
       <>
         <h5>Istoricul stagiilor tale:</h5>
         <br />
 
-        <table aria-labelledby="tabelLabel" className="table table-striped">
-          <thead>
-            <tr>
-              <th>Companie</th>
-              <th>Stagiu</th>
-              <th>Data inceput</th>
-              <th>Data sfarsit</th>
-              <th>Data aplicarii</th>
-              <th>Nota stagiu</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.studentInternships !== []
-              ? this.state.studentInternships.map((studentInternship, index) => (
-                  <tr key={index}>
-                    <>
-                      <td
-                        style={{
-                          paddingRight: 10,
-                        }}
-                      >
-                        <img
-                          width="100"
-                          alt="lenovo"
-                          src={
-                            "logos/" +
-                            this.getCompany(
-                              this.getInternship(studentInternship.idInternship).idCompany
-                            ).logoPath
-                          }
-                          onMouseOver={(e) => (e.target.style.cursor = "pointer")}
-                          onMouseOut={(e) => (e.target.style.cursor = "normal")}
-                          onClick={() =>
-                            this.handleSelectCompany(
-                              this.getInternship(studentInternship.idInternship).idCompany
-                            )
-                          }
-                        />
-                        <br />
-                        <br />
-                      </td>
-                      <td style={{ width: 700 }}>
-                        <a href={"internship/" + studentInternship.idInternship}>
-                          <b
-                            style={{
-                              color: "black",
-                            }}
-                          >
-                            {this.getInternship(studentInternship.idInternship).name}
-                          </b>
-                        </a>
-                        <br />
-                        <a
-                          href={
-                            "company/" +
-                            this.getInternship(studentInternship.idInternship).idCompany
-                          }
-                        >
-                          <b
-                            style={{
-                              fontSize: 14,
-                            }}
-                          >
-                            {
-                              this.getCompany(
-                                this.getInternship(studentInternship.idInternship)
-                                  .idCompany
-                              ).name
-                            }
-                          </b>
-                        </a>
-                        <span
-                          style={{
-                            paddingLeft: 6,
-                            fontSize: 14,
-                          }}
-                        >
-                          {this.getInternship(studentInternship.idInternship).paid
-                            ? "Platit"
-                            : "Neplatit"}
-                        </span>
-                        <span
-                          style={{
-                            paddingLeft: 6,
-                            fontSize: 14,
-                          }}
-                        >
-                          {
-                            this.getCity(
-                              this.getInternship(studentInternship.idInternship).idCity
-                            ).name
-                          }
-                          <Icon.GeoAltFill />
-                        </span>
-                        <br />
-                        <br />
-                      </td>
-
-                      <td
-                        style={{
-                          paddingRight: 20,
-                        }}
-                      >
-                        {studentInternship.applicationDate}
-                        <br />
-                        <br />
-                      </td>
-
-                      <td
-                        style={{
-                          paddingRight: 20,
-                        }}
-                      >
-                        {this.getInternship(studentInternship.idInternship).startDate}
-                        <br />
-                        <br />
-                      </td>
-
-                      <td
-                        style={{
-                          paddingRight: 20,
-                        }}
-                      >
-                        {this.getInternship(studentInternship.idInternship).endDate}
-                        <br />
-                        <br />
-                      </td>
-
-                      <td>
-                        {studentInternship.hasGraded
-                          ? studentInternship.internshipGrade
-                          : ""}
-                        <br />
-                        <br />
-                      </td>
-                    </>
-                  </tr>
-                ))
-              : ""}
-          </tbody>
-        </table>
+        <Paper>
+          <div className="container pb-2">
+            <div className="table-responsive"></div>
+            <table aria-labelledby="tabelLabel" className="table table-hover">
+              <thead>
+                <tr className="d-flex">
+                  <th className="col-7">Stagiu</th>
+                  <th className="col-3">Data aplicarii</th>
+                  <th className="col-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.studentInternships !== []
+                  ? this.state.studentInternships.map((studentInternship) => (
+                      <tr className="d-flex">
+                        {studentInternship.status === StudentInternshipStatus.accepted &&
+                        !checkDateIsPast(
+                          this.getInternship(studentInternship.idInternship).deadline
+                        )
+                          ? this.renderInternshipHistory(studentInternship)
+                          : null}
+                      </tr>
+                    ))
+                  : ""}
+              </tbody>
+            </table>
+          </div>
+        </Paper>
       </>
     );
-  }
+  };
 
   render() {
     let contents = this.state.loading ? (
@@ -228,9 +241,11 @@ export default class InternshipHistory extends Component {
         <em>Loading...</em>
       </p>
     ) : (
-      this.renderInternshipHistoryData()
+      this.renderInternshipHistory()
     );
 
     return <div>{contents}</div>;
   }
 }
+
+export default withRouter(InternshipHistory);

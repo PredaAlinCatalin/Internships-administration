@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Licenta.Migrations
 {
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -455,13 +455,64 @@ namespace Licenta.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SavedStudentInternships",
+                columns: table => new
+                {
+                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IdInternship = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SavedStudentInternships", x => new { x.IdStudent, x.IdInternship });
+                    table.ForeignKey(
+                        name: "FK_SavedStudentInternships_Internships_IdInternship",
+                        column: x => x.IdInternship,
+                        principalTable: "Internships",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SavedStudentInternships_Students_IdStudent",
+                        column: x => x.IdStudent,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentInternshipReviews",
+                columns: table => new
+                {
+                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    IdInternship = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Grade = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentInternshipReviews", x => new { x.IdStudent, x.IdInternship });
+                    table.ForeignKey(
+                        name: "FK_StudentInternshipReviews_Internships_IdInternship",
+                        column: x => x.IdInternship,
+                        principalTable: "Internships",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentInternshipReviews_Students_IdStudent",
+                        column: x => x.IdStudent,
+                        principalTable: "Students",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StudentInternships",
                 columns: table => new
                 {
                     IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IdInternship = table.Column<int>(type: "int", nullable: false),
                     ApplicationDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    InternshipGrade = table.Column<int>(type: "int", nullable: false),
+                    CompanyFeedback = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -496,8 +547,8 @@ namespace Licenta.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "4d700469-f085-48c8-b9a6-c4cce668fd45", "96b4ea0b-51bc-4090-afed-949e6d66b331", "Student", "STUDENT" },
-                    { "419851ab-3b1a-4d40-96f7-351da182572f", "6c0e562f-4119-4750-ab5b-f7b4fd69cc9f", "Company", "COMPANY" }
+                    { "effd1bf6-0f2f-49f7-8331-56ee256a9440", "9db51011-a60b-4223-b554-6bac12c5c106", "Student", "STUDENT" },
+                    { "8e7bdc53-cd29-4faf-95ea-de79144db53d", "15af1922-b75d-4ee4-9dd6-8188031bb3ee", "Company", "COMPANY" }
                 });
 
             migrationBuilder.InsertData(
@@ -618,6 +669,11 @@ namespace Licenta.Migrations
                 column: "IdStudent");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SavedStudentInternships_IdInternship",
+                table: "SavedStudentInternships",
+                column: "IdInternship");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StudentAptitudes_IdAptitude",
                 table: "StudentAptitudes",
                 column: "IdAptitude");
@@ -626,6 +682,11 @@ namespace Licenta.Migrations
                 name: "IX_StudentForeignLanguages_IdForeignLanguage",
                 table: "StudentForeignLanguages",
                 column: "IdForeignLanguage");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentInternshipReviews_IdInternship",
+                table: "StudentInternshipReviews",
+                column: "IdInternship");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StudentInternships_IdInternship",
@@ -671,10 +732,16 @@ namespace Licenta.Migrations
                 name: "Projects");
 
             migrationBuilder.DropTable(
+                name: "SavedStudentInternships");
+
+            migrationBuilder.DropTable(
                 name: "StudentAptitudes");
 
             migrationBuilder.DropTable(
                 name: "StudentForeignLanguages");
+
+            migrationBuilder.DropTable(
+                name: "StudentInternshipReviews");
 
             migrationBuilder.DropTable(
                 name: "StudentInternships");

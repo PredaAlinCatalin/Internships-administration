@@ -2,8 +2,9 @@
 import * as Icon from "react-bootstrap-icons";
 import { withRouter, Link } from "react-router-dom";
 import Loading from "../Universal/Loading";
-import PlusSign from '../Universal/PlusSign';
-
+import PlusSign from "../Universal/PlusSign";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
 
 class CompanyInternships extends Component {
   constructor(props) {
@@ -39,19 +40,19 @@ class CompanyInternships extends Component {
   }
 
   handleSelectInternship = (id) => {
-    this.props.history.push("internship/" + id);
+    this.props.history.push("/internship/" + id);
   };
 
   handleManageApplications = (id) => {
-    this.props.history.push("manageInternshipApplications/" + id);
+    this.props.history.push("/manageInternshipApplications/" + id);
   };
 
   handleModifyInternship = (id) => {
-    this.props.history.push("modifyInternship/" + id);
+    this.props.history.push("/modifyInternship/" + id);
   };
 
   handleCreateInternship = () => {
-    this.props.history.push("createInternship");
+    this.props.history.push("/createInternship");
   };
 
   handleDeleteInternship = async (id) => {
@@ -85,7 +86,10 @@ class CompanyInternships extends Component {
     return (
       <>
         <h3>Stagiile tale </h3>
-        <PlusSign onClick={this.handleCreateInternship}/>
+        <PlusSign onClick={this.handleCreateInternship} />
+        <Fab color="primary" aria-label="add">
+          <AddIcon />
+        </Fab>
 
         {/* <button className="btn btn-primary mt-2" onClick={this.handleCreateInternship}>
           <b>+</b>

@@ -22,6 +22,8 @@ namespace Licenta.Models
         public virtual ICollection<StudentInternship> StudentInternships { get; set; }
         public virtual ICollection<StudentAptitude> StudentAptitudes { get; set; }
         public virtual ICollection<StudentForeignLanguage> StudentForeignLanguages { get; set; }
+        public virtual ICollection<SavedStudentInternship> SavedStudentInternships { get; set; }
+        public virtual ICollection<StudentInternshipReview> StudentInternshipReviews { get; set; }
         public string Passions { get; set; }
         public virtual ICollection<Education> Educations { get; set; }
         public virtual ICollection<Experience> Experiences { get; set; }
