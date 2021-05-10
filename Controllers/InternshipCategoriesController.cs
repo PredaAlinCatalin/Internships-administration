@@ -40,7 +40,7 @@ namespace Licenta.Controllers
 
             foreach (InternshipCategory internshipCategory in internshipCategories)
             {
-                if (internshipCategory.IdInternship == id)
+                if (internshipCategory.InternshipId == id)
                     result.Add(internshipCategory);
             }
 
@@ -51,10 +51,10 @@ namespace Licenta.Controllers
         }
 
         // GET: api/InternshipCategories/internship/1/category/2
-        [HttpGet("internship/{idInternship}/category/{idCategory}")]
-        public async Task<ActionResult<InternshipCategory>> GetInternshipCategory(int idInternship, int idCategory)
+        [HttpGet("internship/{internshipId}/category/{categoryId}")]
+        public async Task<ActionResult<InternshipCategory>> GetInternshipCategory(int internshipId, int categoryId)
         {
-            var internshipCategory = await _context.InternshipCategories.FindAsync(idInternship, idCategory);
+            var internshipCategory = await _context.InternshipCategories.FindAsync(internshipId, categoryId);
 
             if (internshipCategory == null)
             {
@@ -77,7 +77,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateException)
             {
-                if (InternshipCategoryExists(internshipCategory.IdInternship, internshipCategory.IdCategory))
+                if (InternshipCategoryExists(internshipCategory.InternshipId, internshipCategory.CategoryId))
                 {
                     return Conflict();
                 }
@@ -87,13 +87,13 @@ namespace Licenta.Controllers
                 }
             }
 
-            return CreatedAtAction("GetInternshipCategory", new { idInternship = internshipCategory.IdInternship, idCategory = internshipCategory.IdCategory }, internshipCategory);
+            return CreatedAtAction("GetInternshipCategory", new { internshipId = internshipCategory.InternshipId, categoryId = internshipCategory.CategoryId }, internshipCategory);
         }
 
-        //[HttpPut("internship/{idInternship}/internship/{idCategory}")]
-        //public async Task<IActionResult> PutInternshipCategory(int idInternship, int idCategory, InternshipCategory internshipCategory)
+        //[HttpPut("internship/{internshipId}/internship/{categoryId}")]
+        //public async Task<IActionResult> PutInternshipCategory(int internshipId, int categoryId, InternshipCategory internshipCategory)
         //{
-        //    if (idInternship != internshipCategory.IdInternship && idCategory != internshipCategory.IdCategory)
+        //    if (internshipId != internshipCategory.InternshipId && categoryId != internshipCategory.CategoryId)
         //    {
         //        return BadRequest();
         //    }
@@ -106,7 +106,7 @@ namespace Licenta.Controllers
         //    }
         //    catch (DbUpdateConcurrencyException)
         //    {
-        //        if (!InternshipCategoryExists(idInternship, idCategory))
+        //        if (!InternshipCategoryExists(internshipId, categoryId))
         //        {
         //            return NotFound();
         //        }
@@ -120,10 +120,10 @@ namespace Licenta.Controllers
         //}
 
         // DELETE: api/InternshipCategories/5
-        [HttpDelete("internship/{idInternship}/category/{idCategory}")]
-        public async Task<ActionResult<InternshipCategory>> DeleteInternshipCategory(int idInternship, int idCategory)
+        [HttpDelete("internship/{internshipId}/category/{categoryId}")]
+        public async Task<ActionResult<InternshipCategory>> DeleteInternshipCategory(int internshipId, int categoryId)
         {
-            var internshipCategory = await _context.InternshipCategories.FindAsync(idInternship, idCategory);
+            var internshipCategory = await _context.InternshipCategories.FindAsync(internshipId, categoryId);
             if (internshipCategory == null)
             {
                 return NotFound();
@@ -135,9 +135,9 @@ namespace Licenta.Controllers
             return internshipCategory;
         }
 
-        private bool InternshipCategoryExists(int idInternship, int idCategory)
+        private bool InternshipCategoryExists(int internshipId, int categoryId)
         {
-            return _context.InternshipCategories.Any(e => e.IdInternship == idInternship && e.IdCategory == idCategory);
+            return _context.InternshipCategories.Any(e => e.InternshipId == internshipId && e.CategoryId == categoryId);
         }
     }
 }

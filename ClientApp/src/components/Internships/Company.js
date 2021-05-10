@@ -83,7 +83,7 @@ class Company extends Component {
   renderCompanyData = () => {
     return (
       <div>
-        <br/>
+        <br />
         <div className="text-center">
           <h3>{this.state.company.name}</h3>
         </div>
@@ -117,7 +117,7 @@ class Company extends Component {
                               fontSize: 14,
                             }}
                           >
-                            {this.getCity(internship.idCity).name}
+                            {this.getCity(internship.cityId).name}
                             <Icon.GeoAltFill />
                           </span>
                           <br />

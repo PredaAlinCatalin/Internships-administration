@@ -11,11 +11,16 @@ namespace Licenta.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
         public string StartDate { get; set; }
+        [Required]
         public string EndDate { get; set; }
+        [Required]
         public string Institution { get; set; }
+        [Required]
         public string Specialization { get; set; }
-        public string IdStudent { get; set; }
+        [Required]
+        public int StudentId { get; set; }
         public virtual Student Student { get; set; }
     }
 }

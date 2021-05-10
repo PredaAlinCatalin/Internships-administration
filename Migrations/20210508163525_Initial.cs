@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Licenta.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,7 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,7 +65,7 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,7 +78,7 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -91,7 +91,7 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -208,14 +208,15 @@ namespace Licenta.Migrations
                 name: "Companies",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     LogoPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Industry = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Website = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -225,14 +226,15 @@ namespace Licenta.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Students",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Faculty = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -261,31 +263,31 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Deadline = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Deadline = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MaxNumberStudents = table.Column<int>(type: "int", nullable: false),
                     Paid = table.Column<bool>(type: "bit", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IdCompany = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    IdCity = table.Column<int>(type: "int", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    CityId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Internships", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Internships_Cities_IdCity",
-                        column: x => x.IdCity,
+                        name: "FK_Internships_Cities_CityId",
+                        column: x => x.CityId,
                         principalTable: "Cities",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Internships_Companies_IdCompany",
-                        column: x => x.IdCompany,
+                        name: "FK_Internships_Companies_CompanyId",
+                        column: x => x.CompanyId,
                         principalTable: "Companies",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -294,21 +296,21 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Institution = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Specialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Institution = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Specialization = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StudentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Educations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Educations_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_Educations_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -317,22 +319,22 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Position = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Company = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Position = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Company = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StudentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Experiences", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Experiences_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_Experiences_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -341,18 +343,19 @@ namespace Licenta.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    StartDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EndDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StudentId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StudentId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Projects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Projects_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_Projects_Students_StudentId1",
+                        column: x => x.StudentId1,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -362,21 +365,21 @@ namespace Licenta.Migrations
                 name: "StudentAptitudes",
                 columns: table => new
                 {
-                    IdAptitude = table.Column<int>(type: "int", nullable: false),
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    AptitudeId = table.Column<int>(type: "int", nullable: false),
+                    StudentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudentAptitudes", x => new { x.IdStudent, x.IdAptitude });
+                    table.PrimaryKey("PK_StudentAptitudes", x => new { x.StudentId, x.AptitudeId });
                     table.ForeignKey(
-                        name: "FK_StudentAptitudes_Aptitudes_IdAptitude",
-                        column: x => x.IdAptitude,
+                        name: "FK_StudentAptitudes_Aptitudes_AptitudeId",
+                        column: x => x.AptitudeId,
                         principalTable: "Aptitudes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StudentAptitudes_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_StudentAptitudes_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -386,21 +389,21 @@ namespace Licenta.Migrations
                 name: "StudentForeignLanguages",
                 columns: table => new
                 {
-                    IdForeignLanguage = table.Column<int>(type: "int", nullable: false),
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    ForeignLanguageId = table.Column<int>(type: "int", nullable: false),
+                    StudentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudentForeignLanguages", x => new { x.IdStudent, x.IdForeignLanguage });
+                    table.PrimaryKey("PK_StudentForeignLanguages", x => new { x.StudentId, x.ForeignLanguageId });
                     table.ForeignKey(
-                        name: "FK_StudentForeignLanguages_ForeignLanguages_IdForeignLanguage",
-                        column: x => x.IdForeignLanguage,
+                        name: "FK_StudentForeignLanguages_ForeignLanguages_ForeignLanguageId",
+                        column: x => x.ForeignLanguageId,
                         principalTable: "ForeignLanguages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StudentForeignLanguages_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_StudentForeignLanguages_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -410,21 +413,21 @@ namespace Licenta.Migrations
                 name: "InternshipAptitudes",
                 columns: table => new
                 {
-                    IdInternship = table.Column<int>(type: "int", nullable: false),
-                    IdAptitude = table.Column<int>(type: "int", nullable: false)
+                    InternshipId = table.Column<int>(type: "int", nullable: false),
+                    AptitudeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InternshipAptitudes", x => new { x.IdInternship, x.IdAptitude });
+                    table.PrimaryKey("PK_InternshipAptitudes", x => new { x.InternshipId, x.AptitudeId });
                     table.ForeignKey(
-                        name: "FK_InternshipAptitudes_Aptitudes_IdAptitude",
-                        column: x => x.IdAptitude,
+                        name: "FK_InternshipAptitudes_Aptitudes_AptitudeId",
+                        column: x => x.AptitudeId,
                         principalTable: "Aptitudes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InternshipAptitudes_Internships_IdInternship",
-                        column: x => x.IdInternship,
+                        name: "FK_InternshipAptitudes_Internships_InternshipId",
+                        column: x => x.InternshipId,
                         principalTable: "Internships",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -434,21 +437,21 @@ namespace Licenta.Migrations
                 name: "InternshipCategories",
                 columns: table => new
                 {
-                    IdCategory = table.Column<int>(type: "int", nullable: false),
-                    IdInternship = table.Column<int>(type: "int", nullable: false)
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    InternshipId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InternshipCategories", x => new { x.IdInternship, x.IdCategory });
+                    table.PrimaryKey("PK_InternshipCategories", x => new { x.InternshipId, x.CategoryId });
                     table.ForeignKey(
-                        name: "FK_InternshipCategories_Categories_IdCategory",
-                        column: x => x.IdCategory,
+                        name: "FK_InternshipCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InternshipCategories_Internships_IdInternship",
-                        column: x => x.IdInternship,
+                        name: "FK_InternshipCategories_Internships_InternshipId",
+                        column: x => x.InternshipId,
                         principalTable: "Internships",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -458,21 +461,21 @@ namespace Licenta.Migrations
                 name: "SavedStudentInternships",
                 columns: table => new
                 {
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IdInternship = table.Column<int>(type: "int", nullable: false)
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    InternshipId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SavedStudentInternships", x => new { x.IdStudent, x.IdInternship });
+                    table.PrimaryKey("PK_SavedStudentInternships", x => new { x.StudentId, x.InternshipId });
                     table.ForeignKey(
-                        name: "FK_SavedStudentInternships_Internships_IdInternship",
-                        column: x => x.IdInternship,
+                        name: "FK_SavedStudentInternships_Internships_InternshipId",
+                        column: x => x.InternshipId,
                         principalTable: "Internships",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SavedStudentInternships_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_SavedStudentInternships_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -482,24 +485,24 @@ namespace Licenta.Migrations
                 name: "StudentInternshipReviews",
                 columns: table => new
                 {
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IdInternship = table.Column<int>(type: "int", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    InternshipId = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Grade = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudentInternshipReviews", x => new { x.IdStudent, x.IdInternship });
+                    table.PrimaryKey("PK_StudentInternshipReviews", x => new { x.StudentId, x.InternshipId });
                     table.ForeignKey(
-                        name: "FK_StudentInternshipReviews_Internships_IdInternship",
-                        column: x => x.IdInternship,
+                        name: "FK_StudentInternshipReviews_Internships_InternshipId",
+                        column: x => x.InternshipId,
                         principalTable: "Internships",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StudentInternshipReviews_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_StudentInternshipReviews_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -509,24 +512,24 @@ namespace Licenta.Migrations
                 name: "StudentInternships",
                 columns: table => new
                 {
-                    IdStudent = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    IdInternship = table.Column<int>(type: "int", nullable: false),
-                    ApplicationDate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    InternshipId = table.Column<int>(type: "int", nullable: false),
+                    ApplicationDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CompanyFeedback = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudentInternships", x => new { x.IdStudent, x.IdInternship });
+                    table.PrimaryKey("PK_StudentInternships", x => new { x.StudentId, x.InternshipId });
                     table.ForeignKey(
-                        name: "FK_StudentInternships_Internships_IdInternship",
-                        column: x => x.IdInternship,
+                        name: "FK_StudentInternships_Internships_InternshipId",
+                        column: x => x.InternshipId,
                         principalTable: "Internships",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StudentInternships_Students_IdStudent",
-                        column: x => x.IdStudent,
+                        name: "FK_StudentInternships_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -547,8 +550,8 @@ namespace Licenta.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "effd1bf6-0f2f-49f7-8331-56ee256a9440", "9db51011-a60b-4223-b554-6bac12c5c106", "Student", "STUDENT" },
-                    { "8e7bdc53-cd29-4faf-95ea-de79144db53d", "15af1922-b75d-4ee4-9dd6-8188031bb3ee", "Company", "COMPANY" }
+                    { "e6842015-edc3-47b7-8e25-fc7027b381b5", "76f1c7f0-2382-468a-935d-af375f219f66", "Student", "STUDENT" },
+                    { "dda26482-b1f3-4487-8f33-9a23ba1451c0", "d24ea445-b075-49d2-bf15-5cdb25cae930", "Company", "COMPANY" }
                 });
 
             migrationBuilder.InsertData(
@@ -634,64 +637,64 @@ namespace Licenta.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Educations_IdStudent",
+                name: "IX_Educations_StudentId",
                 table: "Educations",
-                column: "IdStudent");
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Experiences_IdStudent",
+                name: "IX_Experiences_StudentId",
                 table: "Experiences",
-                column: "IdStudent");
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InternshipAptitudes_IdAptitude",
+                name: "IX_InternshipAptitudes_AptitudeId",
                 table: "InternshipAptitudes",
-                column: "IdAptitude");
+                column: "AptitudeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InternshipCategories_IdCategory",
+                name: "IX_InternshipCategories_CategoryId",
                 table: "InternshipCategories",
-                column: "IdCategory");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Internships_IdCity",
+                name: "IX_Internships_CityId",
                 table: "Internships",
-                column: "IdCity");
+                column: "CityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Internships_IdCompany",
+                name: "IX_Internships_CompanyId",
                 table: "Internships",
-                column: "IdCompany");
+                column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projects_IdStudent",
+                name: "IX_Projects_StudentId1",
                 table: "Projects",
-                column: "IdStudent");
+                column: "StudentId1");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SavedStudentInternships_IdInternship",
+                name: "IX_SavedStudentInternships_InternshipId",
                 table: "SavedStudentInternships",
-                column: "IdInternship");
+                column: "InternshipId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentAptitudes_IdAptitude",
+                name: "IX_StudentAptitudes_AptitudeId",
                 table: "StudentAptitudes",
-                column: "IdAptitude");
+                column: "AptitudeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentForeignLanguages_IdForeignLanguage",
+                name: "IX_StudentForeignLanguages_ForeignLanguageId",
                 table: "StudentForeignLanguages",
-                column: "IdForeignLanguage");
+                column: "ForeignLanguageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentInternshipReviews_IdInternship",
+                name: "IX_StudentInternshipReviews_InternshipId",
                 table: "StudentInternshipReviews",
-                column: "IdInternship");
+                column: "InternshipId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentInternships_IdInternship",
+                name: "IX_StudentInternships_InternshipId",
                 table: "StudentInternships",
-                column: "IdInternship");
+                column: "InternshipId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_UserId",

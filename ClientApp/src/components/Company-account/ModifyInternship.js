@@ -61,40 +61,36 @@ const ModifyInternship = ({ internshipId }) => {
   const [internshipAptitudes, setInternshipAptitudes] = useState([]);
   const [cities, setCities] = useState([]);
   const [citiesOptions, setCitiesOptions] = useState([]);
-  const [internshipCitySelectedOption, setCitiesSelectedOption] = useState("");
+  const [internshipCitySelectedOption, setInternshipCitySelectedOption] = useState("");
   const [categories, setCategories] = useState([]);
   const [categoriesOptions, setCategoriesOptions] = useState([]);
   const [categoriesSelectedOption, setCategoriesSelectedOption] = useState("");
   const [internshipCategoriesAux, setInternshipCategoriesAux] = useState([]);
-  const [idInternshipCategoriesToDelete, setIdInternshipCategoriesToDelete] = useState(
-    []
-  );
-  const [idInternshipCategoriesToInsert, setIdInternshipCategoriesToInsert] = useState(
-    []
-  );
-  const [
-    idInternshipCategoriesToDeleteAux,
-    setIdInternshipCategoriesToDeleteAux,
-  ] = useState([]);
-  const [
-    idInternshipCategoriesToInsertAux,
-    setIdInternshipCategoriesToInsertAux,
-  ] = useState([]);
+
   const [categoriesIsOpen, setCategoriesIsOpen] = useState(false);
   const [aptitudes, setAptitudes] = useState([]);
   const [aptitudesOptions, setAptitudesOptions] = useState([]);
   const [aptitudesSelectedOption, setAptitudesSelectedOption] = useState("");
   const [internshipAptitudesAux, setInternshipAptitudesAux] = useState([]);
-  const [idInternshipAptitudesToDelete, setIdInternshipAptitudesToDelete] = useState([]);
-  const [idInternshipAptitudesToInsert, setIdInternshipAptitudesToInsert] = useState([]);
+
   const [
-    idInternshipAptitudesToDeleteAux,
-    setIdInternshipAptitudesToDeleteAux,
+    internshipAptitudeIdsToDeleteAux,
+    setInternshipAptitudeIdsToDeleteAux,
   ] = useState([]);
   const [
-    idInternshipAptitudesToInsertAux,
-    setIdInternshipAptitudesToInsertAux,
+    internshipAptitudeIdsToInsertAux,
+    setInternshipAptitudeIdsToInsertAux,
   ] = useState([]);
+
+  const [
+    internshipCategoryIdsToDeleteAux,
+    setInternshipCategoryIdsToDeleteAux,
+  ] = useState([]);
+  const [
+    internshipCategoryIdsToInsertAux,
+    setInternshipCategoryIdsToInsertAux,
+  ] = useState([]);
+
   const [aptitudesIsOpen, setAptitudesIsOpen] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -137,9 +133,9 @@ const ModifyInternship = ({ internshipId }) => {
 
         for (let i = 0; i < citiesOptions.length; i++) {
           if (
-            citiesOptions[i].value === getCity(citiesData, internshipData.idCity).name
+            citiesOptions[i].value === getCity(citiesData, internshipData.cityId).name
           ) {
-            setCitiesSelectedOption(citiesOptions[i]);
+            setInternshipCitySelectedOption(citiesOptions[i]);
           }
         }
 
@@ -267,11 +263,11 @@ const ModifyInternship = ({ internshipId }) => {
   };
 
   const handleInternshipCityChange = (changeEvent) => {
-    setCitiesSelectedOption(changeEvent);
+    setInternshipCitySelectedOption(changeEvent);
   };
 
   const handleInternshipCategoryChange = (changeEvent) => {
-    let searchedCategory = categories.find((obj) => obj.name === changeEvent.value);
+    let searchedCategory = aptitudes.find((obj) => obj.name === changeEvent.value);
 
     if (
       internshipCategoriesAux.find((obj) => obj.name === searchedCategory.name) ===
@@ -282,50 +278,41 @@ const ModifyInternship = ({ internshipId }) => {
       );
       modifiedInternshipCategoriesAux.push(searchedCategory);
 
-      let idInternshipCategoriesToDeleteCopy = JSON.parse(
+      let internshipCategoryIdsToDeleteCopy = JSON.parse(
         JSON.stringify(
-          idInternshipCategoriesToDeleteAux.filter((obj) => obj !== searchedCategory.id)
+          internshipCategoryIdsToDeleteAux.filter((obj) => obj !== searchedCategory.id)
         )
       );
 
-      let idInternshipCategoriesToInsertCopy = JSON.parse(
-        JSON.stringify(idInternshipCategoriesToInsertAux)
+      let internshipCategoryIdsToInsertCopy = JSON.parse(
+        JSON.stringify(internshipCategoryIdsToInsertAux)
       );
-      idInternshipCategoriesToInsertCopy.push(searchedCategory.id);
+      internshipCategoryIdsToInsertCopy.push(searchedCategory.id);
 
       setCategoriesSelectedOption(changeEvent);
       setInternshipCategoriesAux(modifiedInternshipCategoriesAux);
-      setIdInternshipCategoriesToInsertAux(idInternshipCategoriesToInsertCopy);
-      setIdInternshipCategoriesToDeleteAux(idInternshipCategoriesToDeleteCopy);
+      setInternshipCategoryIdsToInsertAux(internshipCategoryIdsToInsertCopy);
+      setInternshipCategoryIdsToDeleteAux(internshipCategoryIdsToDeleteCopy);
     }
   };
 
-  const handleInternshipCategoryDelete = async (idCategory) => {
-    const idInternshipCategoriesToInsertCopy = JSON.parse(
-      JSON.stringify(
-        idInternshipCategoriesToInsertAux.filter((obj) => obj !== idCategory)
-      )
+  const handleInternshipCategoryDelete = async (aptitudeId) => {
+    const internshipCategoryIdsToInsertCopy = JSON.parse(
+      JSON.stringify(internshipCategoryIdsToInsertAux.filter((obj) => obj !== aptitudeId))
     );
 
     const filteredInternshipCategoriesAux = JSON.parse(
-      JSON.stringify(internshipCategoriesAux.filter((obj) => obj.id !== idCategory))
+      JSON.stringify(internshipCategoriesAux.filter((obj) => obj.id !== aptitudeId))
     );
 
-    let idInternshipCategoriesToDeleteCopy = JSON.parse(
-      JSON.stringify(idInternshipCategoriesToDeleteAux)
+    let internshipCategoryIdsToDeleteCopy = JSON.parse(
+      JSON.stringify(internshipCategoryIdsToDeleteAux)
     );
-    idInternshipCategoriesToDeleteCopy.push(idCategory);
+    internshipCategoryIdsToDeleteCopy.push(aptitudeId);
 
     setInternshipCategoriesAux(filteredInternshipCategoriesAux);
-    setIdInternshipCategoriesToDeleteAux(idInternshipCategoriesToDeleteCopy);
-    setIdInternshipCategoriesToInsertAux(idInternshipCategoriesToInsertCopy);
-  };
-
-  const handleInternshipCategoryForm = (clickEvent) => {
-    setCategoriesIsOpen(false);
-    // setInternshipCategories(internshipCategoriesAux);
-    setIdInternshipCategoriesToDelete(idInternshipCategoriesToDeleteAux);
-    setIdInternshipCategoriesToInsert(idInternshipCategoriesToInsertAux);
+    setInternshipCategoryIdsToDeleteAux(internshipCategoryIdsToDeleteCopy);
+    setInternshipCategoryIdsToInsertAux(internshipCategoryIdsToInsertCopy);
   };
 
   const handleInternshipAptitudeChange = (changeEvent) => {
@@ -340,48 +327,41 @@ const ModifyInternship = ({ internshipId }) => {
       );
       modifiedInternshipAptitudesAux.push(searchedAptitude);
 
-      let idInternshipAptitudesToDeleteCopy = JSON.parse(
+      let internshipAptitudeIdsToDeleteCopy = JSON.parse(
         JSON.stringify(
-          idInternshipAptitudesToDeleteAux.filter((obj) => obj !== searchedAptitude.id)
+          internshipAptitudeIdsToDeleteAux.filter((obj) => obj !== searchedAptitude.id)
         )
       );
 
-      let idInternshipAptitudesToInsertCopy = JSON.parse(
-        JSON.stringify(idInternshipAptitudesToInsertAux)
+      let internshipAptitudeIdsToInsertCopy = JSON.parse(
+        JSON.stringify(internshipAptitudeIdsToInsertAux)
       );
-      idInternshipAptitudesToInsertCopy.push(searchedAptitude.id);
+      internshipAptitudeIdsToInsertCopy.push(searchedAptitude.id);
 
       setAptitudesSelectedOption(changeEvent);
       setInternshipAptitudesAux(modifiedInternshipAptitudesAux);
-      setIdInternshipAptitudesToInsertAux(idInternshipAptitudesToInsertCopy);
-      setIdInternshipAptitudesToDeleteAux(idInternshipAptitudesToDeleteCopy);
+      setInternshipAptitudeIdsToInsertAux(internshipAptitudeIdsToInsertCopy);
+      setInternshipAptitudeIdsToDeleteAux(internshipAptitudeIdsToDeleteCopy);
     }
   };
 
-  const handleInternshipAptitudeDelete = async (idAptitude) => {
-    const idInternshipAptitudesToInsertCopy = JSON.parse(
-      JSON.stringify(idInternshipAptitudesToInsertAux.filter((obj) => obj !== idAptitude))
+  const handleInternshipAptitudeDelete = async (aptitudeId) => {
+    const internshipAptitudeIdsToInsertCopy = JSON.parse(
+      JSON.stringify(internshipAptitudeIdsToInsertAux.filter((obj) => obj !== aptitudeId))
     );
 
     const filteredInternshipAptitudesAux = JSON.parse(
-      JSON.stringify(internshipAptitudesAux.filter((obj) => obj.id !== idAptitude))
+      JSON.stringify(internshipAptitudesAux.filter((obj) => obj.id !== aptitudeId))
     );
 
-    let idInternshipAptitudesToDeleteCopy = JSON.parse(
-      JSON.stringify(idInternshipAptitudesToDeleteAux)
+    let internshipAptitudeIdsToDeleteCopy = JSON.parse(
+      JSON.stringify(internshipAptitudeIdsToDeleteAux)
     );
-    idInternshipAptitudesToDeleteCopy.push(idAptitude);
+    internshipAptitudeIdsToDeleteCopy.push(aptitudeId);
 
     setInternshipAptitudesAux(filteredInternshipAptitudesAux);
-    setIdInternshipAptitudesToDeleteAux(idInternshipAptitudesToDeleteCopy);
-    setIdInternshipAptitudesToInsertAux(idInternshipAptitudesToInsertCopy);
-  };
-
-  const handleInternshipAptitudeForm = (clickEvent) => {
-    setAptitudesIsOpen(false);
-    // setInternshipAptitudes(internshipAptitudesAux);
-    setIdInternshipAptitudesToDelete(idInternshipAptitudesToDeleteAux);
-    setIdInternshipAptitudesToInsert(idInternshipAptitudesToInsertAux);
+    setInternshipAptitudeIdsToDeleteAux(internshipAptitudeIdsToDeleteCopy);
+    setInternshipAptitudeIdsToInsertAux(internshipAptitudeIdsToInsertCopy);
   };
 
   const handleInternshipModifyForm = async (formSubmitEvent) => {
@@ -399,8 +379,8 @@ const ModifyInternship = ({ internshipId }) => {
       maxNumberStudents: internshipMaxNumberStudents,
       paid: internshipPaid,
       description: internshipDescription,
-      idCompany: internship.idCompany,
-      idCity: searchedCity !== undefined ? searchedCity.id : null,
+      companyId: internship.companyId,
+      cityId: searchedCity !== undefined ? searchedCity.id : null,
     };
 
     console.log(modifiedInternship);
@@ -421,17 +401,17 @@ const ModifyInternship = ({ internshipId }) => {
       console.log(res);
     });
 
-    for (let i = 0; i < idInternshipCategoriesToDelete.length; i++) {
+    for (let i = 0; i < internshipCategoryIdsToDeleteAux.length; i++) {
       if (
         internshipCategories.find(
-          (obj) => obj.id === idInternshipCategoriesToDelete[i]
+          (obj) => obj.id === internshipCategoryIdsToDeleteAux[i]
         ) !== undefined
       ) {
         let aux =
           "api/internshipCategories/internship/" +
           internship.id +
           "/category/" +
-          idInternshipCategoriesToDelete[i];
+          internshipCategoryIdsToDeleteAux[i];
 
         await fetch(aux, {
           method: "DELETE",
@@ -439,15 +419,15 @@ const ModifyInternship = ({ internshipId }) => {
       }
     }
 
-    for (let i = 0; i < idInternshipCategoriesToInsertAux.length; i++) {
+    for (let i = 0; i < internshipCategoryIdsToInsertAux.length; i++) {
       if (
         internshipCategories.find(
-          (obj) => obj.id === idInternshipCategoriesToInsertAux[i]
+          (obj) => obj.id === internshipCategoryIdsToInsertAux[i]
         ) === undefined
       ) {
         let internshipCategory = {
-          idInternship: internship.id,
-          idCategory: idInternshipCategoriesToInsertAux[i],
+          internshipId: internship.id,
+          categoryId: internshipCategoryIdsToInsertAux[i],
         };
 
         let aux = "api/internshipCategories";
@@ -462,32 +442,32 @@ const ModifyInternship = ({ internshipId }) => {
     }
     setInternshipCategories(internshipCategoriesAux);
 
-    for (let i = 0; i < idInternshipAptitudesToDeleteAux.length; i++) {
+    for (let i = 0; i < internshipAptitudeIdsToDeleteAux.length; i++) {
       if (
         internshipAptitudes.find(
-          (obj) => obj.id === idInternshipAptitudesToDeleteAux[i]
+          (obj) => obj.id === internshipAptitudeIdsToDeleteAux[i]
         ) !== undefined
       ) {
         let aux =
           "api/internshipAptitudes/internship/" +
           internship.id +
           "/aptitude/" +
-          idInternshipAptitudesToDeleteAux[i];
+          internshipAptitudeIdsToDeleteAux[i];
         await fetch(aux, {
           method: "DELETE",
         });
       }
     }
 
-    for (let i = 0; i < idInternshipAptitudesToInsertAux.length; i++) {
+    for (let i = 0; i < internshipAptitudeIdsToInsertAux.length; i++) {
       if (
         internshipAptitudes.find(
-          (obj) => obj.id === idInternshipAptitudesToInsertAux[i]
+          (obj) => obj.id === internshipAptitudeIdsToInsertAux[i]
         ) === undefined
       ) {
         let internshipAptitude = {
-          idInternship: internship.id,
-          idAptitude: idInternshipAptitudesToInsertAux[i],
+          internshipId: internship.id,
+          aptitudeId: internshipAptitudeIdsToInsertAux[i],
         };
 
         let aux = "api/internshipAptitudes";
@@ -502,34 +482,6 @@ const ModifyInternship = ({ internshipId }) => {
     }
     setInternshipAptitudes(internshipAptitudesAux);
     history.push("/companyInternships");
-    // } catch (error) {
-    //   const response = error?.response;
-    //   if (response && response.status === 400) {
-    //     const identityErrors = response.data;
-    //     const errorDescriptions = identityErrors.map((error) => error.description);
-    //     setError(errorDescriptions.join(" "));
-    //   } else {
-    //     setError("Eroare la comunicarea cu serverul");
-    //   }
-    // }
-  };
-
-  const handleClose = () => {
-    if (categoriesIsOpen) {
-      setCategoriesIsOpen(false);
-      setInternshipCategoriesAux(internshipCategories);
-    } else if (aptitudesIsOpen) {
-      setAptitudesIsOpen(false);
-      setInternshipAptitudesAux(internshipAptitudes);
-    }
-  };
-
-  const handleShowCategories = () => {
-    setCategoriesIsOpen(true);
-  };
-
-  const handleShowAptitudes = () => {
-    setAptitudesIsOpen(true);
   };
 
   return loading ? (
@@ -620,7 +572,7 @@ const ModifyInternship = ({ internshipId }) => {
               format="dd/MM/yyyy"
               margin="normal"
               style={{ margin: 15 }}
-              id="date-picker-inline"
+              id="date-picker-inline2"
               label="Dată sfârșit"
               value={internshipEndDate}
               onChange={handleInternshipEndDateChange}
@@ -635,7 +587,7 @@ const ModifyInternship = ({ internshipId }) => {
               format="dd/MM/yyyy"
               margin="normal"
               style={{ margin: 15 }}
-              id="date-picker-inline"
+              id="date-picker-inline3"
               label="Deadline aplicări"
               value={internshipDeadline}
               onChange={handleInternshipDeadlineChange}

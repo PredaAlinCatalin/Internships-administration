@@ -27,6 +27,7 @@ namespace Licenta.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -59,6 +60,7 @@ namespace Licenta.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -96,6 +98,7 @@ namespace Licenta.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -122,8 +125,10 @@ namespace Licenta.Migrations
 
             modelBuilder.Entity("Licenta.Models.Company", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
@@ -141,6 +146,7 @@ namespace Licenta.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Website")
@@ -165,23 +171,27 @@ namespace Licenta.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("EndDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Institution")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Specialization")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StartDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdStudent");
+                    b.HasIndex("StudentId");
 
                     b.ToTable("Educations");
                 });
@@ -194,26 +204,31 @@ namespace Licenta.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Company")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EndDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Position")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StartDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdStudent");
+                    b.HasIndex("StudentId");
 
                     b.ToTable("Experiences");
                 });
@@ -226,6 +241,7 @@ namespace Licenta.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -257,68 +273,73 @@ namespace Licenta.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("CityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Deadline")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EndDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IdCity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IdCompany")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("MaxNumberStudents")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
 
                     b.Property<string>("StartDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdCity");
+                    b.HasIndex("CityId");
 
-                    b.HasIndex("IdCompany");
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("Internships");
                 });
 
             modelBuilder.Entity("Licenta.Models.InternshipAptitude", b =>
                 {
-                    b.Property<int>("IdInternship")
+                    b.Property<int>("InternshipId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdAptitude")
+                    b.Property<int>("AptitudeId")
                         .HasColumnType("int");
 
-                    b.HasKey("IdInternship", "IdAptitude");
+                    b.HasKey("InternshipId", "AptitudeId");
 
-                    b.HasIndex("IdAptitude");
+                    b.HasIndex("AptitudeId");
 
                     b.ToTable("InternshipAptitudes");
                 });
 
             modelBuilder.Entity("Licenta.Models.InternshipCategory", b =>
                 {
-                    b.Property<int>("IdInternship")
+                    b.Property<int>("InternshipId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdCategory")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.HasKey("IdInternship", "IdCategory");
+                    b.HasKey("InternshipId", "CategoryId");
 
-                    b.HasIndex("IdCategory");
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("InternshipCategories");
                 });
@@ -331,46 +352,56 @@ namespace Licenta.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EndDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("StartDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StudentId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdStudent");
+                    b.HasIndex("StudentId1");
 
                     b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Licenta.Models.SavedStudentInternship", b =>
                 {
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("IdInternship")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.HasKey("IdStudent", "IdInternship");
+                    b.Property<int>("InternshipId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("IdInternship");
+                    b.HasKey("StudentId", "InternshipId");
+
+                    b.HasIndex("InternshipId");
 
                     b.ToTable("SavedStudentInternships");
                 });
 
             modelBuilder.Entity("Licenta.Models.Student", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<double>("AnnualAverage")
                         .HasColumnType("float");
@@ -411,78 +442,82 @@ namespace Licenta.Migrations
 
             modelBuilder.Entity("Licenta.Models.StudentAptitude", b =>
                 {
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("IdAptitude")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.HasKey("IdStudent", "IdAptitude");
+                    b.Property<int>("AptitudeId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("IdAptitude");
+                    b.HasKey("StudentId", "AptitudeId");
+
+                    b.HasIndex("AptitudeId");
 
                     b.ToTable("StudentAptitudes");
                 });
 
             modelBuilder.Entity("Licenta.Models.StudentForeignLanguage", b =>
                 {
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("IdForeignLanguage")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.HasKey("IdStudent", "IdForeignLanguage");
+                    b.Property<int>("ForeignLanguageId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("IdForeignLanguage");
+                    b.HasKey("StudentId", "ForeignLanguageId");
+
+                    b.HasIndex("ForeignLanguageId");
 
                     b.ToTable("StudentForeignLanguages");
                 });
 
             modelBuilder.Entity("Licenta.Models.StudentInternship", b =>
                 {
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("IdInternship")
+                    b.Property<int>("InternshipId")
                         .HasColumnType("int");
 
                     b.Property<string>("ApplicationDate")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyFeedback")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("IdStudent", "IdInternship");
+                    b.HasKey("StudentId", "InternshipId");
 
-                    b.HasIndex("IdInternship");
+                    b.HasIndex("InternshipId");
 
                     b.ToTable("StudentInternships");
                 });
 
             modelBuilder.Entity("Licenta.Models.StudentInternshipReview", b =>
                 {
-                    b.Property<string>("IdStudent")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
 
-                    b.Property<int>("IdInternship")
+                    b.Property<int>("InternshipId")
                         .HasColumnType("int");
 
                     b.Property<string>("Comment")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Grade")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("IdStudent", "IdInternship");
+                    b.HasKey("StudentId", "InternshipId");
 
-                    b.HasIndex("IdInternship");
+                    b.HasIndex("InternshipId");
 
                     b.ToTable("StudentInternshipReviews");
                 });
@@ -516,15 +551,15 @@ namespace Licenta.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "effd1bf6-0f2f-49f7-8331-56ee256a9440",
-                            ConcurrencyStamp = "9db51011-a60b-4223-b554-6bac12c5c106",
+                            Id = "e6842015-edc3-47b7-8e25-fc7027b381b5",
+                            ConcurrencyStamp = "76f1c7f0-2382-468a-935d-af375f219f66",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         },
                         new
                         {
-                            Id = "8e7bdc53-cd29-4faf-95ea-de79144db53d",
-                            ConcurrencyStamp = "15af1922-b75d-4ee4-9dd6-8188031bb3ee",
+                            Id = "dda26482-b1f3-4487-8f33-9a23ba1451c0",
+                            ConcurrencyStamp = "d24ea445-b075-49d2-bf15-5cdb25cae930",
                             Name = "Company",
                             NormalizedName = "COMPANY"
                         });
@@ -703,7 +738,9 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -712,7 +749,9 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("Educations")
-                        .HasForeignKey("IdStudent");
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Student");
                 });
@@ -721,7 +760,9 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("Experiences")
-                        .HasForeignKey("IdStudent");
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Student");
                 });
@@ -730,13 +771,15 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.City", "City")
                         .WithMany("Internships")
-                        .HasForeignKey("IdCity")
+                        .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Company", "Company")
                         .WithMany("Internships")
-                        .HasForeignKey("IdCompany");
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("City");
 
@@ -747,13 +790,13 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Aptitude", "Aptitude")
                         .WithMany("InternshipAptitudes")
-                        .HasForeignKey("IdAptitude")
+                        .HasForeignKey("AptitudeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Internship", "Internship")
                         .WithMany("InternshipAptitudes")
-                        .HasForeignKey("IdInternship")
+                        .HasForeignKey("InternshipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -766,13 +809,13 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Category", "Category")
                         .WithMany("InternshipCategories")
-                        .HasForeignKey("IdCategory")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Internship", "Internship")
                         .WithMany("InternshipCategories")
-                        .HasForeignKey("IdInternship")
+                        .HasForeignKey("InternshipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -785,7 +828,7 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("Projects")
-                        .HasForeignKey("IdStudent");
+                        .HasForeignKey("StudentId1");
 
                     b.Navigation("Student");
                 });
@@ -794,13 +837,13 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Internship", "Internship")
                         .WithMany("SavedStudentInternships")
-                        .HasForeignKey("IdInternship")
+                        .HasForeignKey("InternshipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("SavedStudentInternships")
-                        .HasForeignKey("IdStudent")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -822,13 +865,13 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Aptitude", "Aptitude")
                         .WithMany("StudentAptitudes")
-                        .HasForeignKey("IdAptitude")
+                        .HasForeignKey("AptitudeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("StudentAptitudes")
-                        .HasForeignKey("IdStudent")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -841,13 +884,13 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.ForeignLanguage", "ForeignLanguage")
                         .WithMany("StudentForeignLanguages")
-                        .HasForeignKey("IdForeignLanguage")
+                        .HasForeignKey("ForeignLanguageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("StudentForeignLanguages")
-                        .HasForeignKey("IdStudent")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -860,13 +903,13 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Internship", "Internship")
                         .WithMany("StudentInternships")
-                        .HasForeignKey("IdInternship")
+                        .HasForeignKey("InternshipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("StudentInternships")
-                        .HasForeignKey("IdStudent")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -879,13 +922,13 @@ namespace Licenta.Migrations
                 {
                     b.HasOne("Licenta.Models.Internship", "Internship")
                         .WithMany("StudentInternshipReviews")
-                        .HasForeignKey("IdInternship")
+                        .HasForeignKey("InternshipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Licenta.Models.Student", "Student")
                         .WithMany("StudentInternshipReviews")
-                        .HasForeignKey("IdStudent")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

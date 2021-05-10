@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect, useContext } from "react";
 import { Link, withRouter, Redirect, useLocation, useHistory } from "react-router-dom";
 import * as Icon from "react-bootstrap-icons";
 import $ from "jquery";
@@ -8,14 +8,52 @@ import InternshipCard from "./InternshipCard";
 import "./Internships.css";
 import InternshipCardMe from "./InternshipCardMe";
 import qs from "qs";
-import { Button } from "@material-ui/core";
+import { Button, Paper } from "@material-ui/core";
+import Select from "react-select";
+// import FixRequiredSelect from "../Universal/FixRequiredSelect";
+import { Tabs, Tab } from "@material-ui/core";
+import {
+  getCitiesOptions,
+  getCategoriesOptions,
+  getAptitudesOptions,
+} from "../Utility/Utility";
+import SearchIcon from "@material-ui/icons/Search";
+import { TextField, InputAdornment } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { Row } from "react-bootstrap";
+import { useIsStudent } from "../Authentication/Authentication";
+import NoteIcon from "@material-ui/icons/Note";
+import HistoryIcon from "@material-ui/icons/History";
+import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
+import TabMenu from "../Universal/TabMenu";
+const customStyles = {
+  control: (base, state) => ({
+    ...base,
+    "&:hover": { borderColor: "#3f51b5", border: "1px solid black" },
+    "&:focus": { borderColor: "#3f51b5", border: "2px solid #3f51b5" },
+    border: "1px solid lightgray",
+    boxShadow: "none",
+  }),
+};
+
+function SelectWrapped(props) {
+  return <Select props={props} styles={customStyles} />;
+}
+
+// const Select = (props) => (
+//   <FixRequiredSelect {...props} SelectComponent={BaseSelect} options={props.options} />
+// );
 
 const Internships = () => {
   const [value, setValue] = useState(0);
   const [companies, setCompanies] = useState([]);
   const [internships, setInternships] = useState([]);
   const [cities, setCities] = useState([]);
+  const [citiesOptions, setCitiesOptions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoriesOptions, setCategoriesOptions] = useState([]);
+  const [aptitudes, setAptitudes] = useState([]);
+  const [aptitudesOptions, setAptitudesOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentCategory, setCurrentCategory] = useState("");
   const [currentSearch, setCurrentSearch] = useState("");
@@ -33,6 +71,14 @@ const Internships = () => {
   const location = useLocation();
   const history = useHistory();
   const [submitted, setSubmitted] = useState(false);
+  const [input, setInput] = useState({
+    search: "",
+    currentSearch: "",
+    city: "",
+    currentCity: "",
+  });
+  const isStudent = useIsStudent();
+
   useEffect(() => {
     async function populateInternshipsData() {
       const navNumber =
@@ -44,45 +90,57 @@ const Internships = () => {
       let search = location.search;
       search = search.substring(1);
       let searchJSON = qs.parse(search);
+      console.log("Egal cu sir vid", search === "");
       console.log(search);
+      console.log(searchJSON);
       if (search !== "") {
-        setCurrentCategory(searchJSON.category);
-        setCurrentCity(searchJSON.city);
-        setCurrentSearch(searchJSON.searchString);
-        setCurrentSearchInput(searchJSON.searchString);
+        setInput({ ...input, search: searchJSON.searchString });
+        setInput({ ...input, currentSearch: searchJSON.searchString });
+
+        if (searchJSON.city !== undefined) {
+          setInput({
+            ...input,
+            city: { value: searchJSON.city, label: searchJSON.city },
+          });
+          setInput({
+            ...input,
+            currentCity: { value: searchJSON.city, label: searchJSON.city },
+          });
+        } else {
+          setInput({ ...input, city: "" });
+          setInput({ ...input, currentCity: "" });
+        }
       } else {
-        setCurrentCategory("");
-        setCurrentCity("");
-        setCurrentSearch("");
-        setCurrentSearchInput("");
+        setInput({ ...input, search: "" });
+        setInput({ ...input, currentSearch: "" });
+        setInput({ ...input, city: "" });
+        setInput({ ...input, currentCity: "" });
       }
+
+      console.log(input);
 
       const companiesResponse = await fetch("api/companies");
       let companiesData = [];
       if (companiesResponse.ok) companiesData = await companiesResponse.json();
 
-      const internshipsResponse = await fetch("api/internships");
+      const internshipsResponse = await fetch("api/internships/?" + search);
       let internshipsData = [];
       if (internshipsResponse.ok) internshipsData = await internshipsResponse.json();
-
-      let categoriesData = [];
-      await fetch("api/categories")
-        .then((res) => res.json())
-        .then((data) => {
-          categoriesData = data;
-        });
+      console.log(internshipsData);
 
       let citiesData = [];
+      let citiesOptionsData = [];
       await fetch("api/cities")
         .then((res) => res.json())
         .then((data) => {
           citiesData = data;
+          citiesOptionsData = getCitiesOptions(citiesData);
         });
 
       setCompanies(companiesData);
       setInternships(internshipsData);
       setCities(citiesData);
-      setCategories(categoriesData);
+      setCitiesOptions(getCitiesOptions(citiesData));
       setLoading(false);
 
       const indexOfLastInternship = currentPage * internshipsPerPage;
@@ -96,12 +154,10 @@ const Internships = () => {
       for (let i = 1; i <= Math.ceil(internshipsData.length / internshipsPerPage); i++) {
         pageNumbersData.push(i);
       }
-
       setCurrentInternships(currentInternshipsData);
       setPageNumbers(pageNumbersData);
-      setSubmitted(false);
-      // $("ul li.active").removeClass("active");
-      // $("ul li#" + currentPage).addClass("active");
+      $("ul li.active").removeClass("active");
+      $("ul li#" + currentPage).addClass("active");
     }
     populateInternshipsData();
   }, [submitted]);
@@ -202,72 +258,99 @@ const Internships = () => {
 
   const handleQuerySubmit = (event) => {
     event.preventDefault();
-    if (currentSearchInput !== "" || currentCategory !== "" || currentCity !== "") {
+    console.log(input);
+    if (input.currentSearch !== "" || input.currentCity.value !== undefined) {
       history.push(
         "/internships/query?searchString=" +
-          currentSearchInput +
+          input.currentSearch +
           "&city=" +
-          currentCity +
-          "&category=" +
-          currentCategory
+          input.currentCity.value ?? ""
       );
       setSubmitted(true);
     }
   };
 
   const handleResetFilters = () => {
-    setCurrentSearch("");
-    setCurrentCity("");
-    setCurrentCategory("");
-    setCurrentSearchInput("");
+    setInput({
+      search: "",
+      currentSearch: "",
+      city: "",
+      currentCity: "",
+    });
     setSubmitted(true);
     history.push("/internships");
   };
 
   return !loading ? (
     <>
-      <div style={{ width: 300, marginLeft: 15 }}>
-        <span
-          style={{
-            display: "inline",
-            whiteSpace: "nowrap",
-          }}
-        >
-          <form style={{ display: "inline" }} onSubmit={handleQuerySubmit}>
-            <input
-              style={{
-                display: "inline",
-                whiteSpace: "nowrap",
-              }}
-              type="text"
-              placeholder="Cauta"
-              className="form-control"
-              name="search"
-              value={currentSearchInput}
-              onChange={(e) => setCurrentSearchInput(e.target.value)}
-            />
-            <button
-              style={{
-                display: "inline",
-                whiteSpace: "nowrap",
-              }}
-              className="btn submit"
-              type="submit"
-            >
-              <Icon.Search />
-            </button>
-          </form>
+      <br />
+      {isStudent && <TabMenu />}
 
-          {currentCategory !== "" || currentCity !== "" || currentSearch !== "" ? (
-            <Button variant="contained" color="secondary" onClick={handleResetFilters}>
-              Resetează filtre
-            </Button>
-          ) : (
-            ""
-          )}
-        </span>
+      <div className="m-3">
+        <Paper style={{ width: "100%" }}>
+          <form onSubmit={handleQuerySubmit}>
+            <div className="container">
+              <div className="row align-items-center">
+                <div className="col-lg-3 m-2 mt-lg-4 mb-lg-4">
+                  <TextField
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    label="Căutare"
+                    type="text"
+                    // style={{ width: 450 }}
+                    value={input.currentSearch}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon />
+                        </InputAdornment>
+                      ),
+                    }}
+                    onChange={(e) =>
+                      setInput({ ...input, currentSearch: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="col-lg-3 m-2 mt-lg-4 mb-lg-4">
+                  <Select
+                    placeholder="Selectează oraș"
+                    value={input.currentCity}
+                    options={citiesOptions}
+                    onChange={(event) => setInput({ ...input, currentCity: event })}
+                    isSearchable
+                    required
+                    styles={customStyles}
+                  />
+                </div>
+                <div className="col-lg-4 mt-lg-4 mb-lg-4">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    className="mr-lg-2"
+                  >
+                    Caută
+                  </Button>
+                  {input.search !== "" || input.city !== "" ? (
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={handleResetFilters}
+                    >
+                      Resetează filtre
+                    </Button>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </div>
+            </div>
+          </form>
+        </Paper>
       </div>
 
+      <br />
       <div className="container">
         <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4">
           {currentInternships.map((internship, index) => (
@@ -275,7 +358,7 @@ const Internships = () => {
               <div className="card">
                 <InternshipCard
                   internshipId={internship.id}
-                  companyId={internship.idCompany}
+                  companyId={internship.companyId}
                 />
               </div>
             </div>
@@ -340,22 +423,22 @@ const Internships = () => {
           </li>
         )}
 
-        {(isNextBtnActive === "disabled" || Math.ceil(internships.length / internshipsPerPage)) ? (
+        {isNextBtnActive === "disabled" ||
+        Math.ceil(internships.length / internshipsPerPage) ? (
           <li className={isNextBtnActive}>
             <button className="btn btn-primary" disabled id="btnNext">
               {" "}
               Next{" "}
             </button>
           </li>
-        )
-        :
+        ) : (
           <li className={isNextBtnActive}>
-          <button className="btn btn-primary" id="btnNext" onClick={btnNextClick}>
-            {" "}
-            Next{" "}
-          </button>
+            <button className="btn btn-primary" id="btnNext" onClick={btnNextClick}>
+              {" "}
+              Next{" "}
+            </button>
           </li>
-      }
+        )}
       </ul>
     </>
   ) : (

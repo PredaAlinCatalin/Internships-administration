@@ -32,6 +32,12 @@ import "./CreateInternship.css";
 import Fab from "@material-ui/core/Fab";
 import Icon from "@material-ui/core/Icon";
 import SaveIcon from "@material-ui/icons/Save";
+import {
+  getCitiesOptions,
+  getCategoriesOptions,
+  getAptitudesOptions,
+} from "../Utility/Utility";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -119,39 +125,6 @@ const CreateInternship = () => {
     populateCreateInternshipData();
   }, []);
 
-  const getCitiesOptions = (cities) => {
-    let citiesOptions = [];
-    for (let i = 0; i < cities.length; i++) {
-      citiesOptions.push({
-        value: cities[i].name,
-        label: cities[i].name,
-      });
-    }
-    return citiesOptions;
-  };
-
-  const getCategoriesOptions = (categories) => {
-    let categoriesOptions = [];
-    for (let i = 0; i < categories.length; i++) {
-      categoriesOptions.push({
-        value: categories[i].name,
-        label: categories[i].name,
-      });
-    }
-    return categoriesOptions;
-  };
-
-  const getAptitudesOptions = (aptitudes) => {
-    let aptitudesOptions = [];
-    for (let i = 0; i < aptitudes.length; i++) {
-      aptitudesOptions.push({
-        value: aptitudes[i].name,
-        label: aptitudes[i].name,
-      });
-    }
-    return aptitudesOptions;
-  };
-
   const handleInternshipNameChange = (changeEvent) => {
     setInternshipName(changeEvent.target.value);
   };
@@ -204,9 +177,9 @@ const CreateInternship = () => {
     }
   };
 
-  const handleInternshipCategoryDelete = async (idCategory) => {
+  const handleInternshipCategoryDelete = async (categoryId) => {
     let filteredInternshipCategoriesAux = JSON.parse(
-      JSON.stringify(internshipCategoriesAux.filter((obj) => obj.id !== idCategory))
+      JSON.stringify(internshipCategoriesAux.filter((obj) => obj.id !== categoryId))
     );
 
     setInternshipCategoriesAux(filteredInternshipCategoriesAux);
@@ -240,9 +213,9 @@ const CreateInternship = () => {
     }
   };
 
-  const handleInternshipAptitudeDelete = async (idAptitude) => {
+  const handleInternshipAptitudeDelete = async (aptitudeId) => {
     let filteredInternshipAptitudesAux = JSON.parse(
-      JSON.stringify(internshipAptitudesAux.filter((obj) => obj.id !== idAptitude))
+      JSON.stringify(internshipAptitudesAux.filter((obj) => obj.id !== aptitudeId))
     );
 
     setInternshipAptitudesAux(filteredInternshipAptitudesAux);
@@ -269,8 +242,8 @@ const CreateInternship = () => {
       maxNumberStudents: internshipMaxNumberStudents,
       paid: internshipPaid,
       description: descriptionCopy,
-      idCompany: userId,
-      idCity: searchedCity !== undefined ? searchedCity.id : null,
+      companyId: userId,
+      cityId: searchedCity !== undefined ? searchedCity.id : null,
     };
 
     try {
@@ -288,8 +261,8 @@ const CreateInternship = () => {
         internshipData = await internshipResponse.json();
         for (let i = 0; i < internshipCategoriesAux.length; i++) {
           let internshipCategory = {
-            idInternship: internshipData.id,
-            idCategory: internshipCategoriesAux[i].id,
+            internshipId: internshipData.id,
+            categoryId: internshipCategoriesAux[i].id,
           };
 
           let aux = "api/internshipCategories";
@@ -305,8 +278,8 @@ const CreateInternship = () => {
 
         for (let i = 0; i < internshipAptitudesAux.length; i++) {
           let internshipAptitude = {
-            idInternship: internshipData.id,
-            idAptitude: internshipAptitudesAux[i].id,
+            internshipId: internshipData.id,
+            aptitudeId: internshipAptitudesAux[i].id,
           };
 
           let aux = "api/internshipAptitudes";
@@ -426,7 +399,6 @@ const CreateInternship = () => {
               format="dd/MM/yyyy"
               margin="normal"
               style={{ margin: 15 }}
-              id="date-picker-inline"
               label="Dată începere"
               value={internshipStartDate}
               onChange={handleInternshipStartDateChange}
@@ -441,7 +413,6 @@ const CreateInternship = () => {
               format="dd/MM/yyyy"
               margin="normal"
               style={{ margin: 15 }}
-              id="date-picker-inline"
               label="Dată sfârșit"
               value={internshipEndDate}
               onChange={handleInternshipEndDateChange}
@@ -456,7 +427,6 @@ const CreateInternship = () => {
               format="dd/MM/yyyy"
               margin="normal"
               style={{ margin: 15 }}
-              id="date-picker-inline"
               label="Deadline aplicări"
               value={internshipDeadline}
               onChange={handleInternshipDeadlineChange}
@@ -569,6 +539,7 @@ const CreateInternship = () => {
             value={aptitudesSelectedOption}
             options={aptitudesOptions}
             onChange={handleInternshipAptitudeChange}
+            required
           />
         </div>
 
@@ -596,6 +567,7 @@ const CreateInternship = () => {
               value={aptitudesSelectedOption}
               options={aptitudesOptions}
               onChange={handleInternshipAptitudeChange}
+              required
             />
           </Modal.Body>
           <Modal.Footer>

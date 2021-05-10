@@ -29,10 +29,10 @@ namespace Licenta.Controllers
         }
 
         // GET: api/StudentForeignLanguages/5
-        [HttpGet("student/{idStudent}/foreignLanguage/{idForeignLanguage}")]
-        public async Task<ActionResult<StudentForeignLanguage>> GetStudentForeignLanguage(string idStudent, int idForeignLanguage)
+        [HttpGet("student/{studentId}/foreignLanguage/{foreignLanguageId}")]
+        public async Task<ActionResult<StudentForeignLanguage>> GetStudentForeignLanguage(int studentId, int foreignLanguageId)
         {
-            var studentForeignLanguage = await _context.StudentForeignLanguages.FindAsync(idStudent, idForeignLanguage);
+            var studentForeignLanguage = await _context.StudentForeignLanguages.FindAsync(studentId, foreignLanguageId);
 
             if (studentForeignLanguage == null)
             {
@@ -55,7 +55,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateException)
             {
-                if (StudentForeignLanguageExists(studentForeignLanguage.IdStudent, studentForeignLanguage.IdForeignLanguage))
+                if (StudentForeignLanguageExists(studentForeignLanguage.StudentId, studentForeignLanguage.ForeignLanguageId))
                 {
                     return Conflict();
                 }
@@ -65,14 +65,14 @@ namespace Licenta.Controllers
                 }
             }
 
-            return CreatedAtAction("GetStudentForeignLanguage", new { idStudent = studentForeignLanguage.IdStudent, idForeignLanguage = studentForeignLanguage.IdForeignLanguage }, studentForeignLanguage);
+            return CreatedAtAction("GetStudentForeignLanguage", new { studentId = studentForeignLanguage.StudentId, foreignLanguageId = studentForeignLanguage.ForeignLanguageId }, studentForeignLanguage);
         }
 
         // DELETE: api/StudentForeignLanguages/5
-        [HttpDelete("student/{idStudent}/foreignLanguage/{idForeignLanguage}")]
-        public async Task<ActionResult<StudentForeignLanguage>> DeleteStudentForeignLanguage(string idStudent, int idForeignLanguage)
+        [HttpDelete("student/{studentId}/foreignLanguage/{foreignLanguageId}")]
+        public async Task<ActionResult<StudentForeignLanguage>> DeleteStudentForeignLanguage(int studentId, int foreignLanguageId)
         {
-            var studentForeignLanguage = await _context.StudentForeignLanguages.FindAsync(idStudent, idForeignLanguage);
+            var studentForeignLanguage = await _context.StudentForeignLanguages.FindAsync(studentId, foreignLanguageId);
             if (studentForeignLanguage == null)
             {
                 return NotFound();
@@ -84,9 +84,9 @@ namespace Licenta.Controllers
             return studentForeignLanguage;
         }
 
-        private bool StudentForeignLanguageExists(string idStudent, int idForeignLanguage)
+        private bool StudentForeignLanguageExists(int studentId, int foreignLanguageId)
         {
-            return _context.StudentForeignLanguages.Any(e => e.IdStudent == idStudent && e.IdForeignLanguage == idForeignLanguage);
+            return _context.StudentForeignLanguages.Any(e => e.StudentId == studentId && e.ForeignLanguageId == foreignLanguageId);
         }
     }
 }

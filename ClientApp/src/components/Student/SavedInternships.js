@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import * as Icon from "react-bootstrap-icons";
 import InternshipCard from "../Internships/InternshipCard";
+import TabMenu from "../Universal/TabMenu";
 
 export default class SavedInternships extends Component {
   constructor(props) {
@@ -75,28 +76,38 @@ export default class SavedInternships extends Component {
   renderSavedInternshipsData() {
     return (
       <>
-        <h5>Stagii salvate:</h5>
-        <br />
+        <TabMenu />
+        {this.state.savedStudentInternships.length > 0 ? (
+          <div>
+            <h5>Stagii salvate:</h5>
+            <br />
 
-        <div className="container">
-          <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4">
-            {this.state.savedStudentInternships.map((savedStudentInternship, index) => (
-              <div className="mb-3 col">
-                <div className="card">
-                  <InternshipCard
-                    internshipData={this.getInternship(
-                      savedStudentInternship.idInternship
-                    )}
-                    internshipId={savedStudentInternship.idInternship}
-                    companyId={
-                      this.getInternship(savedStudentInternship.idInternship).idCompany
-                    }
-                  />
-                </div>
+            <div className="container">
+              <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4">
+                {this.state.savedStudentInternships.map(
+                  (savedStudentInternship, index) => (
+                    <div className="mb-3 col">
+                      <div className="card">
+                        <InternshipCard
+                          internshipData={this.getInternship(
+                            savedStudentInternship.internshipId
+                          )}
+                          internshipId={savedStudentInternship.internshipId}
+                          companyId={
+                            this.getInternship(savedStudentInternship.internshipId)
+                              .companyId
+                          }
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center text-muted">Nu ai salvat niciun stagiu</div>
+        )}
       </>
     );
   }

@@ -7,9 +7,9 @@ namespace Licenta.Models
 {
     public class InternshipAptitude
     {
-        public int IdInternship { get; set; }
+        public int InternshipId { get; set; }
         public virtual Internship Internship { get; set; }
-        public int IdAptitude { get; set; }
+        public int AptitudeId { get; set; }
         public virtual Aptitude Aptitude { get; set; }
     }
 }

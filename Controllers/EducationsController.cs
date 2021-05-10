@@ -29,13 +29,13 @@ namespace Licenta.Controllers
         }
 
         [HttpGet("student/{id}")]
-        public async Task<ActionResult<IEnumerable<Education>>> GetEducationByStudent(string id)
+        public async Task<ActionResult<IEnumerable<Education>>> GetEducationByStudent(int id)
         {
             List<Education> Education = await _context.Educations.ToListAsync();
             List<Education> result = new List<Education>();
             foreach (Education education in Education)
             {
-                if (education.IdStudent == id)
+                if (education.StudentId == id)
                     result.Add(education);
             }
 

@@ -10,6 +10,7 @@ namespace Licenta.Models
     public class Aptitude
     {
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public virtual ICollection<StudentAptitude> StudentAptitudes { get; set; }
         public virtual ICollection<InternshipAptitude> InternshipAptitudes { get; set; }

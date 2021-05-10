@@ -32,6 +32,8 @@ import InternshipsList from "./components/Internships/InternshipsList";
 import SavedInternships from "./components/Student/SavedInternships";
 import StartPage from "./components/Start/StartPage";
 import InternshipsQueried from "./components/Internships/InternshipsQueried";
+import SavedInternshipsContextProvider from "./contexts/SavedInternshipsContext";
+import SavedInternshipsFunctional from "./components/Student/SavedInternshipsFunctional";
 
 const App = () => {
   const displayName = App.name;
@@ -71,96 +73,106 @@ const App = () => {
 
   return (
     <ProvideAuthentication>
-      <Layout>
-        <Route exact path="/">
-          <StartPage />
-        </Route>
+      <SavedInternshipsContextProvider>
+        <Layout>
+          <Route exact path="/">
+            <StartPage />
+          </Route>
 
-        {/* <Route exact path="/internships/query">
+          {/* <Route exact path="/internships/query">
             <InternshipsQueried />
           </Route> */}
 
-        <Route exact path="/internships/:query?">
-          <Internships />
-        </Route>
+          <Route exact path="/internships/:query?">
+            <Internships />
+          </Route>
 
-        <Route exact path="/companies">
-          <Companies />
-        </Route>
+          <Route exact path="/companies">
+            <Companies />
+          </Route>
 
-        <Route exact path="/company/:id" render={renderCompany} />
-        <Route exact path="/internship/:id" render={renderInternship} />
+          <Route exact path="/company/:id" render={renderCompany} />
+          <Route exact path="/internship/:id" render={renderInternship} />
 
-        <CompanyRoute exact path="/companyProfile">
-          <CompanyProfile />
-        </CompanyRoute>
+          <CompanyRoute exact path="/companyProfile">
+            <CompanyProfile />
+          </CompanyRoute>
 
-        <CompanyRoute exact path="/companyInternships">
-          <CompanyInternships />
-        </CompanyRoute>
+          <CompanyRoute exact path="/companyInternships">
+            <CompanyInternships />
+          </CompanyRoute>
 
-        <CompanyRoute exact path="/createInternship">
-          <CreateInternship />
-        </CompanyRoute>
+          <CompanyRoute exact path="/createInternship">
+            <CreateInternship />
+          </CompanyRoute>
 
-        <CompanyRoute
-          exact
-          path="/modifyInternship/:id"
-          component={renderModifyInternship}
-        />
-        <CompanyRoute
-          exact
-          path="/manageInternshipApplications/:id"
-          component={renderManageInternshipApplications}
-        />
-        <CompanyRoute exact path="/studentProfile/:id" component={renderStudentProfile} />
+          <CompanyRoute
+            exact
+            path="/modifyInternship/:id"
+            component={renderModifyInternship}
+          />
+          <CompanyRoute
+            exact
+            path="/manageInternshipApplications/:id"
+            component={renderManageInternshipApplications}
+          />
+          <CompanyRoute
+            exact
+            path="/studentProfile/:id"
+            component={renderStudentProfile}
+          />
 
-        <CompanyRoute exact path="/Logout">
-          <Logout />
-        </CompanyRoute>
+          <CompanyRoute exact path="/Logout">
+            <Logout />
+          </CompanyRoute>
 
-        <StudentRoute exact path="/internshipHistory">
-          <InternshipHistory />
-        </StudentRoute>
+          <StudentRoute exact path="/internshipHistory">
+            <InternshipHistory />
+          </StudentRoute>
 
-        <StudentRoute exact path="/internshipApplications">
-          <InternshipApplications />
-        </StudentRoute>
+          <StudentRoute exact path="/internshipApplications">
+            <InternshipApplications />
+          </StudentRoute>
 
-        <StudentRoute exact path="/savedInternships">
-          <SavedInternships />
-        </StudentRoute>
+          <StudentRoute exact path="/savedInternships">
+            <SavedInternships />
+          </StudentRoute>
 
-        <StudentRoute exact path="/profile">
-          <Profile />
-        </StudentRoute>
+          <StudentRoute exact path="/savedInternshipsfunctional">
+            <SavedInternshipsFunctional />
+          </StudentRoute>
 
-        <StudentRoute exact path="/successfulApplication">
-          <SuccessfulApplication />
-        </StudentRoute>
+          <StudentRoute exact path="/profile">
+            <Profile />
+          </StudentRoute>
 
-        <Route exact path="/SignUp">
-          <SignUp />
-        </Route>
+          <StudentRoute exact path="/successfulApplication">
+            <SuccessfulApplication />
+          </StudentRoute>
 
-        <Route exact path="/SuccessfulSignUp">
-          <SuccessfulSignUp />
-        </Route>
+          <Route exact path="/SignUp">
+            <SignUp />
+          </Route>
 
-        <Route exact path="/Login">
-          <Login />
-        </Route>
+          <Route exact path="/SuccessfulSignUp">
+            <SuccessfulSignUp />
+          </Route>
 
-        <Route exact path="/internshipReviews/:id" render={renderInternshipReviews} />
+          <Route exact path="/Login">
+            <Login />
+          </Route>
 
-        <Route exact path="/MyEditor">
-          <MyEditor />
-        </Route>
+          <Route exact path="/internshipReviews/:id" render={renderInternshipReviews} />
 
-        <Route exact path="/InternshipsList">
-          <InternshipsList />
-        </Route>
-      </Layout>
+          <Route exact path="/MyEditor">
+            <MyEditor />
+          </Route>
+
+          <Route exact path="/InternshipsList">
+            <InternshipsList />
+          </Route>
+        </Layout>
+      </SavedInternshipsContextProvider>
     </ProvideAuthentication>
   );
 };

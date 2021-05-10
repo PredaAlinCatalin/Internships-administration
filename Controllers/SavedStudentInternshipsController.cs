@@ -29,7 +29,7 @@ namespace Licenta.Controllers
         }
 
         [HttpGet("student/{id}")]
-        public async Task<ActionResult<IEnumerable<SavedStudentInternship>>> GetSavedStudentInternshipsByStudentId(string id)
+        public async Task<ActionResult<IEnumerable<SavedStudentInternship>>> GetSavedStudentInternshipsByStudentId(int id)
         {
             List<SavedStudentInternship> studentInternships = await _context.SavedStudentInternships.ToListAsync();
 
@@ -37,7 +37,7 @@ namespace Licenta.Controllers
 
             foreach (SavedStudentInternship studentInternship in studentInternships)
             {
-                if (studentInternship.IdStudent == id)
+                if (studentInternship.StudentId == id)
                     result.Add(studentInternship);
             }
 
@@ -56,7 +56,7 @@ namespace Licenta.Controllers
 
             foreach (SavedStudentInternship studentInternship in studentInternships)
             {
-                if (studentInternship.IdInternship == id)
+                if (studentInternship.InternshipId == id)
                     result.Add(studentInternship);
             }
 
@@ -68,8 +68,8 @@ namespace Licenta.Controllers
 
 
         // GET: api/SavedStudentInternships/5
-        [HttpGet("student/{idStudent}/internship/{idInternship}")]
-        public async Task<ActionResult<SavedStudentInternship>> GetSavedStudentInternship(string idStudent, int idInternship)
+        [HttpGet("student/{studentId}/internship/{internshipId}")]
+        public async Task<ActionResult<SavedStudentInternship>> GetSavedStudentInternship(int studentId, int internshipId)
         {
             List<SavedStudentInternship> studentInternships = await _context.SavedStudentInternships.ToListAsync();
 
@@ -77,7 +77,7 @@ namespace Licenta.Controllers
 
             foreach (SavedStudentInternship studentInternship in studentInternships)
             {
-                if (studentInternship.IdInternship == idInternship && studentInternship.IdStudent == idStudent)
+                if (studentInternship.InternshipId == internshipId && studentInternship.StudentId == studentId)
                     result = studentInternship;
             }
 
@@ -90,10 +90,10 @@ namespace Licenta.Controllers
         // PUT: api/SavedStudentInternships/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("student/{idStudent}/internship/{idInternship}")]
-        public async Task<IActionResult> PutSavedStudentInternship(string idStudent, int idInternship, SavedStudentInternship studentInternship)
+        [HttpPut("student/{studentId}/internship/{internshipId}")]
+        public async Task<IActionResult> PutSavedStudentInternship(int studentId, int internshipId, SavedStudentInternship studentInternship)
         {
-            if (idStudent != studentInternship.IdStudent && idInternship != studentInternship.IdInternship)
+            if (studentId != studentInternship.StudentId && internshipId != studentInternship.InternshipId)
             {
                 return BadRequest();
             }
@@ -106,7 +106,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!SavedStudentInternshipExists(idStudent, idInternship))
+                if (!SavedStudentInternshipExists(studentId, internshipId))
                 {
                     return NotFound();
                 }
@@ -132,7 +132,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateException)
             {
-                if (SavedStudentInternshipExists(studentInternship.IdStudent, studentInternship.IdInternship))
+                if (SavedStudentInternshipExists(studentInternship.StudentId, studentInternship.InternshipId))
                 {
                     return Conflict();
                 }
@@ -142,14 +142,14 @@ namespace Licenta.Controllers
                 }
             }
 
-            return CreatedAtAction("GetSavedStudentInternship", new { id = studentInternship.IdStudent }, studentInternship);
+            return CreatedAtAction("GetSavedStudentInternship", new { id = studentInternship.StudentId }, studentInternship);
         }
 
         // DELETE: api/SavedStudentInternships/5
-        [HttpDelete("student/{idStudent}/internship/{idInternship}")]
-        public async Task<ActionResult<SavedStudentInternship>> DeleteSavedStudentInternship(string idStudent, int idInternship)
+        [HttpDelete("student/{studentId}/internship/{internshipId}")]
+        public async Task<ActionResult<SavedStudentInternship>> DeleteSavedStudentInternship(int studentId, int internshipId)
         {
-            var studentInternship = await _context.SavedStudentInternships.FindAsync(idStudent, idInternship);
+            var studentInternship = await _context.SavedStudentInternships.FindAsync(studentId, internshipId);
             if (studentInternship == null)
             {
                 return NotFound();
@@ -161,9 +161,9 @@ namespace Licenta.Controllers
             return studentInternship;
         }
 
-        private bool SavedStudentInternshipExists(string idStudent, int idInternship)
+        private bool SavedStudentInternshipExists(int studentId, int internshipId)
         {
-            return _context.SavedStudentInternships.Any(e => e.IdStudent == idStudent && e.IdInternship == idInternship);
+            return _context.SavedStudentInternships.Any(e => e.StudentId == studentId && e.InternshipId == internshipId);
         }
     }
 }

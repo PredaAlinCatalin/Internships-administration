@@ -21,8 +21,8 @@ import { useHistory } from "react-router-dom";
 import WorkIcon from "@material-ui/icons/Work";
 import BusinessIcon from "@material-ui/icons/Business";
 import AddIcon from "@material-ui/icons/Add";
-import {useIsStudent, useIsCompany} from "./Authentication/Authentication";
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { useIsStudent, useIsCompany } from "./Authentication/Authentication";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -127,8 +127,7 @@ export default function NewNavMenu() {
           history.push("/logout");
           break;
       }
-    }
-    else if (isCompany) {
+    } else if (isCompany) {
       switch (newValue) {
         case 0:
           history.push("/companyProfile");
@@ -145,8 +144,7 @@ export default function NewNavMenu() {
           history.push("/logout");
           break;
       }
-    }
-    else {
+    } else {
       switch (newValue) {
         case 0:
           history.push("/internships");
@@ -162,7 +160,6 @@ export default function NewNavMenu() {
           break;
       }
     }
-    
   };
 
   const classes = useStyles();
@@ -177,39 +174,34 @@ export default function NewNavMenu() {
       // scrollButtons="off"
       aria-label="scrollable prevent tabs example"
     >
-      {isCompany && 
-      <Tab label="Profil" icon={<BusinessIcon />} aria-label="companyProfile" />
-      }
-      {isCompany && 
-      <Tab label="Stagii" icon={<WorkIcon />} aria-label="companyInternships" />
-      }
-      {isCompany && 
-      <Tab label="Nou stagiu" icon={<AddIcon />} aria-label="createInternship" />
-      }
-      
-      {isStudent && 
-      <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />
-      }
-      {isStudent && 
-      <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
-      }
-      {isStudent && 
-      <Tab label="Profil" icon={<PersonPinIcon />} aria-label="profile" />
-      }
+      {isCompany && (
+        <Tab label="Profil" icon={<BusinessIcon />} aria-label="companyProfile" />
+      )}
+      {isCompany && (
+        <Tab label="Stagii" icon={<WorkIcon />} aria-label="companyInternships" />
+      )}
+      {isCompany && (
+        <Tab label="Nou stagiu" icon={<AddIcon />} aria-label="createInternship" />
+      )}
 
-      {!isStudent && !isCompany && 
-      <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />
-      }
-      {!isStudent && !isCompany && 
-      <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
-      }
-      {!isStudent && !isCompany && 
-      <Tab label="Login" icon={<ExitToAppIcon />} aria-label="login" />
-      }
-      {(isCompany || isStudent) && 
-      <Tab label="Logout" icon={<ExitToAppIcon />} aria-label="logout" />
-      }
-      
+      {isStudent && <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />}
+      {isStudent && (
+        <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
+      )}
+      {isStudent && <Tab label="Profil" icon={<PersonPinIcon />} aria-label="profile" />}
+
+      {!isStudent && !isCompany && (
+        <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />
+      )}
+      {!isStudent && !isCompany && (
+        <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
+      )}
+      {!isStudent && !isCompany && (
+        <Tab label="Login" icon={<ExitToAppIcon />} aria-label="login" />
+      )}
+      {(isCompany || isStudent) && (
+        <Tab label="Logout" icon={<ExitToAppIcon />} aria-label="logout" />
+      )}
     </Tabs>
   );
 
@@ -222,38 +214,34 @@ export default function NewNavMenu() {
       // scrollButtons="off"
       aria-label="scrollable prevent tabs example"
     >
-      {isCompany && 
-      <Tab label="Profil" icon={<BusinessIcon />} aria-label="companyProfile" />
-      }
-      {isCompany && 
-      <Tab label="Stagii" icon={<WorkIcon />} aria-label="companyInternships" />
-      }
-      {isCompany && 
-      <Tab label="Nou stagiu" icon={<AddIcon />} aria-label="createInternship" />
-      }
-      
-      {isStudent && 
-      <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />
-      }
-      {isStudent && 
-      <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
-      }
-      {isStudent && 
-      <Tab label="Profil" icon={<PersonPinIcon />} aria-label="profile" />
-      }
+      {isCompany && (
+        <Tab label="Profil" icon={<BusinessIcon />} aria-label="companyProfile" />
+      )}
+      {isCompany && (
+        <Tab label="Stagii" icon={<WorkIcon />} aria-label="companyInternships" />
+      )}
+      {isCompany && (
+        <Tab label="Nou stagiu" icon={<AddIcon />} aria-label="createInternship" />
+      )}
 
-      {!isStudent && !isCompany && 
-      <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />
-      }
-      {!isStudent && !isCompany && 
-      <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
-      }
-      {!isStudent && !isCompany && 
-      <Tab label="Login" icon={<ExitToAppIcon />} aria-label="login" />
-      }
-      {(isCompany || isStudent) && 
-      <Tab label="Logout" icon={<ExitToAppIcon />} aria-label="logout" />
-      }
+      {isStudent && <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />}
+      {isStudent && (
+        <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
+      )}
+      {isStudent && <Tab label="Profil" icon={<PersonPinIcon />} aria-label="profile" />}
+
+      {!isStudent && !isCompany && (
+        <Tab label="Stagii" icon={<WorkIcon />} aria-label="internships" />
+      )}
+      {!isStudent && !isCompany && (
+        <Tab label="Companii" icon={<BusinessIcon />} aria-label="companies" />
+      )}
+      {!isStudent && !isCompany && (
+        <Tab label="Login" icon={<ExitToAppIcon />} aria-label="login" />
+      )}
+      {(isCompany || isStudent) && (
+        <Tab label="Logout" icon={<ExitToAppIcon />} aria-label="logout" />
+      )}
     </Tabs>
   );
 

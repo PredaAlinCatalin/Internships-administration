@@ -41,9 +41,9 @@ namespace Licenta.Controllers
 
             foreach (InternshipCategory internshipCategory in internshipCategories)
             {
-                if (internshipCategory.IdInternship == id)
+                if (internshipCategory.InternshipId == id)
                 {
-                    Category searchedCategory = await _context.Categories.FindAsync(internshipCategory.IdCategory);
+                    Category searchedCategory = await _context.Categories.FindAsync(internshipCategory.CategoryId);
                     categories.Add(searchedCategory);
                 }
             }

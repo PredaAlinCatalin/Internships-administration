@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Card from "@material-ui/core/Card";
@@ -22,6 +22,7 @@ import ButtonBase from "@material-ui/core/ButtonBase";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@material-ui/core/Link";
 import { CardActionArea } from "@material-ui/core";
+import { SavedInternshipsContext } from "../../contexts/SavedInternshipsContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,6 +63,7 @@ const InternshipCard = ({ internshipId, companyId }) => {
   const [userRole, setUserRole] = useState(null);
   const isStudent = useIsStudent();
   const [saved, setSaved] = useState(false);
+  const { dispatchSavedInternships } = useContext(SavedInternshipsContext);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -81,7 +83,7 @@ const InternshipCard = ({ internshipId, companyId }) => {
         .then((internshipData) => {
           setInternship(internshipData);
 
-          return fetch("api/cities/" + internshipData.idCity);
+          return fetch("api/cities/" + internshipData.cityId);
         })
         .then((res) => res.json())
         .then((data) => {
@@ -138,20 +140,21 @@ const InternshipCard = ({ internshipId, companyId }) => {
   const handleSave = async (event) => {
     event.stopPropagation();
     const body = {
-      idInternship: internshipId,
-      idStudent: userId,
+      internshipId: internshipId,
+      studentId: userId,
     };
 
-    await fetch("api/savedStudentInternships", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    }).then((res) => {
-      if (res.ok) setSaved(true);
-    });
-    console.log("saved");
+    // await fetch("api/savedStudentInternships", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(body),
+    // }).then((res) => {
+    //   if (res.ok) setSaved(true);
+    // });
+    // console.log("saved");
+    dispatchSavedInternships({ type: "ADD_SAVED_INTERNSHIP", savedInternship: body });
   };
 
   const handleDelete = async (event) => {

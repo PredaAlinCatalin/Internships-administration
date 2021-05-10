@@ -16,6 +16,7 @@ using Microsoft.Extensions.FileProviders;
 using System.IO;
 using System;
 using System.Linq;
+using Licenta.Repositories;
 
 namespace Licenta
 {
@@ -65,6 +66,9 @@ namespace Licenta
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddScoped<IInternshipsRepository, InternshipsRepository>();
+
+
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen();
@@ -75,6 +79,16 @@ namespace Licenta
             {
                 configuration.RootPath = "ClientApp/build";
             });        
+        }
+
+        private object InternshipRepository(IServiceProvider arg)
+        {
+            throw new NotImplementedException();
+        }
+
+        private object IInternshipRepository(IServiceProvider arg)
+        {
+            throw new NotImplementedException();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

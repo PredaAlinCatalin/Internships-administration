@@ -30,13 +30,13 @@ namespace Licenta.Controllers
 
         // GET: api/AptitudesByStudent/5
         [HttpGet("student/{id}")]
-        public async Task<ActionResult<IEnumerable<ForeignLanguage>>> GetAptitudesByStudent(string id)
+        public async Task<ActionResult<IEnumerable<ForeignLanguage>>> GetAptitudesByStudent(int id)
         {
             //List<ForeignLanguage> ForeignLanguages = await _context.ForeignLanguages.ToListAsync();
             //List<ForeignLanguage> result = new List<ForeignLanguage>();
             //foreach (ForeignLanguage ForeignLanguage in ForeignLanguages)
             //{
-            //    if (ForeignLanguage.IdStudent == id)
+            //    if (ForeignLanguage.StudentId == id)
             //        result.Add(ForeignLanguage);
             //}
 
@@ -69,7 +69,7 @@ namespace Licenta.Controllers
 
             foreach (StudentForeignLanguage studentForeignLanguage in studentForeignLanguages)
             {
-                if (studentForeignLanguage.IdStudent == id)
+                if (studentForeignLanguage.StudentId == id)
                 {
                     //ForeignLanguage foreignLanguage = await _context.ForeignLanguages.FindAsync(studentForeignLanguage.IdForeignLanguage);
                     foreignLanguages.Add(studentForeignLanguage.ForeignLanguage);

@@ -35,7 +35,7 @@ namespace Licenta.Controllers
             List<Project> result = new List<Project>();
             foreach (Project project in projects)
             {
-                if (project.IdStudent == id)
+                if (project.StudentId == id)
                     result.Add(project);
             }
 

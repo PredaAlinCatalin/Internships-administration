@@ -45,11 +45,12 @@ class Companies extends Component {
 
   renderCompaniesData() {
     return (
-      <div className="text-center">
-        <h3>Companii</h3>
+      <div className="justify-content-start">
+        <br />
+        <h3 className="text-center">Companii</h3>
         <br />
         {this.state.companies.map((company, index) => (
-          <span key={index}>
+          <span key={index} className="mr-3">
             <img
               width="250"
               alt="picture"
@@ -58,10 +59,6 @@ class Companies extends Component {
               onMouseOut={(e) => (e.target.style.cursor = "normal")}
               onClick={() => this.handleSelectCompany(company.id)}
             />
-
-            <h4>{company.name}</h4>
-
-            <br />
           </span>
         ))}
       </div>

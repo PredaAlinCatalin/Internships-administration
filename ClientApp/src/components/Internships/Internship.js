@@ -1,4 +1,4 @@
-﻿import React, { Component } from "react";
+﻿import React, { useState, useEffect } from "react";
 import * as Icon from "react-bootstrap-icons";
 import { StudentInternshipStatus } from "../Constants";
 import { withRouter, Link } from "react-router-dom";
@@ -25,177 +25,136 @@ import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { Paper } from "@material-ui/core";
 
+import { useIsStudent, useIsCompany } from "../Authentication/Authentication";
+import { useHistory } from "react-router-dom";
+
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-class Internship extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: true,
-      internship: "",
-      company: "",
-      city: "",
-      categories: [],
-      aptitudes: [],
-      isAuthenticated: false,
-      userId: null,
-      isApplied: false,
-      isAccepted: false,
-      canGrade: false,
-      internshipGrade: 0,
-      internshipGrading: 0,
-      nrGrades: 0,
-      nrStudents: 0,
-      open: false,
-      isSaved: false,
-      userId: "",
-      userRole: "",
-    };
-  }
+const Internship = ({ internshipId }) => {
+  const [loading, setLoading] = useState(true);
+  const [internship, setInternship] = useState("");
+  const [company, setCompany] = useState("");
+  const [city, setCity] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [aptitudes, setAptitudes] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isApplied, setIsApplied] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
+  const [internshipGrade, setInternshipGrade] = useState(0);
+  const [internshipGrading, setInternshipGrading] = useState(0);
+  const [nrGrades, setNrGrades] = useState(0);
+  const [nrStudents, setNrStudents] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [userId, setUserId] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const isStudent = useIsStudent();
+  const isCompany = useIsCompany();
+  const history = useHistory();
 
-  componentDidMount() {
-    this.populateInternshipData();
-  }
+  useEffect(() => {
+    async function populateInternshipData() {
+      let user = JSON.parse(sessionStorage.getItem("user"));
+      if (user !== null) setUserId(user.id);
 
-  populateInternshipData = async () => {
-    let user = JSON.parse(sessionStorage.getItem("user"));
-    if (user !== null)
-      this.setState({
-        userId: user.id,
-        userRole: user.role,
-        isAuthenticated: true,
-      });
+      let internshipResponse = await fetch("api/internships/" + internshipId);
+      let internshipData = "";
+      if (internshipResponse.ok) {
+        internshipData = await internshipResponse.json();
+        let descriptionCopy = internshipData.description;
+        descriptionCopy = descriptionCopy.replaceAll("<br/>", "\n");
+        internshipData.description = descriptionCopy;
+        console.log(internshipData);
+        setInternship(internshipData);
+      }
 
-    let internshipResponse = await fetch("api/internships/" + this.props.internshipId);
-    let internshipData = "";
-    if (internshipResponse.ok) {
-      internshipData = await internshipResponse.json();
-      let descriptionCopy = internshipData.description;
-      descriptionCopy = descriptionCopy.replaceAll("<br/>", "\n");
-      internshipData.description = descriptionCopy;
-      console.log(internshipData);
-      this.setState({
-        internship: internshipData,
-      });
-    }
+      let companyResponse = await fetch("api/companies/" + internshipData.companyId);
+      let companyData = "";
+      if (companyResponse.ok) {
+        companyData = await companyResponse.json();
+        setCompany(companyData);
+      }
 
-    let companyResponse = await fetch("api/companies/" + internshipData.idCompany);
-    let companyData = "";
-    if (companyResponse.ok) {
-      companyData = await companyResponse.json();
-      this.setState({
-        company: companyData,
-      });
-    }
+      let cityResponse = await fetch("api/cities/" + internshipData.cityId);
+      let cityData = "";
+      if (cityResponse.ok) {
+        cityData = await cityResponse.json();
+        setCity(cityData);
+      }
 
-    let cityResponse = await fetch("api/cities/" + internshipData.idCity);
-    let cityData = "";
-    if (cityResponse.ok) {
-      cityData = await cityResponse.json();
-      this.setState({
-        city: cityData,
-      });
-    }
+      const categoriesResponse = await fetch("api/categories/internship/" + internshipId);
+      let categoriesData = [];
+      if (categoriesResponse.ok) categoriesData = await categoriesResponse.json();
 
-    const categoriesResponse = await fetch(
-      "api/categories/internship/" + this.props.internshipId
-    );
-    let categoriesData = [];
-    if (categoriesResponse.ok) categoriesData = await categoriesResponse.json();
+      const aptitudesResponse = await fetch("api/aptitudes/internship/" + internshipId);
+      let aptitudesData = [];
+      if (aptitudesResponse.ok) aptitudesData = await aptitudesResponse.json();
 
-    const aptitudesResponse = await fetch(
-      "api/aptitudes/internship/" + this.props.internshipId
-    );
-    let aptitudesData = [];
-    if (aptitudesResponse.ok) aptitudesData = await aptitudesResponse.json();
+      if (isStudent) {
+        const studentInternshipResponse = await fetch(
+          "api/studentInternships/student/" + user.id + "/internship/" + internshipId
+        );
+        if (studentInternshipResponse.ok) {
+          let studentInternshipData = await studentInternshipResponse.json();
 
-    if (user !== null) {
-      const studentInternshipResponse = await fetch(
-        "api/studentInternships/student/" +
-          user.id +
-          "/internship/" +
-          this.props.internshipId
-      );
-      if (studentInternshipResponse.ok) {
-        let studentInternshipData = await studentInternshipResponse.json();
-        if (checkDateIsPast(internshipData.endDate)) {
-          this.setState({
-            canGrade: true,
-            internshipGrade: studentInternshipData.internshipGrade,
-          });
-        }
+          setIsApplied(true);
 
-        this.setState({ isApplied: true });
-
-        if (checkDateIsPast(internshipData.deadline)) {
-          console.log(internshipData.deadline);
-          console.log(studentInternshipData.status);
-          if (studentInternshipData.status === StudentInternshipStatus.accepted) {
-            this.setState({ isAccepted: true });
+          if (checkDateIsPast(internshipData.deadline)) {
+            console.log(internshipData.deadline);
+            console.log(studentInternshipData.status);
+            if (studentInternshipData.status === StudentInternshipStatus.accepted) {
+              setIsAccepted(true);
+            }
           }
-        }
-      } else this.setState({ canGrade: false });
-    }
-
-    let studentInternshipsByInternshipResponse = await fetch(
-      "api/studentInternships/internship/" + this.props.internshipId
-    );
-    if (studentInternshipsByInternshipResponse.ok) {
-      let studentInternshipsByInternshipData = await studentInternshipsByInternshipResponse.json();
-
-      let sumOfGrades = 0;
-      let nrGradesCopy = 0;
-      for (let i = 0; i < studentInternshipsByInternshipData.length; i++) {
-        if (
-          studentInternshipsByInternshipData[i].status ===
-          StudentInternshipStatus.accepted
-        ) {
-        }
-        if (studentInternshipsByInternshipData[i].internshipGrade > 0) {
-          sumOfGrades =
-            sumOfGrades + studentInternshipsByInternshipData[i].internshipGrade;
-          nrGradesCopy = nrGradesCopy + 1;
         }
       }
 
-      this.setState({
-        internshipGrading: nrGradesCopy !== 0 ? sumOfGrades / nrGradesCopy : 0,
-        nrGrades: nrGradesCopy,
-        nrStudents: studentInternshipsByInternshipData.length,
-      });
-    }
-    if (user !== null && user.role == "Student") {
-      let aux =
-        "api/savedStudentInternships/student/" +
-        user.id +
-        "/internship/" +
-        this.state.internship.id;
-      await fetch(aux)
-        .then((res) => {
-          return res.json();
+      await fetch("api/studentInternshipReviews/internship/" + internshipId)
+        .then(async (res) => {
+          if (res.ok) {
+            let data = await res.json();
+
+            let sumOfGrades = 0;
+
+            if (data.length > 0) {
+              for (let i = 0; i < data.length; i++) {
+                sumOfGrades = sumOfGrades + data[i].grade;
+              }
+              setInternshipGrading(sumOfGrades / data.length);
+              setNrGrades(data.length);
+            }
+          }
         })
-        .then((data) => {
-          if (data.status === 404) return;
-          this.setState({ isSaved: true });
-          console.log("SAVED");
+        .catch((error) => console.log(error));
+      if (isStudent) {
+        let aux =
+          "api/savedStudentInternships/student/" +
+          user.id +
+          "/internship/" +
+          internshipId;
+        await fetch(aux).then(async (res) => {
+          if (res.ok) {
+            setIsSaved(true);
+          }
         });
+      }
+
+      setCategories(categoriesData);
+      setAptitudes(aptitudesData);
+      setLoading(false);
     }
 
-    this.setState({
-      categories: categoriesData,
-      aptitudes: aptitudesData,
-      loading: false,
-    });
-  };
+    populateInternshipData();
+  }, []);
 
-  handleStudentInternshipCreate = async () => {
+  const handleStudentInternshipCreate = async () => {
     let currentDate = getFormattedDate(new Date());
 
     let newStudentInternship = {
-      idStudent: this.state.userId,
-      idInternship: this.state.internship.id,
+      studentId: userId,
+      internshipId: internship.id,
       applicationDate: currentDate,
       status: StudentInternshipStatus.pending,
     };
@@ -209,22 +168,18 @@ class Internship extends Component {
       body: JSON.stringify(newStudentInternship),
     });
 
-    if (studentInternshipResponse.ok)
-      this.setState({
-        isApplied: true,
-        open: true,
-      });
+    if (studentInternshipResponse.ok) {
+      setIsApplied(true);
+      setOpen(true);
+    }
   };
 
-  handleStudentInternshipDelete = async () => {
+  const handleStudentInternshipDelete = async () => {
     const answer = window.confirm("Confirmă stergerea");
 
     if (answer) {
       const studentInternshipResponse = await fetch(
-        "api/studentInternships/student/" +
-          this.state.userId +
-          "/internship/" +
-          this.state.internship.id,
+        "api/studentInternships/student/" + userId + "/internship/" + internship.id,
         {
           method: "DELETE",
           headers: {
@@ -233,38 +188,29 @@ class Internship extends Component {
         }
       );
 
-      if (studentInternshipResponse.ok)
-        this.setState({
-          isApplied: false,
-        });
+      if (studentInternshipResponse.ok) setIsApplied(false);
     }
   };
 
-  handleNotLoggedIn = () => {
+  const handleNotLoggedIn = () => {
     //history.push(ApplicationPaths.Login);
   };
 
-  handleInternshipGradeChange = (changeEvent) => {
-    this.setState({
-      internshipGrade: changeEvent.target.value,
-    });
+  const handleInternshipGradeChange = (changeEvent) => {
+    setInternshipGrade(changeEvent.target.value);
   };
 
-  handleInternshipGradeForm = async (studentInternship, formSubmitEvent) => {
+  const handleInternshipGradeForm = async (studentInternship, formSubmitEvent) => {
     formSubmitEvent.preventDefault();
     let modifiedStudentInternship = {
-      idStudent: this.state.userId,
-      idInternship: this.state.studentInternship.idInternship,
-      applicationDate: this.state.studentInternship.applicationDate,
-      status: this.state.studentInternship.status,
-      internshipGrade: this.state.internshipGrade,
+      studentId: userId,
+      internshipId: studentInternship.internshipId,
+      applicationDate: studentInternship.applicationDate,
+      status: studentInternship.status,
+      internshipGrade: internshipGrade,
     };
 
-    let aux =
-      "api/studentInternships/student/" +
-      this.state.userId +
-      "/internship/" +
-      this.state.internship.id;
+    let aux = "api/studentInternships/student/" + userId + "/internship/" + internship.id;
     await fetch(aux, {
       method: "PUT",
       headers: {
@@ -275,7 +221,7 @@ class Internship extends Component {
     });
 
     let studentInternshipsByInternshipResponse = await fetch(
-      "api/studentInternships/internship/" + this.props.internshipId
+      "api/studentInternships/internship/" + internshipId
     );
     if (studentInternshipsByInternshipResponse.ok) {
       let studentInternshipsByInternshipData = await studentInternshipsByInternshipResponse.json();
@@ -291,42 +237,40 @@ class Internship extends Component {
         }
       }
 
-      this.setState({
-        internshipGrading: sumOfGrades / nrGradesCopy,
-        nrGrades: nrGradesCopy,
-      });
+      setInternshipGrading(sumOfGrades / nrGradesCopy);
+      setNrGrades(nrGradesCopy);
     }
   };
 
-  handleClickedAddress = (address) => {
+  const handleClickedAddress = (address) => {
     window.open("https://www.google.ro/maps/place/" + address);
   };
 
-  handleClickedWebsite = (website) => {
+  const handleClickedWebsite = (website) => {
     window.open(website);
   };
 
-  ratingChanged = (newRating) => {
+  const ratingChanged = (newRating) => {
     console.log(newRating);
   };
 
-  handleClick = () => {
-    this.setState({ open: true });
+  const handleClick = () => {
+    setOpen(true);
   };
 
-  handleClose = (event, reason) => {
+  const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
 
-    this.setState({ open: false });
+    setOpen(false);
   };
 
-  handleSavedStudentInternshipCreate = async (event) => {
+  const handleSavedStudentInternshipCreate = async (event) => {
     event.stopPropagation();
     const body = {
-      idInternship: this.state.internship.id,
-      idStudent: this.state.userId,
+      internshipId: internship.id,
+      studentId: userId,
     };
 
     console.log(body);
@@ -338,28 +282,25 @@ class Internship extends Component {
       },
       body: JSON.stringify(body),
     }).then((res) => {
-      if (res.ok) this.setState({ isSaved: true });
+      if (res.ok) setIsSaved(true);
       console.log("saved");
     });
   };
 
-  handleSavedStudentInternshipDelete = async (event) => {
+  const handleSavedStudentInternshipDelete = async (event) => {
     event.stopPropagation();
     await fetch(
-      "api/savedStudentInternships/student/" +
-        this.state.userId +
-        "/internship/" +
-        this.state.internship.id,
+      "api/savedStudentInternships/student/" + userId + "/internship/" + internship.id,
       {
         method: "DELETE",
       }
     ).then((res) => {
-      if (res.ok) this.setState({ isSaved: false });
+      if (res.ok) setIsSaved(false);
       console.log("Deleted");
     });
   };
 
-  renderInternshipHeader = () => {
+  const renderInternshipHeader = () => {
     return (
       <div className="container">
         <div className="row">
@@ -368,37 +309,35 @@ class Internship extends Component {
               style={{ width: 100, height: 100, marginRight: 10 }}
               aria-label="recipe"
               alt="logo"
-              src={"logos/" + this.state.company.logoPath}
+              src={"logos/" + company.logoPath}
               variant="rounded"
               onMouseOver={(e) => (e.target.style.cursor = "pointer")}
               onMouseOut={(e) => (e.target.style.cursor = "normal")}
-              onClick={() =>
-                this.props.history.push("/company/" + this.state.internship.idCompany)
-              }
+              onClick={() => history.push("/company/" + internship.companyId)}
             ></Avatar>
           </div>
           <div className="column">
             <div className="container">
               <div className="row">
                 <div className="col-md-12">
-                  <Link to={"/internship/" + this.state.internship.id}>
+                  <Link to={"/internship/" + internship.id}>
                     <b
                       style={{
                         // fontFamily: theme.typography.fontFamily,
                         color: "black",
                       }}
                     >
-                      {this.state.internship.name}
+                      {internship.name}
                     </b>
                   </Link>
                   <br />
-                  <Link to={"/company/" + this.state.internship.idCompany}>
+                  <Link to={"/company/" + internship.companyId}>
                     <b
                       style={{
                         fontSize: 14,
                       }}
                     >
-                      {this.state.company.name}
+                      {company.name}
                     </b>
                   </Link>
                   <span
@@ -407,7 +346,7 @@ class Internship extends Component {
                       fontSize: 14,
                     }}
                   >
-                    {this.state.internship.paid ? "Platit" : "Neplatit"}
+                    {internship.paid ? "Platit" : "Neplatit"}
                   </span>
                   <span
                     style={{
@@ -415,7 +354,7 @@ class Internship extends Component {
                       fontSize: 14,
                     }}
                   >
-                    {this.state.city.name}
+                    {city.name}
                     <Icon.GeoAltFill />
                   </span>
                 </div>
@@ -423,67 +362,54 @@ class Internship extends Component {
             </div>
 
             <div className="container">
-              <div className="row">
-                <div className="col-md-6">
+              <div className="row ml-0">
+                <div className="column">
                   <Box
                     component="fieldset"
                     mb={3}
                     borderColor="transparent"
-                    onClick={() =>
-                      this.props.history.push(
-                        "/internshipReviews/" + this.state.internship.id
-                      )
-                    }
+                    onClick={() => history.push("/internshipReviews/" + internship.id)}
                     onMouseOver={(event) => (event.target.style.cursor = "pointer")}
                     onMouseOut={(event) => (event.target.style.cursor = "normal")}
                   >
-                    <Rating
-                      name="read-only"
-                      value={this.state.internshipGrading}
-                      readOnly
-                    />
+                    <Rating name="read-only" value={internshipGrading} readOnly />
                   </Box>
                 </div>
-                <div className="col-md-6">
-                  <Link to={"/internshipReviews/" + this.state.internship.id}>
-                    {this.state.nrGrades} review-uri
+                <div className="column">
+                  <Link to={"/internshipReviews/" + internship.id}>
+                    {nrGrades} {nrGrades == 1 ? "review" : "review-uri"}
                   </Link>
                 </div>
               </div>
             </div>
-            <div></div>
           </div>
         </div>
       </div>
     );
   };
 
-  isStudent = () => {
-    return this.state.userRole === "Student";
-  };
-
-  renderInternshipData = () => {
-    return (
+  return !loading ? (
+    <Paper>
       <div class="container p-4 mb-5">
         <div class="row">
           <div class="col-lg-9">
-            {this.renderInternshipHeader()}
+            {renderInternshipHeader()}
 
             <br />
 
             <div className="container">
               <div className="row">
                 <div className="column mr-3">
-                  {this.isStudent() && this.state.isAccepted && (
+                  {isStudent && isAccepted && (
                     <b className="text-success">Aplicat si acceptat</b>
                   )}
 
-                  {this.isStudent() && this.state.isApplied && !this.state.isAccepted && (
+                  {isStudent && isApplied && !isAccepted && (
                     <div>
                       <Button
                         variant="contained"
                         color="secondary"
-                        onClick={this.handleStudentInternshipDelete}
+                        onClick={handleStudentInternshipDelete}
                         startIcon={<DeleteIcon />}
                       >
                         Șterge aplicarea
@@ -491,33 +417,29 @@ class Internship extends Component {
                     </div>
                   )}
 
-                  {this.isStudent() && !this.state.isApplied && (
+                  {isStudent && !isApplied && (
                     <div>
                       <Button
                         variant="contained"
                         color="primary"
                         startIcon={<SendIcon />}
-                        onClick={this.handleStudentInternshipCreate}
+                        onClick={handleStudentInternshipCreate}
                       >
                         Candidează
                       </Button>
-                      <Snackbar
-                        open={this.state.open}
-                        autoHideDuration={6000}
-                        onClose={this.handleClose}
-                      >
-                        <Alert onClose={this.handleClose} severity="success">
+                      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                        <Alert onClose={handleClose} severity="success">
                           Ai aplicat cu succes la stagiu!
                         </Alert>
                       </Snackbar>
                     </div>
                   )}
 
-                  {!this.state.isAuthenticated && (
+                  {!isStudent && !isCompany && (
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => this.props.history.push("/login")}
+                      onClick={() => history.push("/login")}
                     >
                       Loghează-te pentru a aplica
                     </Button>
@@ -525,22 +447,22 @@ class Internship extends Component {
                 </div>
 
                 <div className="column">
-                  {this.isStudent() && !this.state.isSaved && (
+                  {isStudent && !isSaved && (
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={this.handleSavedStudentInternshipCreate}
+                      onClick={handleSavedStudentInternshipCreate}
                       startIcon={<BookmarkBorderIcon />}
                     >
                       Salvează
                     </Button>
                   )}
 
-                  {this.isStudent() && this.state.isSaved && (
+                  {isStudent && isSaved && (
                     <Button
                       variant="contained"
                       color="secondary"
-                      onClick={this.handleSavedStudentInternshipDelete}
+                      onClick={handleSavedStudentInternshipDelete}
                       startIcon={<BookmarkIcon />}
                     >
                       Anulează salvarea
@@ -553,8 +475,8 @@ class Internship extends Component {
             <br />
             <div>
               <b>Perioada: </b>
-              {getFormattedDateNoTime(new Date(this.state.internship.startDate))} -{" "}
-              {getFormattedDateNoTime(new Date(this.state.internship.endDate))}
+              {getFormattedDateNoTime(new Date(internship.startDate))} -{" "}
+              {getFormattedDateNoTime(new Date(internship.endDate))}
             </div>
             <p></p>
             <table>
@@ -564,8 +486,8 @@ class Internship extends Component {
                     <b>Aptitudini:</b>
                     <p> </p>
                     <ul>
-                      {this.state.aptitudes !== []
-                        ? this.state.aptitudes.map((aptitude) => <li>{aptitude.name}</li>)
+                      {aptitudes !== []
+                        ? aptitudes.map((aptitude) => <li>{aptitude.name}</li>)
                         : ""}
                     </ul>
                   </td>
@@ -573,10 +495,8 @@ class Internship extends Component {
                     <b>Categorii:</b>
                     <p> </p>
                     <ul>
-                      {this.state.categories !== []
-                        ? this.state.categories.map((category) => (
-                            <li>{category.name}</li>
-                          ))
+                      {categories !== []
+                        ? categories.map((category) => <li>{category.name}</li>)
                         : ""}
                     </ul>
                   </td>
@@ -585,9 +505,9 @@ class Internship extends Component {
                     <b className="b-text">Detalii:</b>
                     <p></p>
                     <ul>
-                      <li>{this.state.internship.maxNumberStudents} locuri</li>
-                      <li>{this.state.nrStudents} participanți</li>
-                      <li>{this.state.company.industry}</li>
+                      <li>{internship.maxNumberStudents} locuri</li>
+                      <li>{nrStudents} participanți</li>
+                      <li>{company.industry}</li>
                     </ul>
                   </td>
                 </tr>
@@ -597,46 +517,21 @@ class Internship extends Component {
             <div>
               <b>Descriere: </b>
               <p className="description" style={{ fontSize: 15 }}>
-                {this.state.internship.description}
+                {internship.description}
               </p>
             </div>
             <p> </p>
-            {this.state.isAuthenticated ? (
-              this.state.canGrade ? (
-                <form onSubmit={this.handleInternshipGradeForm}>
-                  <div>
-                    Gradingul tau al stagiului:
-                    <input
-                      type="text"
-                      name="internshipGrade"
-                      value={this.state.internshipGrade}
-                      onChange={this.handleInternshipGradeChange}
-                    />
-                  </div>
-
-                  <div>
-                    <button className="btn btn-primary mt-2" type="submit">
-                      Salveaza
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                ""
-              )
-            ) : (
-              ""
-            )}
           </div>
           <br />
           <div class="col-sm-3">
-            <h5>{this.state.company["name"]}</h5>
-            {this.state.company["description"]}
+            <h5>{company["name"]}</h5>
+            {company["description"]}
             <br />
             <br />
             <img
               onMouseOver={(e) => (e.target.style.cursor = "pointer")}
               onMouseOut={(e) => (e.target.style.cursor = "normal")}
-              onClick={() => this.handleClickedAddress(this.state.company.address)}
+              onClick={() => handleClickedAddress(company.address)}
               width="32"
               alt="Google Maps icon"
               src="googlemaps.png"
@@ -644,21 +539,17 @@ class Internship extends Component {
 
             <span
               className="website"
-              onClick={() => this.handleClickedWebsite(this.state.company.website)}
+              onClick={() => handleClickedWebsite(company.website)}
             >
               Website
             </span>
           </div>
         </div>
       </div>
-    );
-  };
-
-  render() {
-    let contents = this.state.loading ? <Loading /> : this.renderInternshipData();
-
-    return <Paper>{contents}</Paper>;
-  }
-}
+    </Paper>
+  ) : (
+    <Loading />
+  );
+};
 
 export default withRouter(Internship);

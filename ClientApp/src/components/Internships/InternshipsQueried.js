@@ -300,7 +300,7 @@ class InternshipsQueried extends Component {
                 <div className="card">
                   <InternshipCard
                     internshipData={internship}
-                    companyData={this.getCompany(internship.idCompany)}
+                    companyData={this.getCompany(internship.companyId)}
                   />
                   {/* <div>
               </div> */}

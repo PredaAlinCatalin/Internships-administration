@@ -9,11 +9,11 @@ namespace Licenta.Models
 {
     public class Student
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string Faculty { get; set; }
-        public string Specialization { get; set; } 
+        public string Specialization { get; set; }
         public int Year { get; set; }
         public double AnnualAverage { get; set; }
         public string PersonalDescription { get; set; }

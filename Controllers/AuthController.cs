@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Licenta.Models;
 
-namespace CazareUbApi.Controllers
+namespace Licenta.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -56,16 +56,13 @@ namespace CazareUbApi.Controllers
             {
                 try
                 {
-                    var student = new Student();
-                    student.Id = user.Id;
-                    student.UserId = user.Id;
-                    student.PhotoPath = "anonymousPhoto.png";
+                    var student = new Student {UserId = user.Id, PhotoPath = "anonymousPhoto.png" };
                     _context.Students.Add(student);
                     await _context.SaveChangesAsync();
                 }
                 catch (Exception e)
                 {
-                    return UnprocessableEntity("The student details argument could not be processed!");
+                    return UnprocessableEntity("The student details argument could not be processed! " + e);
                 }
             }
 
@@ -73,16 +70,13 @@ namespace CazareUbApi.Controllers
             {
                 try
                 {
-                    var company = new Company();
-                    company.Id = user.Id;
-                    company.UserId = user.Id;
-                    company.LogoPath = "anonymousLogo.png";
+                    var company = new Company { UserId = user.Id, LogoPath = "anonymousLogo.png" };
                     _context.Companies.Add(company);
                     await _context.SaveChangesAsync();
                 }
                 catch (Exception e)
                 {
-                    return UnprocessableEntity("The student details argument could not be processed!");
+                    return UnprocessableEntity("The company details argument could not be processed!" + e);
                 }
             }
 
@@ -109,13 +103,13 @@ namespace CazareUbApi.Controllers
             }
 
             // Retrieve user data which the front end needs
-            string userId;
+            int userId;
             string userRole;
             if (await _userManager.IsInRoleAsync(user, "Student"))
             {
                 // Return the ID of this student to the front end
                 var query = from s in _context.Students
-                            where s.Id == user.Id
+                            where s.UserId == user.Id
                             select s.Id;
 
                 userId = await query.FirstAsync();
@@ -125,7 +119,7 @@ namespace CazareUbApi.Controllers
             {
                 // Return the ID of this student to the front end
                 var query = from s in _context.Companies
-                            where s.Id == user.Id
+                            where s.UserId == user.Id
                             select s.Id;
 
                 userId = await query.FirstAsync();

@@ -40,7 +40,7 @@ namespace Licenta.Controllers
 
             foreach (InternshipAptitude internshipAptitude in internshipAptitudes)
             {
-                if (internshipAptitude.IdInternship == id)
+                if (internshipAptitude.InternshipId == id)
                     result.Add(internshipAptitude);
             }
 
@@ -51,10 +51,10 @@ namespace Licenta.Controllers
         }
 
         // GET: api/InternshipAptitudes/internship/1/aptitude/2
-        [HttpGet("internship/{idInternship}/aptitude/{idAptitude}")]
-        public async Task<ActionResult<InternshipAptitude>> GetInternshipAptitude(int idInternship, int idAptitude)
+        [HttpGet("internship/{internshipId}/aptitude/{aptitudeId}")]
+        public async Task<ActionResult<InternshipAptitude>> GetInternshipAptitude(int internshipId, int aptitudeId)
         {
-            var internshipAptitude = await _context.InternshipAptitudes.FindAsync(idInternship, idAptitude);
+            var internshipAptitude = await _context.InternshipAptitudes.FindAsync(internshipId, aptitudeId);
 
             if (internshipAptitude == null)
             {
@@ -77,7 +77,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateException)
             {
-                if (InternshipAptitudeExists(internshipAptitude.IdInternship, internshipAptitude.IdAptitude))
+                if (InternshipAptitudeExists(internshipAptitude.InternshipId, internshipAptitude.AptitudeId))
                 {
                     return Conflict();
                 }
@@ -87,13 +87,13 @@ namespace Licenta.Controllers
                 }
             }
 
-            return CreatedAtAction("GetInternshipAptitude", new { idInternship = internshipAptitude.IdInternship, idAptitude = internshipAptitude.IdAptitude }, internshipAptitude);
+            return CreatedAtAction("GetInternshipAptitude", new { internshipId = internshipAptitude.InternshipId, aptitudeId = internshipAptitude.AptitudeId }, internshipAptitude);
         }
 
-        //[HttpPut("internship/{idInternship}/internship/{idAptitude}")]
-        //public async Task<IActionResult> PutInternshipAptitude(int idInternship, int idAptitude, InternshipAptitude internshipAptitude)
+        //[HttpPut("internship/{internshipId}/internship/{aptitudeId}")]
+        //public async Task<IActionResult> PutInternshipAptitude(int internshipId, int aptitudeId, InternshipAptitude internshipAptitude)
         //{
-        //    if (idInternship != internshipAptitude.IdInternship && idAptitude != internshipAptitude.IdAptitude)
+        //    if (internshipId != internshipAptitude.InternshipId && aptitudeId != internshipAptitude.AptitudeId)
         //    {
         //        return BadRequest();
         //    }
@@ -106,7 +106,7 @@ namespace Licenta.Controllers
         //    }
         //    catch (DbUpdateConcurrencyException)
         //    {
-        //        if (!InternshipAptitudeExists(idInternship, idAptitude))
+        //        if (!InternshipAptitudeExists(internshipId, aptitudeId))
         //        {
         //            return NotFound();
         //        }
@@ -120,10 +120,10 @@ namespace Licenta.Controllers
         //}
 
         // DELETE: api/InternshipAptitudes/5
-        [HttpDelete("internship/{idInternship}/aptitude/{idAptitude}")]
-        public async Task<ActionResult<InternshipAptitude>> DeleteInternshipAptitude(int idInternship, int idAptitude)
+        [HttpDelete("internship/{internshipId}/aptitude/{aptitudeId}")]
+        public async Task<ActionResult<InternshipAptitude>> DeleteInternshipAptitude(int internshipId, int aptitudeId)
         {
-            var internshipAptitude = await _context.InternshipAptitudes.FindAsync(idInternship, idAptitude);
+            var internshipAptitude = await _context.InternshipAptitudes.FindAsync(internshipId, aptitudeId);
             if (internshipAptitude == null)
             {
                 return NotFound();
@@ -135,9 +135,9 @@ namespace Licenta.Controllers
             return internshipAptitude;
         }
 
-        private bool InternshipAptitudeExists(int idInternship, int idAptitude)
+        private bool InternshipAptitudeExists(int internshipId, int aptitudeId)
         {
-            return _context.InternshipAptitudes.Any(e => e.IdInternship == idInternship && e.IdAptitude == idAptitude);
+            return _context.InternshipAptitudes.Any(e => e.InternshipId == internshipId && e.AptitudeId == aptitudeId);
         }
     }
 }

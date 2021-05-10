@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using IdentityServer4.Models;
 using Licenta.DTOs;
 using AutoMapper;
+using Licenta.Repositories;
 
 namespace Licenta.Controllers
 {
@@ -18,13 +19,13 @@ namespace Licenta.Controllers
     [ApiController]
     public class InternshipsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IInternshipsRepository _repository;
 
-        public InternshipsController(ApplicationDbContext context, IMapper mapper)
+        public InternshipsController(IMapper mapper, IInternshipsRepository repository)
         {
-            _context = context;
             _mapper = mapper;
+            _repository = repository;
 
         }
 
@@ -36,215 +37,67 @@ namespace Licenta.Controllers
         //                    .ToListAsync();
         //}
 
-        [HttpGet("company/{id}")]
-        public async Task<ActionResult<IEnumerable<Internship>>> GetInternshipsByCompany(string id)
+        [HttpGet("company/{companyId}")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByCompanyId(int companyId)
         {
-            List<Internship> internships = await _context.Internships
-                                                    .ToListAsync();
-            List<Internship> internshipsResult = new List<Internship>();
-            foreach (Internship internship in internships)
-            {
-                if (internship.IdCompany == id)
-                    internshipsResult.Add(internship);
-            }
+            IEnumerable<Internship> internships = await _repository.GetInternshipsByCompanyId(companyId);
 
-            if (internshipsResult.Count == 0)
-                return NotFound();
-
-            return internshipsResult;
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
         }
 
         [HttpGet("")]
-        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByCategoryCitySearch(string searchString, string city, string category)
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsBySearchCityName(string searchString, string city)
         {
-            if (!string.IsNullOrEmpty(searchString))
-                searchString = searchString.ToLower();
-            if (!string.IsNullOrEmpty(city))
-                city = city.ToLower();
-            if (!string.IsNullOrEmpty(category))
-                category = category.ToLower();
-            List<Internship> internships = await _context.Internships
-                                                    .Include(i => i.InternshipCategories)
-                                                    .Include(i => i.City)
-                                                    .Include(i => i.Company)
-                                                    .ToListAsync();
-            //bool allEmpty = false;
-            //if (string.IsNullOrEmpty(searchString) && string.IsNullOrEmpty(city) && string.IsNullOrEmpty(category))
-            //    allEmpty = true;
+            IEnumerable<Internship> internships = await _repository.GetInternshipsBySearchCityName(searchString, city);
 
-            List<InternshipDTO> internshipsResult = new List<InternshipDTO>();
-            //if (allEmpty)
-            //{
-            //    internshipsResult = _mapper.Map<List<InternshipDTO>>(internships);
-            //    return internshipsResult;
-            //}
-
-
-            foreach (Internship internship in internships)
-            {
-                if (!string.IsNullOrEmpty(city))
-                    if (string.IsNullOrEmpty(internship.City.Name) || internship.City.Name.ToLower() != city)
-                        continue;
-
-                //if (!string.IsNullOrEmpty(city) && !string.IsNullOrEmpty(internship.City.Name) && internship.City.Name.ToLower() != city)
-                //    continue;
-
-                bool found = false;
-                if (!string.IsNullOrEmpty(searchString))
-                    if ((string.IsNullOrEmpty(internship.Name) || !internship.Name.ToLower().Contains(searchString)) &&
-                            (string.IsNullOrEmpty(internship.Company.Name) || !internship.Company.Name.ToLower().Contains(searchString)))
-                        continue;
-
-                //if (!string.IsNullOrEmpty(searchString))
-                //    if (string.IsNullOrEmpty(internship.Company.Name) || !internship.Company.Name.ToLower().Contains(searchString))
-                //        continue;
-
-                //if (!string.IsNullOrEmpty(searchString) && !string.IsNullOrEmpty(internship.Name) && internship.Name.ToLower().Contains(searchString))
-                //    found = true;
-
-                //if (!string.IsNullOrEmpty(searchString) && !string.IsNullOrEmpty(internship.Company.Name) && internship.Company.Name.ToLower().Contains(searchString))
-                //    found = true;
-
-                //if (!found || !string.IsNullOrEmpty(searchString))
-                //    continue;
-
-                if (string.IsNullOrEmpty(category))
-                {
-                    internshipsResult.Add(_mapper.Map<InternshipDTO>(internship));
-                }
-
-                else {
-                    foreach (InternshipCategory internshipCategory in internship.InternshipCategories)
-                        if (internshipCategory.Category.Name.ToLower() == category)
-                        {
-                            internshipsResult.Add(_mapper.Map<InternshipDTO>(internship)); ;
-                            break;
-                        }
-                }
-
-                
-                        
-            }
-
-            return internshipsResult;
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
         }
 
-        [HttpGet("category/{idCategory}")]
-        public async Task<ActionResult<IEnumerable<Internship>>> GetInternshipsByCategory(int idCategory)
+        [HttpGet("category/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByCategoryId(int categoryId)
         {
-            //List<Internship> internships = await _context.Internships
-            //                                        .Include(i => i.InternshipCategories)
-            //                                        .ToListAsync();
-            List<Internship> internshipsResult = new List<Internship>();
-            //foreach (Internship internship in internships)
-            //{
-            //    foreach (InternshipCategory internshipCategory in internship.InternshipCategories)
-            //        if (internshipCategory.IdCategory == idCategory)
-            //        {
-            //            var searchedInternship = _context.Internships.FirstOrDefault(i => i.Id == internship.Id);
-            //            internshipsResult.Add(searchedInternship);
-            //            break;
-            //        }
+            IEnumerable<Internship> internships = await _repository.GetInternshipsByCategoryId(categoryId);
 
-            //}
-
-            List<InternshipCategory> internshipCategories = await _context.InternshipCategories.ToListAsync();
-            foreach (InternshipCategory internshipCategory in internshipCategories)
-            {
-                if (internshipCategory.IdCategory == idCategory)
-                {
-                    Internship searchedInternship = _context.Internships.FirstOrDefault(i => i.Id == internshipCategory.IdInternship);
-                    internshipsResult.Add(searchedInternship);
-                }
-            }
-
-            if (internshipsResult.Count == 0)
-                return NotFound();
-
-            return internshipsResult;
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
         }
 
-        [HttpGet("city/{id}")]
-        public async Task<ActionResult<IEnumerable<Internship>>> GetInternshipsByCity(int id)
+        [HttpGet("city/{cityId}")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByCityId(int cityId)
         {
-            List<Internship> internships = await _context.Internships
-                                                    .ToListAsync();
-            List<Internship> internshipsResult = new List<Internship>();
-            foreach (Internship internship in internships)
-            {
-                if (internship.IdCity == id)
-                    internshipsResult.Add(internship);
-            }
+            IEnumerable<Internship> internships = await _repository.GetInternshipsByCityId(cityId);
 
-            if (internshipsResult.Count == 0)
-                return NotFound();
-
-            return internshipsResult;
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
         }
 
-
-
-        [HttpGet("student/{id}")]
-        public async Task<ActionResult<IEnumerable<Internship>>> GetInternshipsByStudentId(string id)
+        [HttpGet("student/{studentId}")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByStudentId(int studentId)
         {
-            List<Internship> internships = new List<Internship>();
-            List<StudentInternship> studentInternships = await _context.StudentInternships
-                                                                .ToListAsync();
+            IEnumerable<Internship> internships = await _repository.GetInternshipsByStudentId(studentId);
 
-            foreach (StudentInternship studentInternship in studentInternships)
-            {
-                if (studentInternship.IdStudent == id)
-                {
-                    Internship searchedInternship = await _context.Internships.FirstOrDefaultAsync(i => i.Id == studentInternship.IdInternship);
-                    searchedInternship.StudentInternships = null;
-                    internships.Add(searchedInternship);
-                }
-            }
-
-            if (internships.Count == 0)
-                return NotFound();
-
-            return internships;
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
 
         }
 
-        [HttpGet("studentSaved/{id}")]
-        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByStudentIdSaved(string id)
+        [HttpGet("studentSaved/{studentId}")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByStudentIdSaved(int studentId)
         {
-            List<InternshipDTO> internships = new List<InternshipDTO>();
-            List<SavedStudentInternship> savedStudentInternships = await _context.SavedStudentInternships
-                                                                .ToListAsync();
+            IEnumerable<Internship> internships = await _repository.GetInternshipsByStudentIdSaved(studentId);
 
-            foreach (SavedStudentInternship savedStudentInternship in savedStudentInternships)
-            {
-                if (savedStudentInternship.IdStudent == id)
-                {
-                    Internship searchedInternship = await _context.Internships.FirstOrDefaultAsync(i => i.Id == savedStudentInternship.IdInternship);
-                    searchedInternship.SavedStudentInternships = null;
-                    internships.Add(_mapper.Map<InternshipDTO>(searchedInternship));
-                }
-            }
-
-            if (internships.Count == 0)
-                return NotFound();
-
-            return internships;
-
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
         }
 
         // GET: api/Internships/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Internship>> GetInternship(int id)
+        public async Task<ActionResult<InternshipDTO>> GetInternshipById(int id)
         {
-            var internship = await _context.Internships
-                                    .FirstOrDefaultAsync(i => i.Id == id);
+            var internship = await _repository.GetInternshipById(id);
 
             if (internship == null)
             {
                 return NotFound();
             }
 
-            return internship;
+            return _mapper.Map<InternshipDTO>(internship);
         }
 
         // PUT: api/Internships/5
@@ -258,11 +111,10 @@ namespace Licenta.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(internship).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.UpdateInternship(internship);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -285,8 +137,7 @@ namespace Licenta.Controllers
         [HttpPost]
         public async Task<ActionResult<Internship>> PostInternship(Internship internship)
         {
-            _context.Internships.Add(internship);
-            await _context.SaveChangesAsync();
+            await _repository.CreateInternship(internship);
 
             return CreatedAtAction("GetInternship", new { id = internship.Id }, internship);
         }
@@ -295,21 +146,20 @@ namespace Licenta.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Internship>> DeleteInternship(int id)
         {
-            var internship = await _context.Internships.FindAsync(id);
+            var internship = await _repository.GetInternshipById(id);
             if (internship == null)
             {
                 return NotFound();
             }
 
-            _context.Internships.Remove(internship);
-            await _context.SaveChangesAsync();
+            await _repository.DeleteInternship(internship);
 
             return internship;
         }
 
         private bool InternshipExists(int id)
         {
-            return _context.Internships.Any(e => e.Id == id);
+            return _repository.GetInternshipById(id) != null;
         }
     }
 }

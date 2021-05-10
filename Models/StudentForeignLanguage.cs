@@ -7,9 +7,9 @@ namespace Licenta.Models
 {
     public class StudentForeignLanguage
     {
-        public int IdForeignLanguage { get; set; }
+        public int ForeignLanguageId { get; set; }
         public virtual ForeignLanguage ForeignLanguage { get; set; }
-        public string IdStudent { get; set; }
+        public int StudentId { get; set; }
         public virtual Student Student { get; set; }
     }
 }

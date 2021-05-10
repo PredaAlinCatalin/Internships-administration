@@ -50,7 +50,7 @@ namespace Licenta.Controllers
 
             foreach(StudentInternship studentInternship in studentInternships)
             {
-                if (studentInternship.IdInternship == id)
+                if (studentInternship.InternshipId == id)
                 {
                     students.Add(studentInternship.Student);
                 }
@@ -65,10 +65,10 @@ namespace Licenta.Controllers
 
         // GET: api/Students/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<StudentDTO>> GetStudent(string id)
+        public async Task<ActionResult<StudentDTO>> GetStudent(int id)
         {
             var student = await _context.Students.FindAsync(id);
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(student.UserId);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             var email = await _userManager.GetEmailAsync(user);
 
@@ -85,7 +85,7 @@ namespace Licenta.Controllers
         }
     
         [HttpPost("savefile/{id}")]
-        public JsonResult SaveFile(String id)
+        public JsonResult SaveFile(int id)
         {
             try
             {
@@ -113,7 +113,7 @@ namespace Licenta.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStudent(string id, StudentFormDTO studentFormDTO)
+        public async Task<IActionResult> PutStudent(int id, StudentFormDTO studentFormDTO)
         {
             var student = _mapper.Map<Student>(studentFormDTO);
 
@@ -124,7 +124,7 @@ namespace Licenta.Controllers
 
             _context.Entry(student).State = EntityState.Modified;
 
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(student.UserId);
 
             //var changePhoneNumberToken = await _userManager.GenerateChangePhoneNumberTokenAsync(user, studentFormDTO.PhoneNumber);
             var changePhoneResult = await _userManager.SetPhoneNumberAsync(user, studentFormDTO.PhoneNumber);
@@ -168,7 +168,7 @@ namespace Licenta.Controllers
 
         // DELETE: api/Students/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Student>> DeleteStudent(string id)
+        public async Task<ActionResult<Student>> DeleteStudent(int id)
         {
             var student = await _context.Students.FindAsync(id);
             if (student == null)
@@ -182,7 +182,7 @@ namespace Licenta.Controllers
             return student;
         }
 
-        private bool StudentExists(string id)
+        private bool StudentExists(int id)
         {
             return _context.Students.Any(e => e.Id == id);
         }

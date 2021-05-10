@@ -9,7 +9,7 @@ namespace Licenta.Models
 {
     public class Company
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public string LogoPath { get; set; }
         public string Description { get; set; }
@@ -17,6 +17,7 @@ namespace Licenta.Models
         public string Address { get; set; }
         public string Website { get; set; }
         public virtual ICollection<Internship> Internships { get; set; }
+        [Required]
         public string UserId { get; set; }
         public virtual IdentityUser User { get; set; }
     }

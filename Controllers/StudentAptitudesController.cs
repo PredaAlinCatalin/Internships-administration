@@ -30,10 +30,10 @@ namespace Licenta.Controllers
         }
 
         // GET: api/StudentAptitudes/student/1/aptitude/2
-        [HttpGet("student/{idStudent}/aptitude/{idAptitude}")]
-        public async Task<ActionResult<StudentAptitude>> GetStudentAptitude(string idStudent, int idAptitude)
+        [HttpGet("student/{studentId}/aptitude/{aptitudeId}")]
+        public async Task<ActionResult<StudentAptitude>> GetStudentAptitude(int studentId, int aptitudeId)
         {
-            var studentAptitude = await _context.StudentAptitudes.FindAsync(idStudent, idAptitude);
+            var studentAptitude = await _context.StudentAptitudes.FindAsync(studentId, aptitudeId);
 
             if (studentAptitude == null)
             {
@@ -56,7 +56,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateException)
             {
-                if (StudentAptitudeExists(studentAptitude.IdStudent, studentAptitude.IdAptitude))
+                if (StudentAptitudeExists(studentAptitude.StudentId, studentAptitude.AptitudeId))
                 {
                     return Conflict();
                 }
@@ -66,14 +66,14 @@ namespace Licenta.Controllers
                 }
             }
 
-            return CreatedAtAction("GetStudentAptitude", new { idStudent = studentAptitude.IdStudent, idAptitude = studentAptitude.IdAptitude }, studentAptitude);
+            return CreatedAtAction("GetStudentAptitude", new { studentId = studentAptitude.StudentId, aptitudeId = studentAptitude.AptitudeId }, studentAptitude);
         }
 
         // DELETE: api/StudentAptitudes/5
-        [HttpDelete("student/{idStudent}/aptitude/{idAptitude}")]
-        public async Task<ActionResult<StudentAptitude>> DeleteStudentAptitude(string idStudent, int idAptitude)
+        [HttpDelete("student/{studentId}/aptitude/{aptitudeId}")]
+        public async Task<ActionResult<StudentAptitude>> DeleteStudentAptitude(int studentId, int aptitudeId)
         {
-            var studentAptitude = await _context.StudentAptitudes.FindAsync(idStudent, idAptitude);
+            var studentAptitude = await _context.StudentAptitudes.FindAsync(studentId, aptitudeId);
             if (studentAptitude == null)
             {
                 return NotFound();
@@ -85,9 +85,9 @@ namespace Licenta.Controllers
             return studentAptitude;
         }
 
-        private bool StudentAptitudeExists(string idStudent, int idAptitude)
+        private bool StudentAptitudeExists(int studentId, int aptitudeId)
         {
-            return _context.StudentAptitudes.Any(e => e.IdStudent == idStudent && e.IdAptitude == idAptitude);
+            return _context.StudentAptitudes.Any(e => e.StudentId == studentId && e.AptitudeId == aptitudeId);
         }
     }
 }

@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Avatar, Paper } from "@material-ui/core";
 import { withRouter } from "react-router-dom";
 import { createMuiTheme } from "@material-ui/core/styles";
+import TabMenu from "../Universal/TabMenu";
 
 const theme = createMuiTheme({
   typography: {
@@ -33,6 +34,7 @@ class InternshipHistory extends Component {
       companies: [],
       cities: [],
       loading: true,
+      reviewGrade: 0
     };
   }
 
@@ -57,12 +59,23 @@ class InternshipHistory extends Component {
         studentInternshipsData = studentInternshipsData.filter(
           (si) =>
             si.status === "accepted" &&
-            !checkDateIsPast(
-              this.getInternship(internshipsData, si.idInternship).deadline
+            checkDateIsPast(
+              this.getInternship(internshipsData, si.internshipId).deadline
             )
         );
       }
+
+      const reviewResponse = await fetch("api/studentInternshipreviews/student/" + user.id
+      );
+      if (reviewResponse.ok) {
+        const reviewData = await reviewResponse.json();
+        this.setState({
+          reviewGrade: reviewData.grade
+        }) 
+      }
     }
+
+    console.log(studentInternshipsData);
 
     const companiesResponse = await fetch("api/companies");
     var companiesData = [];
@@ -121,7 +134,7 @@ class InternshipHistory extends Component {
                   src={
                     "logos/" +
                     this.getCompany(
-                      this.getInternship(studentInternship.idInternship).idCompany
+                      this.getInternship(this.state.internships, studentInternship.internshipId).companyId
                     ).logoPath
                   }
                   variant="rounded"
@@ -129,27 +142,27 @@ class InternshipHistory extends Component {
                   onMouseOut={(e) => (e.target.style.cursor = "normal")}
                   onClick={() =>
                     this.handleSelectCompany(
-                      this.getInternship(studentInternship.idInternship).idCompany
+                      this.getInternship(this.state.internships, studentInternship.internshipId).companyId
                     )
                   }
                 ></Avatar>
               </div>
               <div className="column">
-                <Link to={"internship/" + studentInternship.idInternship}>
+                <Link to={"internship/" + studentInternship.internshipId}>
                   <b
                     style={{
                       // fontFamily: theme.typography.fontFamily,
                       color: "black",
                     }}
                   >
-                    {this.getInternship(studentInternship.idInternship).name}
+                    {this.getInternship(this.state.internships, studentInternship.internshipId).name}
                   </b>
                 </Link>
                 <br />
                 <Link
                   to={
                     "company/" +
-                    this.getInternship(studentInternship.idInternship).idCompany
+                    this.getInternship(this.state.internships, studentInternship.internshipId).companyId
                   }
                 >
                   <b
@@ -159,7 +172,7 @@ class InternshipHistory extends Component {
                   >
                     {
                       this.getCompany(
-                        this.getInternship(studentInternship.idInternship).idCompany
+                        this.getInternship(this.state.internships, studentInternship.internshipId).companyId
                       ).name
                     }
                   </b>
@@ -170,7 +183,7 @@ class InternshipHistory extends Component {
                     fontSize: 14,
                   }}
                 >
-                  {this.getInternship(studentInternship.idInternship).paid
+                  {this.getInternship(this.state.internships, studentInternship.internshipId).paid
                     ? "Platit"
                     : "Neplatit"}
                 </span>
@@ -182,7 +195,7 @@ class InternshipHistory extends Component {
                 >
                   {
                     this.getCity(
-                      this.getInternship(studentInternship.idInternship).idCity
+                      this.getInternship(this.state.internships, studentInternship.internshipId).cityId
                     ).name
                   }
                   <Icon.GeoAltFill />
@@ -200,37 +213,45 @@ class InternshipHistory extends Component {
   renderInternshipHistory = () => {
     return (
       <>
-        <h5>Istoricul stagiilor tale:</h5>
-        <br />
+        <TabMenu />
 
-        <Paper>
-          <div className="container pb-2">
-            <div className="table-responsive"></div>
-            <table aria-labelledby="tabelLabel" className="table table-hover">
-              <thead>
-                <tr className="d-flex">
-                  <th className="col-7">Stagiu</th>
-                  <th className="col-3">Data aplicarii</th>
-                  <th className="col-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.state.studentInternships !== []
-                  ? this.state.studentInternships.map((studentInternship) => (
-                      <tr className="d-flex">
-                        {studentInternship.status === StudentInternshipStatus.accepted &&
-                        !checkDateIsPast(
-                          this.getInternship(studentInternship.idInternship).deadline
-                        )
-                          ? this.renderInternshipHistory(studentInternship)
-                          : null}
-                      </tr>
-                    ))
-                  : ""}
-              </tbody>
-            </table>
+        {this.state.studentInternships.length > 0 ? (
+          <div>
+            <br/>
+            <h5 className="text-center">Istoricul stagiilor tale</h5>
+            <br />
+            <div className="m-3">
+            <Paper>
+              <div className="container pb-2">
+                <div className="table-responsive"></div>
+                <table aria-labelledby="tabelLabel" className="table table-hover">
+                  <thead>
+                    <tr className="d-flex">
+                      <th className="col-7">Stagiu</th>
+                      <th className="col-3">Data aplicării</th>
+                      <th className="col-2">Review-ul tău</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {this.renderInternshipHistoryHeader(studentInternship)}
+                          </tr>
+                        ))
+                      : ""}
+                  </tbody>
+                </table>
+              </div>
+            </Paper>
+            </div>
+            
           </div>
-        </Paper>
+        ) : (
+          <div className="text-center text-muted">
+            Nu ai finalizat încă niciun stagiu de practică
+          </div>
+        )}
       </>
     );
   };

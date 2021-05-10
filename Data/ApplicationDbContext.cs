@@ -44,8 +44,6 @@ namespace Licenta.Data
             modelBuilder.Entity<Student>(entity =>
             {
                 entity.HasKey(s => s.Id);
-                entity.Property(s => s.Id).ValueGeneratedNever();
-
             });
 
             modelBuilder.Entity<Aptitude>(entity =>
@@ -63,59 +61,58 @@ namespace Licenta.Data
             {
                 entity.HasKey(e => e.Id);
 
-                entity.HasOne(e => e.Student)
-                      .WithMany(s => s.Educations)
-                      .HasForeignKey(e => e.IdStudent);
+                //entity.HasOne(e => e.Student)
+                //      .WithMany(s => s.Educations)
+                //      .HasForeignKey(e => e.StudentId);
             });
 
             modelBuilder.Entity<Experience>(entity =>
             {
                 entity.HasKey(s => s.Id);
 
-                entity.HasOne(e => e.Student)
-                      .WithMany(s => s.Experiences)
-                      .HasForeignKey(e => e.IdStudent);
+                //entity.HasOne(e => e.Student)
+                //      .WithMany(s => s.Experiences)
+                //      .HasForeignKey(e => e.StudentId);
             });
 
             modelBuilder.Entity<Project>(entity =>
             {
                 entity.HasKey(p => p.Id);
 
-                entity.HasOne(p => p.Student)
-                      .WithMany(s => s.Projects)
-                      .HasForeignKey(p => p.IdStudent);
+                //entity.HasOne(p => p.Student)
+                //      .WithMany(s => s.Projects)
+                //      .HasForeignKey(p => p.StudentId);
             });
 
             modelBuilder.Entity<StudentAptitude>(entity =>
             {
-                entity.HasKey(sa => new { sa.IdStudent, sa.IdAptitude });
+                entity.HasKey(sa => new { sa.StudentId, sa.AptitudeId });
 
-                entity.HasOne(sa => sa.Student)
-                      .WithMany(s => s.StudentAptitudes)
-                      .HasForeignKey(sa => sa.IdStudent);
+                //entity.HasOne(sa => sa.Student)
+                //      .WithMany(s => s.StudentAptitudes)
+                //      .HasForeignKey(sa => sa.StudentId);
 
-                entity.HasOne(sa => sa.Aptitude)
-                      .WithMany(a => a.StudentAptitudes)
-                      .HasForeignKey(sa => sa.IdAptitude);
+                //entity.HasOne(sa => sa.Aptitude)
+                //      .WithMany(a => a.StudentAptitudes)
+                //      .HasForeignKey(sa => sa.AptitudeId);
             });
 
             modelBuilder.Entity<StudentForeignLanguage>(entity =>
             {
-                entity.HasKey(sf => new { sf.IdStudent, sf.IdForeignLanguage });
+                entity.HasKey(sf => new { sf.StudentId, sf.ForeignLanguageId });
 
-                entity.HasOne(sf => sf.Student)
-                      .WithMany(s => s.StudentForeignLanguages)
-                      .HasForeignKey(sf => sf.IdStudent);
+                //entity.HasOne(sf => sf.Student)
+                //      .WithMany(s => s.StudentForeignLanguages)
+                //      .HasForeignKey(sf => sf.StudentId);
 
-                entity.HasOne(sf => sf.ForeignLanguage)
-                      .WithMany(f => f.StudentForeignLanguages)
-                      .HasForeignKey(sf => sf.IdForeignLanguage);
+                //entity.HasOne(sf => sf.ForeignLanguage)
+                //      .WithMany(f => f.StudentForeignLanguages)
+                //      .HasForeignKey(sf => sf.ForeignLanguageId);
             });
 
             modelBuilder.Entity<Company>(entity =>
             {
                 entity.HasKey(c => c.Id);
-                entity.Property(s => s.Id).ValueGeneratedNever();
                 entity.HasIndex(c => c.Name).IsUnique();
 
             });
@@ -129,13 +126,13 @@ namespace Licenta.Data
             {
                 entity.HasKey(i => i.Id);
 
-                entity.HasOne(i => i.Company)
-                      .WithMany(c => c.Internships)
-                      .HasForeignKey(i => i.IdCompany);
+                //entity.HasOne(i => i.Company)
+                //      .WithMany(c => c.Internships)
+                //      .HasForeignKey(i => i.CompanyId);
 
-                entity.HasOne(i => i.City)
-                      .WithMany(c => c.Internships)
-                      .HasForeignKey(i => i.IdCity);
+                //entity.HasOne(i => i.City)
+                //      .WithMany(c => c.Internships)
+                //      .HasForeignKey(i => i.CityId);
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -145,68 +142,68 @@ namespace Licenta.Data
 
             modelBuilder.Entity<InternshipCategory>(entity =>
             {
-                entity.HasKey(ic => new { ic.IdInternship, ic.IdCategory });
+                entity.HasKey(ic => new { ic.InternshipId, ic.CategoryId });
 
-                entity.HasOne(ic => ic.Internship)
-                      .WithMany(i => i.InternshipCategories)
-                      .HasForeignKey(ic => ic.IdInternship);
+                //entity.HasOne(ic => ic.Internship)
+                //      .WithMany(i => i.InternshipCategories)
+                //      .HasForeignKey(ic => ic.InternshipId);
 
-                entity.HasOne(ic => ic.Category)
-                      .WithMany(c => c.InternshipCategories)
-                      .HasForeignKey(ic => ic.IdCategory);
+                //entity.HasOne(ic => ic.Category)
+                //      .WithMany(c => c.InternshipCategories)
+                //      .HasForeignKey(ic => ic.CategoryId);
             });
 
             modelBuilder.Entity<StudentInternship>(entity =>
             {
-                entity.HasKey(si => new { si.IdStudent, si.IdInternship });
+                entity.HasKey(si => new { si.StudentId, si.InternshipId });
 
-                entity.HasOne(si => si.Student)
-                      .WithMany(s => s.StudentInternships)
-                      .HasForeignKey(si => si.IdStudent);
+                //entity.HasOne(si => si.Student)
+                //      .WithMany(s => s.StudentInternships)
+                //      .HasForeignKey(si => si.StudentId);
 
-                entity.HasOne(si => si.Internship)
-                      .WithMany(i => i.StudentInternships)
-                      .HasForeignKey(si => si.IdInternship);
+                //entity.HasOne(si => si.Internship)
+                //      .WithMany(i => i.StudentInternships)
+                //      .HasForeignKey(si => si.InternshipId);
             });
 
 
             modelBuilder.Entity<InternshipAptitude>(entity =>
             {
-                entity.HasKey(sa => new { sa.IdInternship, sa.IdAptitude });
+                entity.HasKey(sa => new { sa.InternshipId, sa.AptitudeId });
 
-                entity.HasOne(sa => sa.Internship)
-                      .WithMany(s => s.InternshipAptitudes)
-                      .HasForeignKey(sa => sa.IdInternship);
+                //entity.HasOne(sa => sa.Internship)
+                //      .WithMany(s => s.InternshipAptitudes)
+                //      .HasForeignKey(sa => sa.InternshipId);
 
-                entity.HasOne(sa => sa.Aptitude)
-                      .WithMany(a => a.InternshipAptitudes)
-                      .HasForeignKey(sa => sa.IdAptitude);
+                //entity.HasOne(sa => sa.Aptitude)
+                //      .WithMany(a => a.InternshipAptitudes)
+                //      .HasForeignKey(sa => sa.AptitudeId);
             });
 
             modelBuilder.Entity<SavedStudentInternship>(entity =>
             {
-                entity.HasKey(si => new { si.IdStudent, si.IdInternship });
+                entity.HasKey(si => new { si.StudentId, si.InternshipId });
 
-                entity.HasOne(si => si.Student)
-                      .WithMany(s => s.SavedStudentInternships)
-                      .HasForeignKey(si => si.IdStudent);
+                //entity.HasOne(si => si.Student)
+                //      .WithMany(s => s.SavedStudentInternships)
+                //      .HasForeignKey(si => si.StudentId);
 
-                entity.HasOne(si => si.Internship)
-                      .WithMany(i => i.SavedStudentInternships)
-                      .HasForeignKey(si => si.IdInternship);
+                //entity.HasOne(si => si.Internship)
+                //      .WithMany(i => i.SavedStudentInternships)
+                //      .HasForeignKey(si => si.InternshipId);
             });
 
             modelBuilder.Entity<StudentInternshipReview>(entity =>
             {
-                entity.HasKey(si => new { si.IdStudent, si.IdInternship });
+                entity.HasKey(si => new { si.StudentId, si.InternshipId });
 
-                entity.HasOne(si => si.Student)
-                      .WithMany(s => s.StudentInternshipReviews)
-                      .HasForeignKey(si => si.IdStudent);
+                //entity.HasOne(si => si.Student)
+                //      .WithMany(s => s.StudentInternshipReviews)
+                //      .HasForeignKey(si => si.StudentId);
 
-                entity.HasOne(si => si.Internship)
-                      .WithMany(i => i.StudentInternshipReviews)
-                      .HasForeignKey(si => si.IdInternship);
+                //entity.HasOne(si => si.Internship)
+                //      .WithMany(i => i.StudentInternshipReviews)
+                //      .HasForeignKey(si => si.InternshipId);
             });
 
 

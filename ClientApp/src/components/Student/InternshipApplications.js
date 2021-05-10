@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Avatar, Paper } from "@material-ui/core";
 import { withRouter } from "react-router-dom";
 import { createMuiTheme } from "@material-ui/core/styles";
+import TabMenu from "../Universal/TabMenu";
 
 const theme = createMuiTheme({
   typography: {
@@ -97,7 +98,7 @@ class InternshipApplications extends Component {
       if (this.state.cities[i].id === id) return this.state.cities[i];
   };
 
-  renderInternshipApplication = (studentInternship, status) => {
+  renderInternshipApplicationsHeader = (studentInternship, status) => {
     return (
       <>
         <td className="col-7">
@@ -111,7 +112,7 @@ class InternshipApplications extends Component {
                   src={
                     "logos/" +
                     this.getCompany(
-                      this.getInternship(studentInternship.idInternship).idCompany
+                      this.getInternship(studentInternship.internshipId).companyId
                     ).logoPath
                   }
                   variant="rounded"
@@ -119,27 +120,27 @@ class InternshipApplications extends Component {
                   onMouseOut={(e) => (e.target.style.cursor = "normal")}
                   onClick={() =>
                     this.handleSelectCompany(
-                      this.getInternship(studentInternship.idInternship).idCompany
+                      this.getInternship(studentInternship.internshipId).companyId
                     )
                   }
                 ></Avatar>
               </div>
               <div className="column">
-                <Link to={"internship/" + studentInternship.idInternship}>
+                <Link to={"internship/" + studentInternship.internshipId}>
                   <b
                     style={{
                       // fontFamily: theme.typography.fontFamily,
                       color: "black",
                     }}
                   >
-                    {this.getInternship(studentInternship.idInternship).name}
+                    {this.getInternship(studentInternship.internshipId).name}
                   </b>
                 </Link>
                 <br />
                 <Link
                   to={
                     "company/" +
-                    this.getInternship(studentInternship.idInternship).idCompany
+                    this.getInternship(studentInternship.internshipId).companyId
                   }
                 >
                   <b
@@ -149,7 +150,7 @@ class InternshipApplications extends Component {
                   >
                     {
                       this.getCompany(
-                        this.getInternship(studentInternship.idInternship).idCompany
+                        this.getInternship(studentInternship.internshipId).companyId
                       ).name
                     }
                   </b>
@@ -160,7 +161,7 @@ class InternshipApplications extends Component {
                     fontSize: 14,
                   }}
                 >
-                  {this.getInternship(studentInternship.idInternship).paid
+                  {this.getInternship(studentInternship.internshipId).paid
                     ? "Platit"
                     : "Neplatit"}
                 </span>
@@ -172,7 +173,7 @@ class InternshipApplications extends Component {
                 >
                   {
                     this.getCity(
-                      this.getInternship(studentInternship.idInternship).idCity
+                      this.getInternship(studentInternship.internshipId).cityId
                     ).name
                   }
                   <Icon.GeoAltFill />
@@ -192,65 +193,87 @@ class InternshipApplications extends Component {
   renderStudentInternshipsData = () => {
     return (
       <>
-        <h5>Aplicarile tale la stagii:</h5>
-        <br />
+        <TabMenu />
 
-        <Paper>
-          <div className="container pb-2">
-            <div className="table-responsive"></div>
-            <table aria-labelledby="tabelLabel" className="table table-hover">
-              <thead>
-                <tr className="d-flex">
-                  <th className="col-7">Stagiu</th>
-                  <th className="col-3">Data aplicarii</th>
-                  <th className="col-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.state.studentInternships !== []
-                  ? this.state.studentInternships.map((studentInternship) => (
-                      <tr className="d-flex">
-                        {studentInternship.status === StudentInternshipStatus.accepted &&
-                        checkDateIsPast(
-                          this.getInternship(studentInternship.idInternship).deadline
-                        )
-                          ? this.renderInternshipApplication(
-                              studentInternship,
-                              "accepted"
+        {this.state.studentInternships.length > 0 ? (
+          <div>
+            <br/>
+            <div className="m-3">
+            <h5 className="text-center">Aplicările tale la stagii</h5>
+            <br/>
+            <Paper>
+              <div className="container p-3 pb-2">
+                <div className="table-responsive"></div>
+                <table aria-labelledby="tabelLabel" className="table table-hover">
+                  <thead>
+                    <tr className="d-flex">
+                      <th className="col-7">Stagiu</th>
+                      <th className="col-3">Data aplicării</th>
+                      <th className="col-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {studentInternship.status ===
+                              StudentInternshipStatus.accepted &&
+                            checkDateIsPast(
+                              this.getInternship(studentInternship.internshipId).deadline
                             )
-                          : null}
-                      </tr>
-                    ))
-                  : ""}
-                {this.state.studentInternships !== []
-                  ? this.state.studentInternships.map((studentInternship) => (
-                      <tr className="d-flex">
-                        {studentInternship.status === StudentInternshipStatus.pending ||
-                        !checkDateIsPast(
-                          this.getInternship(studentInternship.idInternship).deadline
-                        )
-                          ? this.renderInternshipApplication(studentInternship, "pending")
-                          : null}
-                      </tr>
-                    ))
-                  : ""}
+                              ? this.renderInternshipApplicationsHeader(
+                                  studentInternship,
+                                  "accepted"
+                                )
+                              : null}
+                          </tr>
+                        ))
+                      : ""}
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {studentInternship.status ===
+                              StudentInternshipStatus.pending ||
+                            !checkDateIsPast(
+                              this.getInternship(studentInternship.internshipId).deadline
+                            )
+                              ? this.renderInternshipApplicationsHeader(
+                                  studentInternship,
+                                  "pending"
+                                )
+                              : null}
+                          </tr>
+                        ))
+                      : ""}
 
-                {this.state.studentInternships !== []
-                  ? this.state.studentInternships.map((studentInternship) => (
-                      <tr className="d-flex">
-                        {studentInternship.status === StudentInternshipStatus.refused &&
-                        checkDateIsPast(
-                          this.getInternship(studentInternship.idInternship).deadline
-                        )
-                          ? this.renderInternshipApplication(studentInternship, "refused")
-                          : null}
-                      </tr>
-                    ))
-                  : ""}
-              </tbody>
-            </table>
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {studentInternship.status ===
+                              StudentInternshipStatus.refused &&
+                            checkDateIsPast(
+                              this.getInternship(studentInternship.internshipId).deadline
+                            )
+                              ? this.renderInternshipApplicationsHeader(
+                                  studentInternship,
+                                  "refused"
+                                )
+                              : null}
+                          </tr>
+                        ))
+                      : ""}
+                  </tbody>
+                </table>
+              </div>
+            </Paper>
+            </div>
+            
           </div>
-        </Paper>
+        ) : (
+          <div className="text-center text-muted">
+            Nu ai aplicat încă la niciun stagiu
+          </div>
+        )}
       </>
     );
   };

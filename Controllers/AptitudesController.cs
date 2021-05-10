@@ -30,7 +30,7 @@ namespace Licenta.Controllers
 
         // GET: api/AptitudesByStudent/5
         [HttpGet("student/{id}")]
-        public async Task<ActionResult<IEnumerable<Aptitude>>> GetAptitudesByStudent(string id)
+        public async Task<ActionResult<IEnumerable<Aptitude>>> GetAptitudesByStudent(int id)
         {
 
             List<Aptitude> aptitudes = new List<Aptitude>();
@@ -40,7 +40,7 @@ namespace Licenta.Controllers
 
             foreach (StudentAptitude studentAptitude in studentAptitudes)
             {
-                if (studentAptitude.IdStudent == id)
+                if (studentAptitude.StudentId == id)
                 {
                     //Aptitude aptitude = await _context.Aptitudes.FindAsync(studentAptitude.IdAptitude);
                     aptitudes.Add(studentAptitude.Aptitude);
@@ -65,7 +65,7 @@ namespace Licenta.Controllers
 
             foreach (InternshipAptitude internshipAptitude in internshipAptitudes)
             {
-                if (internshipAptitude.IdInternship == id)
+                if (internshipAptitude.InternshipId == id)
                 {
                     aptitudes.Add(internshipAptitude.Aptitude);
                 }

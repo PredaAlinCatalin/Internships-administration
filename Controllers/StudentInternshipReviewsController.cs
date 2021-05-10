@@ -29,22 +29,26 @@ namespace Licenta.Controllers
         }
 
         [HttpGet("student/{id}")]
-        public async Task<ActionResult<IEnumerable<StudentInternshipReview>>> GetStudentInternshipReviewsByStudentId(string id)
+        public async Task<ActionResult<StudentInternshipReview>> GetStudentInternshipReviewByStudentId(int id)
         {
-            List<StudentInternshipReview> studentInternshipReviews = await _context.StudentInternshipReviews.ToListAsync();
+            //List<StudentInternshipReview> studentInternshipReviews = await _context.StudentInternshipReviews.ToListAsync();
 
-            List<StudentInternshipReview> result = new List<StudentInternshipReview>();
+            //List<StudentInternshipReview> result = new List<StudentInternshipReview>();
 
-            foreach (StudentInternshipReview studentInternshipReview in studentInternshipReviews)
-            {
-                if (studentInternshipReview.IdStudent == id)
-                    result.Add(studentInternshipReview);
-            }
+            //foreach (StudentInternshipReview studentInternshipReview in studentInternshipReviews)
+            //{
+            //    if (studentInternshipReview.StudentId == id)
+            //        result.Add(studentInternshipReview);
+            //}
 
-            if (result.Count() == 0)
-                return NotFound();
+            //if (result.Count() == 0)
+            //    return NotFound();
 
-            return result;
+            //return result;
+
+            return await _context.StudentInternshipReviews.FirstOrDefaultAsync(r => r.StudentId == id);
+
+            
         }
 
         [HttpGet("internship/{id}")]
@@ -56,7 +60,7 @@ namespace Licenta.Controllers
 
             foreach (StudentInternshipReview studentInternshipReview in studentInternshipReviews)
             {
-                if (studentInternshipReview.IdInternship == id)
+                if (studentInternshipReview.InternshipId == id)
                     result.Add(studentInternshipReview);
             }
 
@@ -68,8 +72,8 @@ namespace Licenta.Controllers
 
 
         // GET: api/StudentInternshipReviews/5
-        [HttpGet("student/{idStudent}/internship/{idInternship}")]
-        public async Task<ActionResult<StudentInternshipReview>> GetStudentInternshipReview(string idStudent, int idInternship)
+        [HttpGet("student/{studentId}/internship/{InternshipId}")]
+        public async Task<ActionResult<StudentInternshipReview>> GetStudentInternshipReview(int studentId, int InternshipId)
         {
             List<StudentInternshipReview> studentInternshipReviews = await _context.StudentInternshipReviews.ToListAsync();
 
@@ -77,7 +81,7 @@ namespace Licenta.Controllers
 
             foreach (StudentInternshipReview studentInternshipReview in studentInternshipReviews)
             {
-                if (studentInternshipReview.IdInternship == idInternship && studentInternshipReview.IdStudent == idStudent)
+                if (studentInternshipReview.InternshipId == InternshipId && studentInternshipReview.StudentId == studentId)
                     result = studentInternshipReview;
             }
 
@@ -90,10 +94,10 @@ namespace Licenta.Controllers
         // PUT: api/StudentInternshipReviews/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        [HttpPut("student/{idStudent}/internship/{idInternship}")]
-        public async Task<IActionResult> PutStudentInternshipReview(string idStudent, int idInternship, StudentInternshipReview studentInternshipReview)
+        [HttpPut("student/{studentId}/internship/{InternshipId}")]
+        public async Task<IActionResult> PutStudentInternshipReview(int studentId, int InternshipId, StudentInternshipReview studentInternshipReview)
         {
-            if (idStudent != studentInternshipReview.IdStudent && idInternship != studentInternshipReview.IdInternship)
+            if (studentId != studentInternshipReview.StudentId && InternshipId != studentInternshipReview.InternshipId)
             {
                 return BadRequest();
             }
@@ -106,7 +110,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!StudentInternshipReviewExists(idStudent, idInternship))
+                if (!StudentInternshipReviewExists(studentId, InternshipId))
                 {
                     return NotFound();
                 }
@@ -132,7 +136,7 @@ namespace Licenta.Controllers
             }
             catch (DbUpdateException)
             {
-                if (StudentInternshipReviewExists(studentInternshipReview.IdStudent, studentInternshipReview.IdInternship))
+                if (StudentInternshipReviewExists(studentInternshipReview.StudentId, studentInternshipReview.InternshipId))
                 {
                     return Conflict();
                 }
@@ -142,14 +146,14 @@ namespace Licenta.Controllers
                 }
             }
 
-            return CreatedAtAction("GetStudentInternshipReview", new { id = studentInternshipReview.IdStudent }, studentInternshipReview);
+            return CreatedAtAction("GetStudentInternshipReview", new { id = studentInternshipReview.StudentId }, studentInternshipReview);
         }
 
         // DELETE: api/StudentInternshipReviews/5
-        [HttpDelete("student/{idStudent}/internship/{idInternship}")]
-        public async Task<ActionResult<StudentInternshipReview>> DeleteStudentInternshipReview(string idStudent, int idInternship)
+        [HttpDelete("student/{studentId}/internship/{InternshipId}")]
+        public async Task<ActionResult<StudentInternshipReview>> DeleteStudentInternshipReview(int studentId, int InternshipId)
         {
-            var studentInternshipReview = await _context.StudentInternshipReviews.FindAsync(idStudent, idInternship);
+            var studentInternshipReview = await _context.StudentInternshipReviews.FindAsync(studentId, InternshipId);
             if (studentInternshipReview == null)
             {
                 return NotFound();
@@ -161,9 +165,9 @@ namespace Licenta.Controllers
             return studentInternshipReview;
         }
 
-        private bool StudentInternshipReviewExists(string idStudent, int idInternship)
+        private bool StudentInternshipReviewExists(int studentId, int InternshipId)
         {
-            return _context.StudentInternshipReviews.Any(e => e.IdStudent == idStudent && e.IdInternship == idInternship);
+            return _context.StudentInternshipReviews.Any(e => e.StudentId == studentId && e.InternshipId == InternshipId);
         }
     }
 }

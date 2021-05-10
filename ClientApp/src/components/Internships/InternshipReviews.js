@@ -9,6 +9,8 @@ import Loading from "../Universal/Loading";
 import { useHistory } from "react-router-dom";
 import CreateIcon from "@material-ui/icons/Create";
 import { useIsStudent } from "../Authentication/Authentication";
+import { checkDateIsPast } from "../Utility/Utility";
+import { StudentInternshipStatus } from "../Constants";
 
 const InternshipReviews = ({ internshipId }) => {
   const [user, setUser] = useState({
@@ -28,9 +30,16 @@ const InternshipReviews = ({ internshipId }) => {
   });
   const [reviews, setReviews] = useState([]);
   const [hasGraded, setHasGraded] = useState(false);
+  const [canGrade, setCanGrade] = useState(false);
   const history = useHistory();
   const [success, setSuccess] = useState(false);
   const isStudent = useIsStudent();
+  const [isApplied, setIsApplied] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
+  const [internshipGrading, setInternshipGrading] = useState(0);
+  const [nrGrades, setNrGrades] = useState(0);
+  const [nrStudents, setNrStudents] = useState(0);
+  const [hasEnded, setHasEnded] = useState(false);
 
   useEffect(() => {
     let userStorage = JSON.parse(sessionStorage.getItem("user"));
@@ -39,14 +48,42 @@ const InternshipReviews = ({ internshipId }) => {
       await fetch("api/internships/" + internshipId)
         .then(async (res) => {
           if (res.ok) {
-            let data = await res.json();
-            setInternship(data);
-            fetch("api/companies/" + data.idCompany).then(async (response) => {
+            let internshipData = await res.json();
+            setInternship(internshipData);
+
+            fetch("api/companies/" + internshipData.companyId).then(async (response) => {
               if (response.ok) {
                 let dataCompany = await response.json();
                 setCompany(dataCompany);
               }
             });
+
+            if (isStudent) {
+              if (checkDateIsPast(internshipData.endDate)) setHasEnded(true);
+
+              const studentInternshipResponse = await fetch(
+                "api/studentInternships/student/" +
+                  userStorage.id +
+                  "/internship/" +
+                  internshipId
+              );
+              if (studentInternshipResponse.ok) {
+                let studentInternshipData = await studentInternshipResponse.json();
+                if (
+                  checkDateIsPast(internshipData.endDate) &&
+                  studentInternshipData.status === StudentInternshipStatus.accepted
+                ) {
+                  setCanGrade(true);
+                }
+                setIsApplied(true);
+
+                if (checkDateIsPast(internshipData.deadline)) {
+                  if (studentInternshipData.status === StudentInternshipStatus.accepted) {
+                    setIsAccepted(true);
+                  }
+                }
+              }
+            }
           }
         })
         .catch((error) => console.log(error));
@@ -56,8 +93,15 @@ const InternshipReviews = ({ internshipId }) => {
           if (res.ok) {
             let data = await res.json();
             setReviews(data);
+            console.log(data);
+            let sumOfGrades = 0;
+
             if (data.length > 0) {
-              setEmptyList(false);
+              for (let i = 0; i < data.length; i++) {
+                sumOfGrades = sumOfGrades + data[i].grade;
+              }
+              setInternshipGrading(sumOfGrades / data.length);
+              setNrGrades(data.length);
             }
           }
         })
@@ -101,8 +145,8 @@ const InternshipReviews = ({ internshipId }) => {
 
   const handleSubmitReview = async () => {
     let body = {
-      idStudent: user.id,
-      idInternship: internshipId,
+      studentId: user.id,
+      internshipId: internshipId,
       grade: review.grade,
       title: review.title,
       comment: review.comment,
@@ -145,24 +189,43 @@ const InternshipReviews = ({ internshipId }) => {
   };
 
   const getStudent = (id) => {
-    console.log(students.find((s) => s.id === id));
     return students.find((s) => s.id === id);
   };
 
-  const getReview = (idStudent, idInternship) => {
+  const getReview = (studentId, internshipId) => {
     return reviews.find(
-      (r) => r.idStudent === idStudent && r.idInternship === idInternship
+      (r) => r.studentId === studentId && r.internshipId === internshipId
     );
   };
 
   return !loading ? (
     <div>
-      <br/>
+      <br />
       <div className="text-center">
         <h5>
           Review-urile stagiului{" "}
           <Link to={"/internship/" + internship.id}>{internship.name}</Link> de la
           compania <Link to={"/company/" + company.id}>{company.name}</Link>
+          <div className="container">
+            <div className="row justify-content-center">
+              <div className="column">
+                <Box
+                  component="fieldset"
+                  mb={3}
+                  borderColor="transparent"
+                  onClick={() => history.push("/internshipReviews/" + internship.id)}
+                  onMouseOver={(event) => (event.target.style.cursor = "pointer")}
+                  onMouseOut={(event) => (event.target.style.cursor = "normal")}
+                >
+                  <Rating name="read-only" value={internshipGrading} readOnly />
+                </Box>
+              </div>
+              <div className="column">
+                ({nrGrades}{" "}
+                {reviews.length == 1 ? <span>review</span> : <span>review-uri</span>})
+              </div>
+            </div>
+          </div>
         </h5>
       </div>
 
@@ -175,7 +238,7 @@ const InternshipReviews = ({ internshipId }) => {
           Loghează-te pentru a face review
         </Button>
       )}
-      {!hasGraded && isStudent && (
+      {!hasGraded && canGrade && (
         <div>
           <b>Adaugă un review: </b>
           <Box
@@ -192,6 +255,21 @@ const InternshipReviews = ({ internshipId }) => {
           </Box>
         </div>
       )}
+
+      {!hasGraded && isStudent && isApplied && !hasEnded && (
+        <div className="text-center">
+          <b>
+            Incă nu poți face review la acest stagiu deoarece este în curs de desfășurare{" "}
+          </b>
+        </div>
+      )}
+
+      {!hasGraded && isStudent && isApplied && hasEnded && !isAccepted && (
+        <div>
+          <b>Nu poți face review deoarece nu ai fost acceptat la acest stagiu </b>
+        </div>
+      )}
+
       {hasGraded && isStudent && (
         <div>
           <h5>Review-ul tău:</h5>
@@ -206,6 +284,20 @@ const InternshipReviews = ({ internshipId }) => {
               review={getReview(user.id, internship.id)}
             />
           </CardActionArea>
+        </div>
+      )}
+
+      {!isStudent && (
+        <div>
+          <div>
+            <b>Îți trebuie un cont de student pentru a face review</b>
+          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => history.push("/login")}
+            Loghează-te
+          ></Button>
         </div>
       )}
 
@@ -265,19 +357,30 @@ const InternshipReviews = ({ internshipId }) => {
       </Modal>
 
       <hr className="dividingLine"></hr>
-      <h5>Alte review-uri:</h5>
-      {!emptyList ? (
-        reviews.map(
-          (rev) =>
-            rev.idStudent !== user.id && (
-              <InternshipReview
-                internship={internship}
-                student={getStudent(rev.idStudent)}
-                review={rev}
-              />
-            )
-        )
-      ) : (
+
+      {hasGraded && reviews.length === 1 && (
+        <div className="text-center text-muted">
+          Nu mai există alte review-uri ale acestui stagiu
+        </div>
+      )}
+
+      {(reviews.length > 1 || (reviews.length === 1 && !hasGraded)) && (
+        <div>
+          <h5>Alte review-uri:</h5>
+          {reviews.map(
+            (rev) =>
+              rev.studentId !== user.id && (
+                <InternshipReview
+                  internship={internship}
+                  student={getStudent(rev.studentId)}
+                  review={rev}
+                />
+              )
+          )}
+        </div>
+      )}
+
+      {reviews.length === 0 && (
         <div className="text-center text-muted">Niciun review al acestui stagiu</div>
       )}
     </div>

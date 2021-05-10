@@ -74,9 +74,9 @@ class ManageStudentInternships extends Component {
       console.log(modifiedStudentInternship);
       await fetch(
         "api/studentInternships/student/" +
-          studentInternship.idStudent +
+          studentInternship.studentId +
           "/internship/" +
-          studentInternship.idInternship,
+          studentInternship.internshipId,
         {
           method: "PUT",
           headers: {
@@ -108,9 +108,9 @@ class ManageStudentInternships extends Component {
       modifiedStudentInternship.status = StudentInternshipStatus.refused;
       await fetch(
         "api/studentInternships/student/" +
-          studentInternship.idStudent +
+          studentInternship.studentId +
           "/internship/" +
-          studentInternship.idInternship,
+          studentInternship.internshipId,
         {
           method: "PUT",
           headers: {
@@ -161,11 +161,11 @@ class ManageStudentInternships extends Component {
                           <button
                             className="btn btn-primary mt-2"
                             onClick={() =>
-                              this.handleSelectStudent(studentInternship.idStudent)
+                              this.handleSelectStudent(studentInternship.studentId)
                             }
                           >
-                            {this.getStudent(studentInternship.idStudent).lastName}{" "}
-                            {this.getStudent(studentInternship.idStudent).firstName}
+                            {this.getStudent(studentInternship.studentId).lastName}{" "}
+                            {this.getStudent(studentInternship.studentId).firstName}
                             &nbsp;
                           </button>
                         </td>

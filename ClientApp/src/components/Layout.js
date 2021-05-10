@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Container } from "reactstrap";
 import NavMenu from "./NavMenu";
-import TabMenu from "./TabMenu";
+import TabMenu from "./Universal/TabMenu";
 import NewNavMenu from "./NewNavMenu";
 import NewNavMenuTest from "./NewNavMenuTest";
 
@@ -15,7 +15,7 @@ export class Layout extends Component {
         {/* <NewNavMenuTest/> */}
         {/* <TabMenu/> */}
         {/* <NavMenu/> */}
-        <Container style={{height:870}}>{this.props.children}</Container>
+        <Container style={{ height: 870 }}>{this.props.children}</Container>
       </div>
     );
   }

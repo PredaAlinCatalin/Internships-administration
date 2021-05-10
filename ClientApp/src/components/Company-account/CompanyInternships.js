@@ -112,7 +112,7 @@ class CompanyInternships extends Component {
                     fontSize: 14,
                   }}
                 >
-                  {this.getCity(internship.idCity).name}
+                  {this.getCity(internship.cityId).name}
                   <Icon.GeoAltFill />
                 </span>
                 <br />
