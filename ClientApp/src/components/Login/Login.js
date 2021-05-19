@@ -5,8 +5,6 @@ import { useHistory, Link } from "react-router-dom";
 import { InputAdornment, Paper, TextField } from "@material-ui/core";
 import { AccountCircle } from "@material-ui/icons";
 import LockIcon from "@material-ui/icons/Lock";
-import Input from "../Universal/Input";
-import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 
 const Login = () => {

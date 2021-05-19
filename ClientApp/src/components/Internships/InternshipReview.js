@@ -1,21 +1,7 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import clsx from "clsx";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { red } from "@material-ui/core/colors";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Collapse,
-  Avatar,
-  IconButton,
-  Typography,
-  Grid,
-  Paper,
-} from "@material-ui/core";
+import { Avatar, Paper } from "@material-ui/core";
 import Rating from "@material-ui/lab/Rating";
 import Box from "@material-ui/core/Box";
 

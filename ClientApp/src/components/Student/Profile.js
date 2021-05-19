@@ -1,9 +1,5 @@
 ﻿import React, { Component } from "react";
-import Modal from "../Modal";
 import "./Profile.css";
-import Aptitude from "../Universal/SelectElement";
-import ForeignLanguage from "../Universal/SelectElement";
-import Select from "react-select";
 import * as Icon from "react-bootstrap-icons";
 import { withRouter, Link } from "react-router-dom";
 import NameForm from "./Profile/NameForm";
@@ -18,6 +14,7 @@ import ExperienceForm from "./Profile/ExperienceForm";
 import ProjectForm from "./Profile/Project";
 import ForeignLanguagesForm from "./Profile/ForeignLanguagesForm";
 import PassionsForm from "./Profile/PassionsForm";
+import { Paper } from "@material-ui/core";
 
 class Profile extends Component {
   constructor(props) {
@@ -443,7 +440,8 @@ class Profile extends Component {
   renderProfileData() {
     return (
       <div>
-        <div
+        <Paper className="m-3 p-3" elevation={3} style={{ width: 900 }}>
+          {/* <div
           className="container border border border-5 shadow p-3 mb-5 bg-body rounded"
           style={{
             width: 900,
@@ -451,7 +449,7 @@ class Profile extends Component {
             margin: "auto",
             padding: 50,
           }}
-        >
+        > */}
           <NameForm studentId={this.state.userId} />
 
           <div className="container">
@@ -609,7 +607,9 @@ class Profile extends Component {
           </div>
 
           <PassionsForm studentId={this.state.userId} />
-        </div>
+          {/* </div> */}
+        </Paper>
+        <br />
       </div>
     );
   }

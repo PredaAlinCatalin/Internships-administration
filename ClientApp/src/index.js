@@ -5,15 +5,19 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 import LoadingIndicator from "./components/Universal/LoadingIndicator";
+import theme from "./Theme";
+import { ThemeProvider } from "@material-ui/core/styles";
 
 const baseUrl = document.getElementsByTagName("base")[0].getAttribute("href");
 const rootElement = document.getElementById("root");
 
 ReactDOM.render(
-  <BrowserRouter basename={baseUrl}>
-    <App />
-    <LoadingIndicator />
-  </BrowserRouter>,
+  <ThemeProvider theme={theme}>
+    <BrowserRouter basename={baseUrl}>
+      <App />
+      <LoadingIndicator />
+    </BrowserRouter>
+  </ThemeProvider>,
   rootElement
 );
 

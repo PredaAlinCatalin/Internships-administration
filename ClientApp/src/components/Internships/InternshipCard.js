@@ -1,28 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import clsx from "clsx";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
-import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
-import CardActions from "@material-ui/core/CardActions";
-import Collapse from "@material-ui/core/Collapse";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
 import { red } from "@material-ui/core/colors";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import Loading from "../Universal/Loading";
 import { useHistory } from "react-router-dom";
-import { useIsCompany, useIsStudent } from "../Authentication/Authentication";
+import { useIsStudent } from "../Authentication/Authentication";
 import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import BookmarkIcon from "@material-ui/icons/Bookmark";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import { Link as RouterLink } from "react-router-dom";
-import Link from "@material-ui/core/Link";
 import { CardActionArea } from "@material-ui/core";
 import { SavedInternshipsContext } from "../../contexts/SavedInternshipsContext";
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,7 +62,6 @@ const InternshipCard = ({ internshipId, companyId }) => {
 
   useEffect(() => {
     async function populateWithData() {
-      console.log(sessionStorage.getItem("user"));
       let user = JSON.parse(sessionStorage.getItem("user"));
       if (user !== null) {
         setUserId(user.id);
@@ -95,11 +85,20 @@ const InternshipCard = ({ internshipId, companyId }) => {
         .then((res) => res.json())
         .then((data) => setCompany(data));
 
-      await fetch("api/aptitudes/internship/" + internshipId)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.status === 404) return;
-          setAptitudes(data);
+      // await fetch("api/aptitudes/internship/" + internshipId)
+      //   .then((res) => res.json())
+      //   .then((data) => {
+      //     if (data.status === 404) return;
+      //     setAptitudes(data);
+      //   })
+      //   .catch((error) => console.log(error));
+
+      await axios
+        .get("api/aptitudes/internship/" + internshipId)
+        .then((response) => {
+          if (response.status.ok) {
+            setAptitudes(response.data);
+          }
         })
         .catch((error) => console.log(error));
 
@@ -167,7 +166,6 @@ const InternshipCard = ({ internshipId, companyId }) => {
     ).then((res) => {
       if (res.ok) setSaved(false);
     });
-    console.log("Deleted");
   };
 
   return !loading ? (

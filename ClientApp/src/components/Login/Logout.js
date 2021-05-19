@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuthentication } from "../Authentication/Authentication";
 import { useHistory } from "react-router-dom";
-import { trackPromise } from "react-promise-tracker";
-import LoadingIndicator from "../Universal/LoadingIndicator";
-import Loader from "react-loader-spinner";
 
 const Logout = () => {
   const [error, setError] = useState("");

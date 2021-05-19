@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import * as Icon from "react-bootstrap-icons";
 import InternshipCard from "../Internships/InternshipCard";
 import TabMenu from "../Universal/TabMenu";
 

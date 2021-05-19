@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { SavedInternshipsContext } from "../../contexts/SavedInternshipsContext";
-import { withRouter } from "react-router-dom";
 
 const SavedInternshipsFunctional = () => {
   const { savedInternships } = useContext(SavedInternshipsContext);

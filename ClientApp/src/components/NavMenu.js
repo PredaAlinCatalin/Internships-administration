@@ -12,10 +12,7 @@ import {
 import { Link } from "react-router-dom";
 import "./NavMenu.css";
 import { useIsCompany, useIsStudent } from "./Authentication/Authentication";
-import Avatar from "@material-ui/core/Avatar";
-import IconButton from "@material-ui/core/IconButton";
 import { lightBlue } from "@material-ui/core/colors";
-import { Block } from "@material-ui/icons";
 import { useAuthentication } from "./Authentication/Authentication";
 
 const useStyles = makeStyles((theme) => ({

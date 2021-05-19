@@ -26,7 +26,7 @@ const DescriptionForm = ({ companyId }) => {
       setLoading(false);
     };
     populateWithData();
-  }, []);
+  }, [companyId]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -37,7 +37,7 @@ const DescriptionForm = ({ companyId }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setCompany({ ...company, description: input.description});
+    setCompany({ ...company, description: input.description });
 
     let modifiedCompany = {
       ...company,
@@ -62,30 +62,30 @@ const DescriptionForm = ({ companyId }) => {
   return !loading ? (
     <>
       <div
-          className="container rounded input-div"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: 850,
-          }}
-          onClick={(event) => {
-            setIsOpen(true);
-          }}
-        >
-          <div style={{}} className="row">
-            <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
-              <b
-                style={{
-                  wordBreak: "break-all",
-                  wordWrap: "break-word",
-                }}
-              >
-                {company.description}
-              </b>
-            </div>
+        className="container rounded input-div"
+        style={{
+          padding: 10,
+          paddingRight: 25,
+          paddingLeft: 25,
+          width: 850,
+        }}
+        onClick={(event) => {
+          setIsOpen(true);
+        }}
+      >
+        <div style={{}} className="row">
+          <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
+            <b
+              style={{
+                wordBreak: "break-all",
+                wordWrap: "break-word",
+              }}
+            >
+              {company.description}
+            </b>
           </div>
         </div>
+      </div>
 
       <Modal show={isOpen} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -93,7 +93,6 @@ const DescriptionForm = ({ companyId }) => {
         </Modal.Header>
         <Form>
           <Modal.Body>
-
             <TextField
               label="Descriere"
               style={{ margin: 15 }}
@@ -101,7 +100,9 @@ const DescriptionForm = ({ companyId }) => {
               fullWidth
               margin="normal"
               value={input.description}
-              onChange={(event) => setInput({ ...input, description: event.target.value })}
+              onChange={(event) =>
+                setInput({ ...input, description: event.target.value })
+              }
               required={true}
             />
           </Modal.Body>

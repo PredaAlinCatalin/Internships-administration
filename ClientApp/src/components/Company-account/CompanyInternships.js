@@ -1,10 +1,11 @@
-﻿import React, { Component } from "react";
+import React, { Component } from "react";
 import * as Icon from "react-bootstrap-icons";
 import { withRouter, Link } from "react-router-dom";
 import Loading from "../Universal/Loading";
-import PlusSign from "../Universal/PlusSign";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
+import Button from "@material-ui/core/Button";
+import Paper from "@material-ui/core/Paper";
 
 class CompanyInternships extends Component {
   constructor(props) {
@@ -85,68 +86,76 @@ class CompanyInternships extends Component {
   renderCompanyInternshipsData() {
     return (
       <>
-        <h3>Stagiile tale </h3>
-        <PlusSign onClick={this.handleCreateInternship} />
-        <Fab color="primary" aria-label="add">
-          <AddIcon />
-        </Fab>
+        <div className="m-3">
+          <h3 className="text-center">Stagiile companiei </h3>
+          <Fab
+            color="primary"
+            aria-label="add"
+            onClick={this.handleCreateInternship}
+            size="medium"
+          >
+            <AddIcon />
+          </Fab>
+        </div>
 
-        {/* <button className="btn btn-primary mt-2" onClick={this.handleCreateInternship}>
-          <b>+</b>
-        </button> */}
         <p> </p>
 
         {this.state.internships !== []
           ? this.state.internships.map((internship, index) => (
-              <span key={index}>
-                <Link to={"internship/" + internship.id}>
-                  <b style={{ fontSize: 18 }}> {internship.name} </b>
-                </Link>
-                <br />
-                <span style={{ fontSize: 14 }}>
-                  {internship.paid ? "Platit" : "Neplatit"}
+              <Paper className="p-3 m-3">
+                <span key={index}>
+                  <Link to={"internship/" + internship.id}>
+                    <b style={{ fontSize: 18 }}> {internship.name} </b>
+                  </Link>
+                  <br />
+                  <span style={{ fontSize: 14 }}>
+                    {internship.paid ? "Platit" : "Neplatit"}
+                  </span>
+                  <span
+                    style={{
+                      paddingLeft: 6,
+                      fontSize: 14,
+                    }}
+                  >
+                    {this.getCity(internship.cityId).name}
+                    <Icon.GeoAltFill />
+                  </span>
+                  <br />
+                  <span>
+                    {this.getInternshipDescriptionShort(internship.description, 200)}
+                  </span>
+                  <p> </p>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    style={{ width: 200 }}
+                    className="btn btn-primary mt-2"
+                    onClick={() => this.handleManageApplications(internship.id)}
+                  >
+                    Gestionează aplicări
+                  </Button>
+                  &nbsp;
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    style={{ width: 200 }}
+                    className="btn btn-primary mt-2"
+                    onClick={() => this.handleModifyInternship(internship.id)}
+                  >
+                    Modifică
+                  </Button>
+                  &nbsp;
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    style={{ width: 200 }}
+                    className="btn btn-danger mt-2"
+                    onClick={() => this.handleDeleteInternship(internship.id)}
+                  >
+                    Șterge
+                  </Button>
                 </span>
-                <span
-                  style={{
-                    paddingLeft: 6,
-                    fontSize: 14,
-                  }}
-                >
-                  {this.getCity(internship.cityId).name}
-                  <Icon.GeoAltFill />
-                </span>
-                <br />
-                <span>
-                  {this.getInternshipDescriptionShort(internship.description, 200)}
-                </span>
-                <p> </p>
-                <button
-                  style={{ width: 200 }}
-                  className="btn btn-primary mt-2"
-                  onClick={() => this.handleManageApplications(internship.id)}
-                >
-                  Gestioneaza aplicari
-                </button>
-                &nbsp;
-                <button
-                  style={{ width: 200 }}
-                  className="btn btn-primary mt-2"
-                  onClick={() => this.handleModifyInternship(internship.id)}
-                >
-                  Modifica
-                </button>
-                &nbsp;
-                <button
-                  style={{ width: 200 }}
-                  className="btn btn-danger mt-2"
-                  onClick={() => this.handleDeleteInternship(internship.id)}
-                >
-                  Sterge
-                </button>
-                <br />
-                <br />
-                <br />
-              </span>
+              </Paper>
             ))
           : ""}
       </>

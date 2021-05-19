@@ -48,9 +48,6 @@ namespace Licenta.Controllers
 
             }
 
-            if (aptitudes.Count == 0)
-                return NotFound();
-
             return aptitudes;
         }
 
@@ -70,9 +67,6 @@ namespace Licenta.Controllers
                     aptitudes.Add(internshipAptitude.Aptitude);
                 }
             }
-
-            if (aptitudes.Count == 0)
-                return NotFound();
 
             return aptitudes;
         }

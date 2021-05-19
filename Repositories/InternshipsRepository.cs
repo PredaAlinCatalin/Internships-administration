@@ -175,7 +175,7 @@ namespace Licenta.Repositories
 
         public async Task DeleteInternship(Internship internship)
         {
-            _context.Internships.Add(internship);
+            _context.Internships.Remove(internship);
             await _context.SaveChangesAsync();
         }
 

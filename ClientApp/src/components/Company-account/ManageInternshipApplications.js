@@ -1,11 +1,14 @@
-﻿import React, { Component } from "react";
+import React, { Component } from "react";
 import Select from "react-select";
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import { StudentInternshipStatus } from "../Constants";
 import "./ManageInternshipApplications.css";
 import Api from "../API/Api";
-import * as Icon from "react-bootstrap-icons";
 import Loading from "../Universal/Loading";
+import { Paper, TextField } from "@material-ui/core";
+import { Form } from "reactstrap";
+import Button from "@material-ui/core/Button";
+import { Modal } from "react-bootstrap";
 
 class ManageStudentInternships extends Component {
   constructor(props) {
@@ -15,14 +18,31 @@ class ManageStudentInternships extends Component {
       students: [],
       loading: true,
       emptyList: false,
+      studentInternshipsAux: [],
+      statusOptions: [],
+      isOpen: false,
+      idSelected: -1,
     };
   }
 
   componentDidMount() {
     this.populateManageStudentInternshipsData();
   }
-
+  getStatusOptions = () => {
+    var options = [];
+    options.push({
+      value: StudentInternshipStatus.accepted,
+      label: StudentInternshipStatus.accepted,
+    });
+    options.push({
+      value: StudentInternshipStatus.refused,
+      label: StudentInternshipStatus.refused,
+    });
+    return options;
+  };
   populateManageStudentInternshipsData = async () => {
+    this.setState({ statusOptions: this.getStatusOptions() });
+
     await Api.getStudentInternshipsByInternshipId(this.props.internshipId).then(
       (studentInternships) => {
         if (typeof studentInternships !== "undefined" && studentInternships.length > 0) {
@@ -41,6 +61,7 @@ class ManageStudentInternships extends Component {
         if (data.status !== 404) {
           this.setState({
             studentInternships: data,
+            studentInternshipsAux: data,
           });
         }
       })
@@ -67,74 +88,143 @@ class ManageStudentInternships extends Component {
       if (this.state.students[i].id === id) return this.state.students[i];
   };
 
-  handleStatusAccepted = async (studentInternship) => {
-    if (studentInternship.status !== StudentInternshipStatus.accepted) {
-      var modifiedStudentInternship = JSON.parse(JSON.stringify(studentInternship));
-      modifiedStudentInternship.status = StudentInternshipStatus.accepted;
-      console.log(modifiedStudentInternship);
-      await fetch(
-        "api/studentInternships/student/" +
-          studentInternship.studentId +
-          "/internship/" +
-          studentInternship.internshipId,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(modifiedStudentInternship),
-        }
-      );
-      await Api.getStudentInternshipsByInternshipId(this.props.internshipId).then(
-        (studentInternships) => {
-          if (
-            typeof studentInternships !== "undefined" &&
-            studentInternships.length > 0
-          ) {
-            this.setState({
-              studentInternships: studentInternships,
-            });
-          } else {
-            this.setState({ emptyList: true });
+  handleSubmit = async (studentInternshipAux) => {
+    console.log(studentInternshipAux);
+    var modifiedStudentInternship = JSON.parse(JSON.stringify(studentInternshipAux));
+    console.log(modifiedStudentInternship);
+
+    modifiedStudentInternship.status = studentInternshipAux.status;
+    modifiedStudentInternship.companyFeedback = studentInternshipAux.companyFeedback;
+    await fetch(
+      "api/studentInternships/student/" +
+        studentInternshipAux.studentId +
+        "/internship/" +
+        studentInternshipAux.internshipId,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(modifiedStudentInternship),
+      }
+    ).then(async (response) => {
+      if (response.ok) {
+        await Api.getStudentInternshipsByInternshipId(this.props.internshipId).then(
+          (studentInternships) => {
+            if (
+              typeof studentInternships !== "undefined" &&
+              studentInternships.length > 0
+            ) {
+              this.setState({
+                studentInternships: studentInternships,
+              });
+            } else {
+              this.setState({ emptyList: true });
+            }
           }
-        }
-      );
-    }
+        );
+        this.setState({ isOpen: false });
+      }
+    });
   };
 
-  handleStatusRefused = async (studentInternship) => {
-    if (studentInternship.status !== StudentInternshipStatus.refused) {
-      var modifiedStudentInternship = JSON.parse(JSON.stringify(studentInternship));
-      modifiedStudentInternship.status = StudentInternshipStatus.refused;
-      await fetch(
-        "api/studentInternships/student/" +
-          studentInternship.studentId +
-          "/internship/" +
-          studentInternship.internshipId,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(modifiedStudentInternship),
-        }
-      );
+  getStudentInternshipAux(studentInternship) {
+    return this.state.studentInternshipsAux.find(
+      (si) =>
+        si.studentId === studentInternship.studentId &&
+        si.internshipId === studentInternship.internshipId
+    );
+  }
 
-      await Api.getStudentInternshipsByInternshipId(this.props.internshipId).then(
-        (studentInternships) => {
-          if (
-            typeof studentInternships !== "undefined" &&
-            studentInternships.length > 0
-          ) {
-            this.setState({
-              studentInternships: studentInternships,
-            });
-          } else {
-            this.setState({ emptyList: true });
-          }
-        }
-      );
-    }
+  handleFeedbackChange = (studentInternship, event) => {
+    let modifiedStudentInternshipsAux = JSON.parse(
+      JSON.stringify(this.state.studentInternshipsAux)
+    );
+    let index = modifiedStudentInternshipsAux.findIndex(
+      (si) =>
+        si.studentId === studentInternship.studentId &&
+        si.internshipId === studentInternship.internshipId
+    );
+    modifiedStudentInternshipsAux[index].companyFeedback = event.target.value;
+
+    this.setState({ studentInternshipsAux: modifiedStudentInternshipsAux });
+  };
+
+  handleStatusChange = (studentInternship, event) => {
+    console.log(event);
+    let modifiedStudentInternshipsAux = JSON.parse(
+      JSON.stringify(this.state.studentInternshipsAux)
+    );
+    let index = modifiedStudentInternshipsAux.findIndex(
+      (si) =>
+        si.studentId === studentInternship.studentId &&
+        si.internshipId === studentInternship.internshipId
+    );
+    modifiedStudentInternshipsAux[index].status = event.value;
+
+    this.setState({ studentInternshipsAux: modifiedStudentInternshipsAux });
+  };
+
+  handleClose = () => {
+    this.setState({
+      isOpen: false,
+      studentInternshipsAux: JSON.parse(JSON.stringify(this.state.studentInternships)),
+    });
+  };
+
+  renderModal = () => {
+    let studentInternship = this.state.studentInternships[this.state.idSelected];
+    return this.state.idSelected !== -1 ? (
+      <Modal show={this.state.isOpen} onHide={this.handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {this.getStudent(studentInternship.studentId).lastName}{" "}
+            {this.getStudent(studentInternship.studentId).firstName}
+          </Modal.Title>
+        </Modal.Header>
+        <Form>
+          <Modal.Body>
+            <Select
+              placeholder="Selecteaza status"
+              value={{
+                value: this.getStudentInternshipAux(studentInternship).status,
+                label: this.getStudentInternshipAux(studentInternship).status,
+              }}
+              options={this.state.statusOptions}
+              onChange={(e) => this.handleStatusChange(studentInternship, e)}
+            />
+            <br />
+            <TextField
+              label="Feedback"
+              placeholder="Feedback"
+              fullWidth
+              value={this.getStudentInternshipAux(studentInternship).companyFeedback}
+              onChange={(event) => this.handleFeedbackChange(studentInternship, event)}
+            />
+          </Modal.Body>
+          <Modal.Footer>
+            <div>
+              <Button variant="contained" color="secondary" onClick={this.handleClose}>
+                Închide
+              </Button>
+            </div>
+            <div>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={(event) =>
+                  this.handleSubmit(this.getStudentInternshipAux(studentInternship))
+                }
+              >
+                Trimite
+              </Button>
+            </div>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+    ) : (
+      ""
+    );
   };
 
   renderManageStudentInternshipsData = () => {
@@ -142,80 +232,81 @@ class ManageStudentInternships extends Component {
       <>
         {!this.state.emptyList ? (
           <div>
-            <p>Internship applications:</p>
-            <table className="table table-hover">
-              <thead>
-                <tr>
-                  <th>Nume si prenume</th>
-                  <th>Data aplicarii</th>
-                  <th>Status</th>
-                  <th>Actiune</th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.state.studentInternships !== [] ? (
-                  <>
-                    {this.state.studentInternships.map((studentInternship, index) => (
-                      <tr id={index}>
-                        <td>
-                          <button
-                            className="btn btn-primary mt-2"
-                            onClick={() =>
-                              this.handleSelectStudent(studentInternship.studentId)
-                            }
-                          >
-                            {this.getStudent(studentInternship.studentId).lastName}{" "}
-                            {this.getStudent(studentInternship.studentId).firstName}
-                            &nbsp;
-                          </button>
-                        </td>
-
-                        <td>{studentInternship.applicationDate}</td>
-
-                        <td>
-                          {/*<Select
-                                                        placeholder="Selecteaza status"
-                                                        value={
-                                                            {
-                                                                value: studentInternship.status,
-                                                                label: studentInternship.status
-                                                            }
-                                                        }
-                                                        options={this.state.statusOptions}
-                                                        onChange={(e) => this.handleStatusChange(studentInternship, e)}
-                                                    /> */}
-
-                          {studentInternship.status}
-                        </td>
-
-                        <td>
-                          <button
-                            className="btn btn-success action"
-                            onClick={() => this.handleStatusAccepted(studentInternship)}
-                          >
-                            {" "}
-                            Accept{" "}
-                          </button>
-
-                          <button
-                            className="btn btn-danger action"
-                            onClick={() => this.handleStatusRefused(studentInternship)}
-                          >
-                            {" "}
-                            Refuse{" "}
-                          </button>
-                        </td>
+            <br />
+            <h5 className="text-center">Aplicările la stagiu</h5>
+            <div className="m-3">
+              <Paper>
+                <div className="container p-3 pb-2">
+                  <div className="table-responsive"></div>
+                  <table className="table table-hover">
+                    <thead>
+                      <tr className="d-flex">
+                        <th className="col-4">Nume și prenume</th>
+                        <th className="col-2">Data aplicării</th>
+                        <th className="col-2">Status</th>
+                        <th className="col-4">Acțiune</th>
                       </tr>
-                    ))}
-                  </>
-                ) : (
-                  ""
-                )}
-              </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                      {this.state.studentInternships !== [] ? (
+                        <>
+                          {this.state.studentInternships.map(
+                            (studentInternship, index) => (
+                              <tr className="d-flex" id={index}>
+                                <td className="col-4">
+                                  <b>
+                                    <Link
+                                      to={
+                                        "/studentProfile/" + studentInternship.studentId
+                                      }
+                                    >
+                                      {
+                                        this.getStudent(studentInternship.studentId)
+                                          .lastName
+                                      }{" "}
+                                      {
+                                        this.getStudent(studentInternship.studentId)
+                                          .firstName
+                                      }
+                                      &nbsp;
+                                    </Link>
+                                  </b>
+                                </td>
+
+                                <td className="col-2">
+                                  {studentInternship.applicationDate}
+                                </td>
+
+                                <td className="col-2">{studentInternship.status}</td>
+
+                                <td className="col-4">
+                                  {this.renderModal()}
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() =>
+                                      this.setState({ isOpen: true, idSelected: index })
+                                    }
+                                  >
+                                    Administrează aplicarea
+                                  </Button>
+                                </td>
+                              </tr>
+                            )
+                          )}
+                        </>
+                      ) : (
+                        ""
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </Paper>
+            </div>
           </div>
         ) : (
           <div className="text-center text-muted">
+            <br />
             Nicio aplicare la acest stagiu
             <br />
           </div>

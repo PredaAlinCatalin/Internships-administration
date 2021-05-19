@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import * as Icon from "react-bootstrap-icons";
-import "./PlusSign.css";
+import "./CircleButton.css";
 class PlusSign extends Component {
   onClick = (event) => {
     event.preventDefault();
@@ -10,7 +9,7 @@ class PlusSign extends Component {
     return (
       <span className="plus">
         <button className="btn btn-primary btn-circle btn-lg" onClick={this.onClick}>
-          <b>+</b>
+          {children}
         </button>
       </span>
     );

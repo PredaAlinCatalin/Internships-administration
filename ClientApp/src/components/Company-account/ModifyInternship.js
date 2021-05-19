@@ -1,48 +1,25 @@
-﻿import React, { useState, useEffect } from "react";
-// import Modal from "../Modal";
+import React, { useState, useEffect } from "react";
 import BaseSelect from "react-select";
 import FixRequiredSelect from "../Universal/FixRequiredSelect";
 import SelectElement from "../Universal/SelectElement";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Input from "../Universal/Input";
-import { Form, Row, Modal } from "react-bootstrap";
-import { withRouter, Link } from "react-router-dom";
+import { Form } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import Loading from "../Universal/Loading";
-import MyEditor from "../Universal/MyEditor";
 import "../Universal/Div3D.scss";
 import TextField from "@material-ui/core/TextField";
 import "date-fns";
 import Grid from "@material-ui/core/Grid";
 import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardTimePicker,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
-import { makeStyles } from "@material-ui/core/styles";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
 // import Select from '@material-ui/core/Select';
 import Button from "@material-ui/core/Button";
 import { useHistory } from "react-router-dom";
-import { FormGroup } from "@material-ui/core";
 import "./CreateInternship.css";
-import Fab from "@material-ui/core/Fab";
-import Icon from "@material-ui/core/Icon";
 import SaveIcon from "@material-ui/icons/Save";
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexWrap: "wrap",
-  },
-  textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: "25ch",
-  },
-}));
+import Paper from "@material-ui/core/Paper";
+import axios from "axios";
 
 const Select = (props) => (
   <FixRequiredSelect {...props} SelectComponent={BaseSelect} options={props.options} />
@@ -67,7 +44,6 @@ const ModifyInternship = ({ internshipId }) => {
   const [categoriesSelectedOption, setCategoriesSelectedOption] = useState("");
   const [internshipCategoriesAux, setInternshipCategoriesAux] = useState([]);
 
-  const [categoriesIsOpen, setCategoriesIsOpen] = useState(false);
   const [aptitudes, setAptitudes] = useState([]);
   const [aptitudesOptions, setAptitudesOptions] = useState([]);
   const [aptitudesSelectedOption, setAptitudesSelectedOption] = useState("");
@@ -91,7 +67,6 @@ const ModifyInternship = ({ internshipId }) => {
     setInternshipCategoryIdsToInsertAux,
   ] = useState([]);
 
-  const [aptitudesIsOpen, setAptitudesIsOpen] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -193,7 +168,7 @@ const ModifyInternship = ({ internshipId }) => {
     };
 
     populateModifyInternshipData();
-  }, []);
+  }, [internshipId]);
 
   const getCitiesOptions = (cities) => {
     let citiesOptions = [];
@@ -267,7 +242,7 @@ const ModifyInternship = ({ internshipId }) => {
   };
 
   const handleInternshipCategoryChange = (changeEvent) => {
-    let searchedCategory = aptitudes.find((obj) => obj.name === changeEvent.value);
+    let searchedCategory = categories.find((obj) => obj.name === changeEvent.value);
 
     if (
       internshipCategoriesAux.find((obj) => obj.name === searchedCategory.name) ===
@@ -401,21 +376,29 @@ const ModifyInternship = ({ internshipId }) => {
       console.log(res);
     });
 
+    let axiosArray = [];
+
     for (let i = 0; i < internshipCategoryIdsToDeleteAux.length; i++) {
       if (
         internshipCategories.find(
           (obj) => obj.id === internshipCategoryIdsToDeleteAux[i]
         ) !== undefined
       ) {
-        let aux =
+        let url =
           "api/internshipCategories/internship/" +
           internship.id +
           "/category/" +
           internshipCategoryIdsToDeleteAux[i];
 
-        await fetch(aux, {
-          method: "DELETE",
+        let newPromise = axios({
+          method: "delete",
+          url: url,
         });
+        axiosArray.push(newPromise);
+
+        // await fetch(aux, {
+        //   method: "DELETE",
+        // });
       }
     }
 
@@ -430,14 +413,21 @@ const ModifyInternship = ({ internshipId }) => {
           categoryId: internshipCategoryIdsToInsertAux[i],
         };
 
-        let aux = "api/internshipCategories";
-        await fetch(aux, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(internshipCategory),
+        let newPromise = axios({
+          method: "post",
+          url: "api/internshipCategories",
+          data: internshipCategory,
         });
+        axiosArray.push(newPromise);
+
+        // let aux = "api/internshipCategories";
+        // await fetch(aux, {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify(internshipCategory),
+        // });
       }
     }
     setInternshipCategories(internshipCategoriesAux);
@@ -448,14 +438,21 @@ const ModifyInternship = ({ internshipId }) => {
           (obj) => obj.id === internshipAptitudeIdsToDeleteAux[i]
         ) !== undefined
       ) {
-        let aux =
+        let url =
           "api/internshipAptitudes/internship/" +
           internship.id +
           "/aptitude/" +
           internshipAptitudeIdsToDeleteAux[i];
-        await fetch(aux, {
-          method: "DELETE",
+
+        let newPromise = axios({
+          method: "delete",
+          url: url,
         });
+        axiosArray.push(newPromise);
+
+        // await fetch(aux, {
+        //   method: "DELETE",
+        // });
       }
     }
 
@@ -470,16 +467,35 @@ const ModifyInternship = ({ internshipId }) => {
           aptitudeId: internshipAptitudeIdsToInsertAux[i],
         };
 
-        let aux = "api/internshipAptitudes";
-        await fetch(aux, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(internshipAptitude),
+        let url = "api/internshipAptitudes";
+
+        let newPromise = axios({
+          method: "post",
+          url: url,
+          data: internshipAptitude,
         });
+        axiosArray.push(newPromise);
+
+        // await fetch(aux, {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify(internshipAptitude),
+        // });
       }
     }
+
+    axios
+      .all(axiosArray)
+      .then(
+        axios.spread((...responses) => {
+          responses.forEach((res) => console.log("Success"));
+          console.log("submitted all axios calls");
+        })
+      )
+      .catch((error) => console.log(error));
+
     setInternshipAptitudes(internshipAptitudesAux);
     history.push("/companyInternships");
   };
@@ -487,200 +503,203 @@ const ModifyInternship = ({ internshipId }) => {
   return loading ? (
     <Loading />
   ) : (
-    <div className="box">
-      <div className="text-center">
-        <h3>Modifică stagiu </h3>
-      </div>
-
-      <Link to="/MyEditor">Mergi la editor</Link>
-
-      <Form onSubmit={handleInternshipModifyForm}>
-        <TextField
-          id="standard-full-width"
-          label="Nume"
-          style={{ margin: 15 }}
-          placeholder="Nume"
-          fullWidth
-          margin="normal"
-          // InputLabelProps={{
-          //   shrink: true,
-          // }}
-          value={internshipName}
-          onChange={handleInternshipNameChange}
-          required={true}
-        />
-
-        <TextField
-          id="standard-full-width"
-          type="number"
-          label="Număr maxim studenți"
-          style={{ margin: 15 }}
-          placeholder="Număr maxim studenți"
-          fullWidth
-          margin="normal"
-          // InputLabelProps={{
-          //   shrink: true,
-          // }}
-          value={internshipMaxNumberStudents}
-          onChange={handleInternshipMaxNumberStudentsChange}
-          required={true}
-        />
-
-        <FormControlLabel
-          value={internshipPaid}
-          control={<Checkbox color="primary" />}
-          label="Plătit"
-          labelPlacement="start"
-          checked={internshipPaid === true}
-          onChange={handleInternshipPaidChange}
-          required={true}
-        />
-
-        <div className="col-md-4">
-          Oraș:
-          <Select
-            placeholder="Selectează oraș"
-            value={internshipCitySelectedOption}
-            options={citiesOptions}
-            onChange={handleInternshipCityChange}
-            isSearchable
-            required
-          />
+    <div>
+      <Paper className="m-3 p-3" elevation={3} style={{ width: 900 }}>
+        <div className="text-center">
+          <h3>Modifică stagiu </h3>
         </div>
-        <br />
 
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <Grid container justify="space-between">
-            <KeyboardDatePicker
-              disableToolbar
-              variant="inline"
-              format="dd/MM/yyyy"
-              margin="normal"
-              style={{ margin: 15 }}
-              id="date-picker-inline"
-              label="Dată începere"
-              value={internshipStartDate}
-              onChange={handleInternshipStartDateChange}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-            />
+        <Link to="/MyEditor">Mergi la editor</Link>
 
-            <KeyboardDatePicker
-              disableToolbar
-              variant="inline"
-              format="dd/MM/yyyy"
-              margin="normal"
-              style={{ margin: 15 }}
-              id="date-picker-inline2"
-              label="Dată sfârșit"
-              value={internshipEndDate}
-              onChange={handleInternshipEndDateChange}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-            />
-
-            <KeyboardDatePicker
-              disableToolbar
-              variant="inline"
-              format="dd/MM/yyyy"
-              margin="normal"
-              style={{ margin: 15 }}
-              id="date-picker-inline3"
-              label="Deadline aplicări"
-              value={internshipDeadline}
-              onChange={handleInternshipDeadlineChange}
-              KeyboardButtonProps={{
-                "aria-label": "change date",
-              }}
-            />
-          </Grid>
-        </MuiPickersUtilsProvider>
-
-        <Form.Group className="col-md-12">
-          <Form.Label>Descriere</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={5}
-            name="description"
-            value={internshipDescription}
-            onChange={handleInternshipDescriptionChange}
+        <Form onSubmit={handleInternshipModifyForm}>
+          <TextField
+            id="standard-full-width"
+            label="Nume"
+            style={{ margin: 15 }}
+            placeholder="Nume"
+            fullWidth
+            margin="normal"
+            // InputLabelProps={{
+            //   shrink: true,
+            // }}
+            value={internshipName}
+            onChange={handleInternshipNameChange}
             required={true}
           />
-        </Form.Group>
 
-        <p></p>
-
-        <p></p>
-        <div className="col-md-12">
-          Categorii:{" "}
-          {internshipCategoriesAux !== []
-            ? internshipCategoriesAux.map((category) => (
-                <>
-                  <SelectElement
-                    key={category.id}
-                    id={category.id}
-                    name={category.name}
-                    onDelete={handleInternshipCategoryDelete}
-                  />
-                </>
-              ))
-            : ""}
-        </div>
-
-        <p></p>
-        <div className="col-md-4">
-          <Select
-            placeholder="Selecteaza categorie"
-            value={categoriesSelectedOption}
-            options={categoriesOptions}
-            onChange={handleInternshipCategoryChange}
-            required
+          <TextField
+            id="standard-full-width"
+            type="number"
+            label="Număr maxim studenți"
+            style={{ margin: 15 }}
+            placeholder="Număr maxim studenți"
+            fullWidth
+            margin="normal"
+            // InputLabelProps={{
+            //   shrink: true,
+            // }}
+            value={internshipMaxNumberStudents}
+            onChange={handleInternshipMaxNumberStudentsChange}
+            required={true}
           />
-        </div>
 
-        <br />
-        <div className="col-md-12">
-          Aptitudini:{" "}
-          {internshipAptitudesAux !== []
-            ? internshipAptitudesAux.map((aptitude) => (
-                <>
-                  <SelectElement
-                    key={aptitude.id}
-                    id={aptitude.id}
-                    name={aptitude.name}
-                    onDelete={handleInternshipAptitudeDelete}
-                  />
-                </>
-              ))
-            : ""}
+          <FormControlLabel
+            value={internshipPaid}
+            control={<Checkbox color="primary" />}
+            label="Plătit"
+            labelPlacement="start"
+            checked={internshipPaid === true}
+            onChange={handleInternshipPaidChange}
+            required={true}
+          />
+
+          <div className="col-md-4">
+            Oraș:
+            <Select
+              placeholder="Selectează oraș"
+              value={internshipCitySelectedOption}
+              options={citiesOptions}
+              onChange={handleInternshipCityChange}
+              isSearchable
+              required
+            />
+          </div>
+          <br />
+
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <Grid container justify="space-between">
+              <KeyboardDatePicker
+                disableToolbar
+                variant="inline"
+                format="dd/MM/yyyy"
+                margin="normal"
+                style={{ margin: 15 }}
+                id="date-picker-inline"
+                label="Dată începere"
+                value={internshipStartDate}
+                onChange={handleInternshipStartDateChange}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+
+              <KeyboardDatePicker
+                disableToolbar
+                variant="inline"
+                format="dd/MM/yyyy"
+                margin="normal"
+                style={{ margin: 15 }}
+                id="date-picker-inline2"
+                label="Dată sfârșit"
+                value={internshipEndDate}
+                onChange={handleInternshipEndDateChange}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+
+              <KeyboardDatePicker
+                disableToolbar
+                variant="inline"
+                format="dd/MM/yyyy"
+                margin="normal"
+                style={{ margin: 15 }}
+                id="date-picker-inline3"
+                label="Deadline aplicări"
+                value={internshipDeadline}
+                onChange={handleInternshipDeadlineChange}
+                KeyboardButtonProps={{
+                  "aria-label": "change date",
+                }}
+              />
+            </Grid>
+          </MuiPickersUtilsProvider>
+
+          <Form.Group className="col-md-12">
+            <Form.Label>Descriere</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={5}
+              name="description"
+              value={internshipDescription}
+              onChange={handleInternshipDescriptionChange}
+              required={true}
+            />
+          </Form.Group>
+
           <p></p>
-        </div>
-        <div className="col-md-4">
-          <Select
-            placeholder="Selecteaza aptitudine"
-            value={aptitudesSelectedOption}
-            options={aptitudesOptions}
-            onChange={handleInternshipAptitudeChange}
-            required
-          />
-        </div>
 
-        <div className="text-center">
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<SaveIcon />}
-            onClick={handleInternshipModifyForm}
-          >
-            {" "}
-            Salvează
-          </Button>
-        </div>
+          <p></p>
+          <div className="col-md-12">
+            Categorii:{" "}
+            {internshipCategoriesAux !== []
+              ? internshipCategoriesAux.map((category) => (
+                  <>
+                    <SelectElement
+                      key={category.id}
+                      id={category.id}
+                      name={category.name}
+                      onDelete={handleInternshipCategoryDelete}
+                    />
+                  </>
+                ))
+              : ""}
+          </div>
 
-        <div className="text-danger m-3 justify-content-center">{error}</div>
-      </Form>
+          <p></p>
+          <div className="col-md-4">
+            <Select
+              placeholder="Selecteaza categorie"
+              value={categoriesSelectedOption}
+              options={categoriesOptions}
+              onChange={handleInternshipCategoryChange}
+              required
+            />
+          </div>
+
+          <br />
+          <div className="col-md-12">
+            Aptitudini:{" "}
+            {internshipAptitudesAux !== []
+              ? internshipAptitudesAux.map((aptitude) => (
+                  <>
+                    <SelectElement
+                      key={aptitude.id}
+                      id={aptitude.id}
+                      name={aptitude.name}
+                      onDelete={handleInternshipAptitudeDelete}
+                    />
+                  </>
+                ))
+              : ""}
+            <p></p>
+          </div>
+          <div className="col-md-4">
+            <Select
+              placeholder="Selecteaza aptitudine"
+              value={aptitudesSelectedOption}
+              options={aptitudesOptions}
+              onChange={handleInternshipAptitudeChange}
+              required
+            />
+          </div>
+
+          <div className="text-center">
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<SaveIcon />}
+              onClick={handleInternshipModifyForm}
+            >
+              {" "}
+              Salvează
+            </Button>
+          </div>
+
+          <div className="text-danger m-3 justify-content-center">{error}</div>
+        </Form>
+      </Paper>
+      <br />
     </div>
   );
 };

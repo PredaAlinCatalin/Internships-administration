@@ -26,7 +26,7 @@ const WebsiteForm = ({ companyId }) => {
       setLoading(false);
     };
     populateWithData();
-  }, []);
+  }, [companyId]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -37,7 +37,7 @@ const WebsiteForm = ({ companyId }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setCompany({ ...company, website: input.website});
+    setCompany({ ...company, website: input.website });
 
     let modifiedCompany = {
       ...company,
@@ -62,30 +62,30 @@ const WebsiteForm = ({ companyId }) => {
   return !loading ? (
     <>
       <div
-          className="container rounded input-div"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: 850,
-          }}
-          onClick={(event) => {
-            setIsOpen(true);
-          }}
-        >
-          <div style={{}} className="row">
-            <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
-              <b
-                style={{
-                  wordBreak: "break-all",
-                  wordWrap: "break-word",
-                }}
-              >
-                {company.website}
-              </b>
-            </div>
+        className="container rounded input-div"
+        style={{
+          padding: 10,
+          paddingRight: 25,
+          paddingLeft: 25,
+          width: 850,
+        }}
+        onClick={(event) => {
+          setIsOpen(true);
+        }}
+      >
+        <div style={{}} className="row">
+          <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
+            <b
+              style={{
+                wordBreak: "break-all",
+                wordWrap: "break-word",
+              }}
+            >
+              {company.website}
+            </b>
           </div>
         </div>
+      </div>
 
       <Modal show={isOpen} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -93,7 +93,6 @@ const WebsiteForm = ({ companyId }) => {
         </Modal.Header>
         <Form>
           <Modal.Body>
-
             <TextField
               label="Website"
               style={{ margin: 15 }}

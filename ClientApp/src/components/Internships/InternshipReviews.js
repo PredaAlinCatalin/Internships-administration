@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import InternshipReview from "./InternshipReview";
-import * as Icon from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import { Button, Box, TextField, CardActionArea } from "@material-ui/core";
 import Rating from "@material-ui/lab/Rating";
 import { Form, Modal } from "react-bootstrap";
 import Loading from "../Universal/Loading";
 import { useHistory } from "react-router-dom";
-import CreateIcon from "@material-ui/icons/Create";
 import { useIsStudent } from "../Authentication/Authentication";
 import { checkDateIsPast } from "../Utility/Utility";
 import { StudentInternshipStatus } from "../Constants";
@@ -217,7 +215,12 @@ const InternshipReviews = ({ internshipId }) => {
                   onMouseOver={(event) => (event.target.style.cursor = "pointer")}
                   onMouseOut={(event) => (event.target.style.cursor = "normal")}
                 >
-                  <Rating name="read-only" value={internshipGrading} readOnly />
+                  <Rating
+                    name="half-rating-read"
+                    value={internshipGrading}
+                    precision={0.5}
+                    readOnly
+                  />
                 </Box>
               </div>
               <div className="column">
@@ -303,7 +306,7 @@ const InternshipReviews = ({ internshipId }) => {
 
       <Modal show={open} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Categorii</Modal.Title>
+          <Modal.Title>Review</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Box
@@ -347,12 +350,16 @@ const InternshipReviews = ({ internshipId }) => {
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="contained" color="secondary" onClick={handleClose}>
-            Închide
-          </Button>
-          <Button variant="contained" color="primary" onClick={handleSubmitReview}>
-            Salvează
-          </Button>
+          <div>
+            <Button variant="contained" color="secondary" onClick={handleClose}>
+              Închide
+            </Button>
+          </div>
+          <div>
+            <Button variant="contained" color="primary" onClick={handleSubmitReview}>
+              Salvează
+            </Button>
+          </div>
         </Modal.Footer>
       </Modal>
 

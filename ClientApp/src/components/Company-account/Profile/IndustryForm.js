@@ -26,7 +26,7 @@ const IndustryForm = ({ companyId }) => {
       setLoading(false);
     };
     populateWithData();
-  }, []);
+  }, [companyId]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -37,7 +37,7 @@ const IndustryForm = ({ companyId }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setCompany({ ...company, industry: input.industry});
+    setCompany({ ...company, industry: input.industry });
 
     let modifiedCompany = {
       ...company,
@@ -62,30 +62,30 @@ const IndustryForm = ({ companyId }) => {
   return !loading ? (
     <>
       <div
-          className="container rounded input-div"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: 850,
-          }}
-          onClick={(event) => {
-            setIsOpen(true);
-          }}
-        >
-          <div style={{}} className="row">
-            <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
-              <b
-                style={{
-                  wordBreak: "break-all",
-                  wordWrap: "break-word",
-                }}
-              >
-                {company.industry}
-              </b>
-            </div>
+        className="container rounded input-div"
+        style={{
+          padding: 10,
+          paddingRight: 25,
+          paddingLeft: 25,
+          width: 850,
+        }}
+        onClick={(event) => {
+          setIsOpen(true);
+        }}
+      >
+        <div style={{}} className="row">
+          <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
+            <b
+              style={{
+                wordBreak: "break-all",
+                wordWrap: "break-word",
+              }}
+            >
+              {company.industry}
+            </b>
           </div>
         </div>
+      </div>
 
       <Modal show={isOpen} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -93,7 +93,6 @@ const IndustryForm = ({ companyId }) => {
         </Modal.Header>
         <Form>
           <Modal.Body>
-
             <TextField
               label="Industrie"
               style={{ margin: 15 }}

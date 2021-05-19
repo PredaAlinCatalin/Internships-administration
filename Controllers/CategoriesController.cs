@@ -48,9 +48,6 @@ namespace Licenta.Controllers
                 }
             }
 
-            if (categories.Count == 0)
-                return NotFound();
-
             return Ok(_mapper.Map<IEnumerable<CategoryDTO>>(categories));
         }
 

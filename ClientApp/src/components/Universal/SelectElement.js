@@ -1,7 +1,6 @@
 ﻿import React, { Component } from "react";
 import "./SelectElement.css";
 import DeleteIcon from "@material-ui/icons/Delete";
-import Icon from "@material-ui/core/Icon";
 import Button from "@material-ui/core/Button";
 
 class SelectElement extends Component {

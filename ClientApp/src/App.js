@@ -1,6 +1,5 @@
-import { Switch, Route, Redirect, BrowserRouter as Router } from "react-router-dom";
-import React, { Component } from "react";
-//import { Route } from 'react-router';
+import { Switch, Route, Redirect } from "react-router-dom";
+import React from "react";
 import { Layout } from "./components/Layout";
 import Profile from "./components/Student/Profile";
 import Internships from "./components/Internships/Internships";
@@ -31,13 +30,11 @@ import MyEditor from "./components/Universal/MyEditor";
 import InternshipsList from "./components/Internships/InternshipsList";
 import SavedInternships from "./components/Student/SavedInternships";
 import StartPage from "./components/Start/StartPage";
-import InternshipsQueried from "./components/Internships/InternshipsQueried";
 import SavedInternshipsContextProvider from "./contexts/SavedInternshipsContext";
 import SavedInternshipsFunctional from "./components/Student/SavedInternshipsFunctional";
+import NotFound from "./components/NotFound/NotFound";
 
 const App = () => {
-  const displayName = App.name;
-
   const renderCompany = (routerProps) => {
     let companyIdCopy = routerProps.match.params.id;
     return <Company companyId={companyIdCopy} />;
@@ -75,121 +72,104 @@ const App = () => {
     <ProvideAuthentication>
       <SavedInternshipsContextProvider>
         <Layout>
-          <Route exact path="/">
-            <StartPage />
-          </Route>
+          <Switch>
+            <Route exact path="/" component={StartPage} />
 
-          {/* <Route exact path="/internships/query">
-            <InternshipsQueried />
-          </Route> */}
+            <Route exact path="/internships/:query?" component={Internships} />
 
-          <Route exact path="/internships/:query?">
-            <Internships />
-          </Route>
+            <Route exact path="/companies" component={Companies} />
 
-          <Route exact path="/companies">
-            <Companies />
-          </Route>
+            <Route exact path="/company/:id" render={renderCompany} />
 
-          <Route exact path="/company/:id" render={renderCompany} />
-          <Route exact path="/internship/:id" render={renderInternship} />
+            <Route exact path="/internship/:id" render={renderInternship} />
 
-          <CompanyRoute exact path="/companyProfile">
-            <CompanyProfile />
-          </CompanyRoute>
+            <Route exact path="/SignUp" component={SignUp} />
 
-          <CompanyRoute exact path="/companyInternships">
-            <CompanyInternships />
-          </CompanyRoute>
+            <Route exact path="/SuccessfulSignUp" component={SuccessfulSignUp} />
 
-          <CompanyRoute exact path="/createInternship">
-            <CreateInternship />
-          </CompanyRoute>
+            <Route exact path="/Login" component={Login} />
 
-          <CompanyRoute
-            exact
-            path="/modifyInternship/:id"
-            component={renderModifyInternship}
-          />
-          <CompanyRoute
-            exact
-            path="/manageInternshipApplications/:id"
-            component={renderManageInternshipApplications}
-          />
-          <CompanyRoute
-            exact
-            path="/studentProfile/:id"
-            component={renderStudentProfile}
-          />
+            <Route exact path="/internshipReviews/:id" render={renderInternshipReviews} />
 
-          <CompanyRoute exact path="/Logout">
-            <Logout />
-          </CompanyRoute>
+            <Route exact path="/MyEditor" component={MyEditor} />
 
-          <StudentRoute exact path="/internshipHistory">
-            <InternshipHistory />
-          </StudentRoute>
+            <Route exact path="/InternshipsList" component={InternshipsList} />
 
-          <StudentRoute exact path="/internshipApplications">
-            <InternshipApplications />
-          </StudentRoute>
+            <Route exact path="/Logout" component={Logout} />
 
-          <StudentRoute exact path="/savedInternships">
-            <SavedInternships />
-          </StudentRoute>
+            <CompanyRoute exact path="/companyProfile" component={CompanyProfile} />
 
-          <StudentRoute exact path="/savedInternshipsfunctional">
-            <SavedInternshipsFunctional />
-          </StudentRoute>
+            <CompanyRoute
+              exact
+              path="/companyInternships"
+              component={CompanyInternships}
+            />
 
-          <StudentRoute exact path="/profile">
-            <Profile />
-          </StudentRoute>
+            <CompanyRoute exact path="/createInternship" component={CreateInternship} />
 
-          <StudentRoute exact path="/successfulApplication">
-            <SuccessfulApplication />
-          </StudentRoute>
+            <CompanyRoute
+              exact
+              path="/modifyInternship/:id"
+              component={renderModifyInternship}
+            />
+            <CompanyRoute
+              exact
+              path="/manageInternshipApplications/:id"
+              component={renderManageInternshipApplications}
+            />
+            <CompanyRoute
+              exact
+              path="/studentProfile/:id"
+              component={renderStudentProfile}
+            />
 
-          <Route exact path="/SignUp">
-            <SignUp />
-          </Route>
+            <StudentRoute exact path="/internshipHistory" component={InternshipHistory} />
 
-          <Route exact path="/SuccessfulSignUp">
-            <SuccessfulSignUp />
-          </Route>
+            <StudentRoute
+              exact
+              path="/internshipApplications"
+              component={InternshipApplications}
+            />
 
-          <Route exact path="/Login">
-            <Login />
-          </Route>
+            <StudentRoute exact path="/savedInternships" component={SavedInternships} />
 
-          <Route exact path="/internshipReviews/:id" render={renderInternshipReviews} />
+            <StudentRoute
+              exact
+              path="/savedInternshipsfunctional"
+              component={SavedInternshipsFunctional}
+            />
 
-          <Route exact path="/MyEditor">
-            <MyEditor />
-          </Route>
+            <StudentRoute exact path="/profile" component={Profile} />
 
-          <Route exact path="/InternshipsList">
-            <InternshipsList />
-          </Route>
+            <StudentRoute
+              exact
+              path="/successfulApplication"
+              component={SuccessfulApplication}
+            />
+
+            <Route component={NotFound} />
+          </Switch>
         </Layout>
       </SavedInternshipsContextProvider>
     </ProvideAuthentication>
   );
 };
 
-const StudentRoute = ({ children, ...rest }) => {
+const StudentRoute = ({ component: Component, ...rest }) => {
   const isStudent = useIsStudent();
   return (
     <Route
       {...rest}
-      render={({ location }) =>
+      render={(props) =>
         isStudent ? (
-          children
+          <Component {...rest} {...props} />
         ) : (
           <Redirect
             to={{
               pathname: "/Login",
-              state: { from: location },
+              state: {
+                from: props.location,
+              },
             }}
           />
         )
@@ -205,11 +185,14 @@ const CompanyRoute = ({ component: Component, ...rest }) => {
       {...rest}
       render={(props) =>
         isCompany ? (
-          <Component {...props} />
+          <Component {...rest} {...props} />
         ) : (
           <Redirect
             to={{
               pathname: "/Login",
+              state: {
+                from: props.location,
+              },
             }}
           />
         )

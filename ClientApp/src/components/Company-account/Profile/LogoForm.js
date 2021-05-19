@@ -1,4 +1,4 @@
-import { TextField, Button } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { Form } from "reactstrap";
@@ -22,11 +22,10 @@ const LogoPathForm = ({ companyId }) => {
       setLoading(false);
     };
     populateWithData();
-  }, []);
+  }, [companyId]);
 
   const handleClose = () => {
     setIsOpen(false);
- 
   };
 
   const handleChange = (event) => {
@@ -84,7 +83,7 @@ const LogoPathForm = ({ companyId }) => {
 
     var modifiedCompany = company;
     modifiedCompany.logoPath = path;
-    console.log("LOGOPATH", companyLogoPath)
+    console.log("LOGOPATH", companyLogoPath);
     var aux = "api/companies/" + companyId;
     await fetch(aux, {
       method: "PUT",
@@ -93,37 +92,33 @@ const LogoPathForm = ({ companyId }) => {
       },
 
       body: JSON.stringify(modifiedCompany),
-    })
-    .then((response) => {
+    }).then((response) => {
       if (response.ok) {
-        console.log("OK")
+        console.log("OK");
         setCompany(modifiedCompany);
         setIsOpen(false);
       }
     });
-
-   
   };
 
   return !loading ? (
     <div className="ml-2">
       <img
-          width="200"
-          height="100"
-          alt="logo"
-          src={"logos/" + company.logoPath}
-          onMouseOver={(event) => (event.target.style.cursor = "pointer")}
-          onMouseOut={(event) => (event.target.style.cursor = "normal")}
-          onClick={() => setIsOpen(true)}
-        />
+        width="200"
+        height="100"
+        alt="logo"
+        src={"logos/" + company.logoPath}
+        onMouseOver={(event) => (event.target.style.cursor = "pointer")}
+        onMouseOut={(event) => (event.target.style.cursor = "normal")}
+        onClick={() => setIsOpen(true)}
+      />
       <Modal show={isOpen} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Industrie companie</Modal.Title>
         </Modal.Header>
         <Form>
           <Modal.Body>
-
-          <div id="thumbnail">
+            <div id="thumbnail">
               Imagine companie:
               <input type="file" onChange={handleChange} />
             </div>

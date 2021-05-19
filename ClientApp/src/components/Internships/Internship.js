@@ -21,7 +21,6 @@ import BookmarkIcon from "@material-ui/icons/Bookmark";
 import SendIcon from "@material-ui/icons/Send";
 import Avatar from "@material-ui/core/Avatar";
 import Rating from "@material-ui/lab/Rating";
-import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { Paper } from "@material-ui/core";
 
@@ -157,6 +156,7 @@ const Internship = ({ internshipId }) => {
       internshipId: internship.id,
       applicationDate: currentDate,
       status: StudentInternshipStatus.pending,
+      companyFeedback: "",
     };
 
     const studentInternshipResponse = await fetch("api/studentInternships", {
@@ -366,19 +366,30 @@ const Internship = ({ internshipId }) => {
                 <div className="column">
                   <Box
                     component="fieldset"
-                    mb={3}
+                    // mb={3}
                     borderColor="transparent"
                     onClick={() => history.push("/internshipReviews/" + internship.id)}
                     onMouseOver={(event) => (event.target.style.cursor = "pointer")}
                     onMouseOut={(event) => (event.target.style.cursor = "normal")}
                   >
-                    <Rating name="read-only" value={internshipGrading} readOnly />
+                    <Rating
+                      name="half-rating-read"
+                      value={internshipGrading}
+                      precision={0.5}
+                      readOnly
+                    />
                   </Box>
                 </div>
                 <div className="column">
                   <Link to={"/internshipReviews/" + internship.id}>
                     {nrGrades} {nrGrades == 1 ? "review" : "review-uri"}
                   </Link>
+                </div>
+              </div>
+              <div className="row">
+                <div className="column ml-3">
+                  <b>Deadline aplicări: </b>
+                  {getFormattedDateNoTime(new Date(internship.deadline))}
                 </div>
               </div>
             </div>
@@ -389,7 +400,7 @@ const Internship = ({ internshipId }) => {
   };
 
   return !loading ? (
-    <Paper>
+    <Paper className="mt-3">
       <div class="container p-4 mb-5">
         <div class="row">
           <div class="col-lg-9">
@@ -427,11 +438,6 @@ const Internship = ({ internshipId }) => {
                       >
                         Candidează
                       </Button>
-                      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                        <Alert onClose={handleClose} severity="success">
-                          Ai aplicat cu succes la stagiu!
-                        </Alert>
-                      </Snackbar>
                     </div>
                   )}
 
@@ -476,7 +482,7 @@ const Internship = ({ internshipId }) => {
             <div>
               <b>Perioada: </b>
               {getFormattedDateNoTime(new Date(internship.startDate))} -{" "}
-              {getFormattedDateNoTime(new Date(internship.endDate))}
+              {getFormattedDateNoTime(new Date(internship.endDate))}{" "}
             </div>
             <p></p>
             <table>

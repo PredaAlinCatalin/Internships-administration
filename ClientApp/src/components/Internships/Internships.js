@@ -1,31 +1,20 @@
 ﻿import React, { useState, useEffect, useContext } from "react";
-import { Link, withRouter, Redirect, useLocation, useHistory } from "react-router-dom";
-import * as Icon from "react-bootstrap-icons";
+import { useLocation, useHistory } from "react-router-dom";
 import $ from "jquery";
 import Loading from "../Universal/Loading";
-import { Modal } from "react-bootstrap";
 import InternshipCard from "./InternshipCard";
 import "./Internships.css";
-import InternshipCardMe from "./InternshipCardMe";
 import qs from "qs";
 import { Button, Paper } from "@material-ui/core";
 import Select from "react-select";
 // import FixRequiredSelect from "../Universal/FixRequiredSelect";
-import { Tabs, Tab } from "@material-ui/core";
-import {
-  getCitiesOptions,
-  getCategoriesOptions,
-  getAptitudesOptions,
-} from "../Utility/Utility";
+import { getCitiesOptions } from "../Utility/Utility";
 import SearchIcon from "@material-ui/icons/Search";
 import { TextField, InputAdornment } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import { Row } from "react-bootstrap";
 import { useIsStudent } from "../Authentication/Authentication";
-import NoteIcon from "@material-ui/icons/Note";
-import HistoryIcon from "@material-ui/icons/History";
-import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import TabMenu from "../Universal/TabMenu";
+import "../Universal/CircleButton.css";
+
 const customStyles = {
   control: (base, state) => ({
     ...base,
@@ -160,6 +149,7 @@ const Internships = () => {
       $("ul li#" + currentPage).addClass("active");
     }
     populateInternshipsData();
+    setSubmitted(false);
   }, [submitted]);
 
   const handleClick = (event) => {
@@ -237,35 +227,16 @@ const Internships = () => {
     setPrevAndNextBtnClass(listid);
   };
 
-  const handleSelectCompany = (id) => {
-    history.push("/company/" + id);
-  };
-
-  const handleSelectInternship = (id) => {
-    history.push("/internship/" + id);
-  };
-
-  const getCompany = (id) => {
-    for (let i = 0; i < companies.length; i++)
-      if (companies[i].id === id) {
-        return companies[i];
-      }
-  };
-
-  const getCity = (id) => {
-    for (let i = 0; i < cities.length; i++) if (cities[i].id === id) return cities[i];
-  };
-
   const handleQuerySubmit = (event) => {
     event.preventDefault();
     console.log(input);
     if (input.currentSearch !== "" || input.currentCity.value !== undefined) {
-      history.push(
-        "/internships/query?searchString=" +
-          input.currentSearch +
-          "&city=" +
-          input.currentCity.value ?? ""
-      );
+      console.log(input.currentCity.value ?? "UNDEFINED");
+      let city = "";
+      if (input.currentCity.value !== undefined) city = input.currentCity.value;
+      let url =
+        "/internships/query?searchString=" + input.currentSearch + "&city=" + city;
+      history.push(url);
       setSubmitted(true);
     }
   };
@@ -283,7 +254,6 @@ const Internships = () => {
 
   return !loading ? (
     <>
-      <br />
       {isStudent && <TabMenu />}
 
       <div className="m-3">
@@ -353,8 +323,8 @@ const Internships = () => {
       <br />
       <div className="container">
         <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4">
-          {currentInternships.map((internship, index) => (
-            <div className="mb-3 col">
+          {currentInternships.map((internship) => (
+            <div key={internship.id} className="mb-3 col">
               <div className="card">
                 <InternshipCard
                   internshipId={internship.id}
@@ -366,80 +336,86 @@ const Internships = () => {
         </div>
       </div>
 
-      <ul className="pagination">
-        {isPrevBtnActive === "disabled" && (
-          <li className={isPrevBtnActive}>
-            <button className="btn btn-primary" disabled id="btnPrev">
-              {" "}
-              Prev{" "}
-            </button>
-          </li>
-        )}
+      <div className="ml-3">
+        <ul className="pagination">
+          {isPrevBtnActive === "disabled" && (
+            <li className={isPrevBtnActive}>
+              <button className="btn btn-primary" disabled id="btnPrev">
+                {" "}
+                Prev{" "}
+              </button>
+            </li>
+          )}
 
-        {isPrevBtnActive === "" && (
-          <li className={isPrevBtnActive}>
-            <button className="btn btn-primary" id="btnPrev" onClick={btnPrevClick}>
-              {" "}
-              Prev{" "}
-            </button>
-          </li>
-        )}
+          {isPrevBtnActive === "" && (
+            <li className={isPrevBtnActive}>
+              <button className="btn btn-primary" id="btnPrev" onClick={btnPrevClick}>
+                {" "}
+                Prev{" "}
+              </button>
+            </li>
+          )}
 
-        {lowerPageBound >= 1 && (
-          <li className="">
-            <button className="btn btn-primary" onClick={btnDecrementClick}>
-              {" "}
-              &hellip;{" "}
-            </button>
-          </li>
-        )}
+          {lowerPageBound >= 1 && (
+            <li className="">
+              <button className="btn btn-primary" onClick={btnDecrementClick}>
+                {" "}
+                &hellip;{" "}
+              </button>
+            </li>
+          )}
 
-        {pageNumbers.map((number, index) => (
-          <span key={index}>
-            {number === 1 && currentPage === 1 ? (
-              <li key={number} className="active" id={number}>
-                <button className="btn btn-primary" id={number} onClick={handleClick}>
-                  {number}
-                </button>
-              </li>
-            ) : number < upperPageBound + 1 && number > lowerPageBound ? (
-              <li key={number} id={number}>
-                <button className="btn btn-primary" id={number} onClick={handleClick}>
-                  {number}
-                </button>
-              </li>
-            ) : (
-              ""
-            )}
-          </span>
-        ))}
+          {pageNumbers.map((number, index) => (
+            <span key={index}>
+              {number === 1 && currentPage === 1 ? (
+                <li key={number} className="active" id={number}>
+                  <button className="btn btn-primary" id={number} onClick={handleClick}>
+                    {number}
+                  </button>
+                </li>
+              ) : number < upperPageBound + 1 && number > lowerPageBound ? (
+                <li key={number} id={number}>
+                  <button className="btn btn-primary" id={number} onClick={handleClick}>
+                    {number}
+                  </button>
+                </li>
+              ) : (
+                ""
+              )}
+            </span>
+          ))}
 
-        {pageNumbers.length > upperPageBound && (
-          <li className="">
-            <button className="btn btn-primary" onClick={btnIncrementClick}>
-              {" "}
-              &hellip;{" "}
-            </button>
-          </li>
-        )}
+          {pageNumbers.length > upperPageBound && (
+            <li className="">
+              <button className="btn btn-primary" onClick={btnIncrementClick}>
+                {" "}
+                &hellip;{" "}
+              </button>
+            </li>
+          )}
 
-        {isNextBtnActive === "disabled" ||
-        Math.ceil(internships.length / internshipsPerPage) ? (
-          <li className={isNextBtnActive}>
-            <button className="btn btn-primary" disabled id="btnNext">
-              {" "}
-              Next{" "}
-            </button>
-          </li>
-        ) : (
-          <li className={isNextBtnActive}>
-            <button className="btn btn-primary" id="btnNext" onClick={btnNextClick}>
-              {" "}
-              Next{" "}
-            </button>
-          </li>
-        )}
-      </ul>
+          {isNextBtnActive === "disabled" ||
+          Math.ceil(internships.length / internshipsPerPage) ? (
+            <li className={isNextBtnActive}>
+              <button className="btn btn-primary" disabled id="btnNext">
+                {" "}
+                Next{" "}
+              </button>
+            </li>
+          ) : (
+            <li className={isNextBtnActive}>
+              <button
+                className="btn btn-primary btn-circle"
+                id="btnNext"
+                onClick={btnNextClick}
+              >
+                {" "}
+                Next{" "}
+              </button>
+            </li>
+          )}
+        </ul>
+      </div>
     </>
   ) : (
     <Loading />
