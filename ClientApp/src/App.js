@@ -31,8 +31,9 @@ import InternshipsList from "./components/Internships/InternshipsList";
 import SavedInternships from "./components/Student/SavedInternships";
 import StartPage from "./components/Start/StartPage";
 import SavedInternshipsContextProvider from "./contexts/SavedInternshipsContext";
-import SavedInternshipsFunctional from "./components/Student/SavedInternshipsFunctional";
+import SavedInternshipsFunctional from "./components/savedInternships/SavedInternshipsFunctional";
 import NotFound from "./components/NotFound/NotFound";
+import { InternshipsContextProvider } from "./contexts/InternshipsContext";
 
 const App = () => {
   const renderCompany = (routerProps) => {
@@ -71,85 +72,95 @@ const App = () => {
   return (
     <ProvideAuthentication>
       <SavedInternshipsContextProvider>
-        <Layout>
-          <Switch>
-            <Route exact path="/" component={StartPage} />
+        <InternshipsContextProvider>
+          <Layout>
+            <Switch>
+              <Route exact path="/" component={StartPage} />
 
-            <Route exact path="/internships/:query?" component={Internships} />
+              <Route exact path="/internships/:query?" component={Internships} />
 
-            <Route exact path="/companies" component={Companies} />
+              <Route exact path="/companies" component={Companies} />
 
-            <Route exact path="/company/:id" render={renderCompany} />
+              <Route exact path="/company/:id" render={renderCompany} />
 
-            <Route exact path="/internship/:id" render={renderInternship} />
+              <Route exact path="/internship/:id" render={renderInternship} />
 
-            <Route exact path="/SignUp" component={SignUp} />
+              <Route exact path="/SignUp" component={SignUp} />
 
-            <Route exact path="/SuccessfulSignUp" component={SuccessfulSignUp} />
+              <Route exact path="/SuccessfulSignUp" component={SuccessfulSignUp} />
 
-            <Route exact path="/Login" component={Login} />
+              <Route exact path="/Login" component={Login} />
 
-            <Route exact path="/internshipReviews/:id" render={renderInternshipReviews} />
+              <Route
+                exact
+                path="/internshipReviews/:id"
+                render={renderInternshipReviews}
+              />
 
-            <Route exact path="/MyEditor" component={MyEditor} />
+              <Route exact path="/MyEditor" component={MyEditor} />
 
-            <Route exact path="/InternshipsList" component={InternshipsList} />
+              <Route exact path="/InternshipsList" component={InternshipsList} />
 
-            <Route exact path="/Logout" component={Logout} />
+              <Route exact path="/Logout" component={Logout} />
 
-            <CompanyRoute exact path="/companyProfile" component={CompanyProfile} />
+              <CompanyRoute exact path="/companyProfile" component={CompanyProfile} />
 
-            <CompanyRoute
-              exact
-              path="/companyInternships"
-              component={CompanyInternships}
-            />
+              <CompanyRoute
+                exact
+                path="/companyInternships"
+                component={CompanyInternships}
+              />
 
-            <CompanyRoute exact path="/createInternship" component={CreateInternship} />
+              <CompanyRoute exact path="/createInternship" component={CreateInternship} />
 
-            <CompanyRoute
-              exact
-              path="/modifyInternship/:id"
-              component={renderModifyInternship}
-            />
-            <CompanyRoute
-              exact
-              path="/manageInternshipApplications/:id"
-              component={renderManageInternshipApplications}
-            />
-            <CompanyRoute
-              exact
-              path="/studentProfile/:id"
-              component={renderStudentProfile}
-            />
+              <CompanyRoute
+                exact
+                path="/modifyInternship/:id"
+                component={renderModifyInternship}
+              />
+              <CompanyRoute
+                exact
+                path="/manageInternshipApplications/:id"
+                component={renderManageInternshipApplications}
+              />
+              <CompanyRoute
+                exact
+                path="/studentProfile/:id"
+                component={renderStudentProfile}
+              />
 
-            <StudentRoute exact path="/internshipHistory" component={InternshipHistory} />
+              <StudentRoute
+                exact
+                path="/internshipHistory"
+                component={InternshipHistory}
+              />
 
-            <StudentRoute
-              exact
-              path="/internshipApplications"
-              component={InternshipApplications}
-            />
+              <StudentRoute
+                exact
+                path="/internshipApplications"
+                component={InternshipApplications}
+              />
 
-            <StudentRoute exact path="/savedInternships" component={SavedInternships} />
+              <StudentRoute exact path="/savedInternships" component={SavedInternships} />
 
-            <StudentRoute
-              exact
-              path="/savedInternshipsfunctional"
-              component={SavedInternshipsFunctional}
-            />
+              <StudentRoute
+                exact
+                path="/savedInternshipsfunctional"
+                component={SavedInternshipsFunctional}
+              />
 
-            <StudentRoute exact path="/profile" component={Profile} />
+              <StudentRoute exact path="/profile" component={Profile} />
 
-            <StudentRoute
-              exact
-              path="/successfulApplication"
-              component={SuccessfulApplication}
-            />
+              <StudentRoute
+                exact
+                path="/successfulApplication"
+                component={SuccessfulApplication}
+              />
 
-            <Route component={NotFound} />
-          </Switch>
-        </Layout>
+              <Route component={NotFound} />
+            </Switch>
+          </Layout>
+        </InternshipsContextProvider>
       </SavedInternshipsContextProvider>
     </ProvideAuthentication>
   );

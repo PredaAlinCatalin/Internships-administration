@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Licenta.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210508163525_Initial")]
+    [Migration("20210519035707_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -303,6 +303,9 @@ namespace Licenta.Migrations
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Salary")
+                        .HasColumnType("int");
+
                     b.Property<string>("StartDate")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -553,15 +556,15 @@ namespace Licenta.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "e6842015-edc3-47b7-8e25-fc7027b381b5",
-                            ConcurrencyStamp = "76f1c7f0-2382-468a-935d-af375f219f66",
+                            Id = "bf175c74-eda1-4744-ab9e-7a6ac7ceb2b7",
+                            ConcurrencyStamp = "4fbe9997-8ac8-4c71-b2d1-4fab73f42e79",
                             Name = "Student",
                             NormalizedName = "STUDENT"
                         },
                         new
                         {
-                            Id = "dda26482-b1f3-4487-8f33-9a23ba1451c0",
-                            ConcurrencyStamp = "d24ea445-b075-49d2-bf15-5cdb25cae930",
+                            Id = "4ff076bd-08e4-428a-bd19-da0a68f91d59",
+                            ConcurrencyStamp = "b09731f1-b339-4d09-b8c2-63e22cfa0c8b",
                             Name = "Company",
                             NormalizedName = "COMPANY"
                         });

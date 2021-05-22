@@ -91,7 +91,7 @@ const AddressForm = ({ companyId }) => {
         <Modal.Header closeButton>
           <Modal.Title>Adresa companiei</Modal.Title>
         </Modal.Header>
-        <Form>
+        <Form id="AddressForm">
           <Modal.Body>
             <TextField
               label="Adresă"

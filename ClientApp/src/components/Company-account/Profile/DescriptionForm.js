@@ -91,7 +91,7 @@ const DescriptionForm = ({ companyId }) => {
         <Modal.Header closeButton>
           <Modal.Title>Descriere companie</Modal.Title>
         </Modal.Header>
-        <Form>
+        <Form id="DescriptionForm">
           <Modal.Body>
             <TextField
               label="Descriere"

@@ -53,6 +53,7 @@ class InternshipHistory extends Component {
       const studentInternshipsResponse = await fetch(
         "api/studentInternships/student/" + user.id
       );
+      console.log(studentInternshipsResponse);
       if (studentInternshipsResponse.ok) {
         studentInternshipsData = await studentInternshipsResponse.json();
         studentInternshipsData = studentInternshipsData.filter(
@@ -238,7 +239,6 @@ class InternshipHistory extends Component {
 
         {this.state.studentInternships.length > 0 ? (
           <div>
-            <br />
             <h5 className="text-center">Istoricul stagiilor tale</h5>
             <br />
             <div className="m-3">

@@ -197,7 +197,6 @@ class InternshipApplications extends Component {
 
         {this.state.studentInternships.length > 0 ? (
           <div>
-            <br />
             <div className="m-3">
               <h5 className="text-center">Aplicările tale la stagii</h5>
               <br />

@@ -21,6 +21,8 @@ namespace Licenta.DTOs
         public int MaxNumberStudents { get; set; }
         [Required]
         public bool Paid { get; set; }
+        public int Salary { get; set; }
+
         [Required]
         public string Description { get; set; }
         [Required]

@@ -91,7 +91,7 @@ const NameForm = ({ companyId }) => {
         <Modal.Header closeButton>
           <Modal.Title>Nume companie</Modal.Title>
         </Modal.Header>
-        <Form>
+        <Form id="NameForm">
           <Modal.Body>
             <TextField
               label="Nume"

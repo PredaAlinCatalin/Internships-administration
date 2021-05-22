@@ -31,6 +31,7 @@ const ModifyInternship = ({ internshipId }) => {
   const [internshipName, setInternshipName] = useState("");
   const [internshipDescription, setInternshipDescription] = useState("");
   const [internshipPaid, setInternshipPaid] = useState(false);
+  const [internshipSalary, setInternshipSalary] = useState(0);
   const [internshipStartDate, setInternshipStartDate] = useState("");
   const [internshipEndDate, setInternshipEndDate] = useState("");
   const [internshipDeadline, setInternshipDeadline] = useState("");
@@ -138,6 +139,7 @@ const ModifyInternship = ({ internshipId }) => {
         setInternshipDescription(descriptionCopy);
 
         setInternshipPaid(internshipData.paid);
+        setInternshipSalary(internshipData.salary);
         setInternshipStartDate(internshipData.startDate);
         setInternshipEndDate(internshipData.endDate);
         setInternshipDeadline(internshipData.deadline);
@@ -353,6 +355,7 @@ const ModifyInternship = ({ internshipId }) => {
       deadline: internshipDeadline,
       maxNumberStudents: internshipMaxNumberStudents,
       paid: internshipPaid,
+      salary: internshipSalary,
       description: internshipDescription,
       companyId: internship.companyId,
       cityId: searchedCity !== undefined ? searchedCity.id : null,
@@ -552,6 +555,25 @@ const ModifyInternship = ({ internshipId }) => {
             onChange={handleInternshipPaidChange}
             required={true}
           />
+
+          {internshipPaid ? (
+            <TextField
+              type="number"
+              label="Salariu"
+              style={{ margin: 15 }}
+              placeholder="Salariu"
+              fullWidth
+              margin="normal"
+              // InputLabelProps={{
+              //   shrink: true,
+              // }}
+              value={internshipSalary}
+              onChange={(event) => setInternshipSalary(event.target.value)}
+              required={true}
+            />
+          ) : (
+            ""
+          )}
 
           <div className="col-md-4">
             Oraș:

@@ -7,9 +7,17 @@ import * as Icon from "react-bootstrap-icons";
 import { getAptitudesOptions } from "../../Utility/Utility";
 import Select from "react-select";
 import Aptitude from "../../Universal/SelectElement";
+import axios from "axios";
+import {
+  fetchStudentAptitudes,
+  selectAllStudentAptitudes,
+  addStudentAptitude,
+  deleteStudentAptitude,
+} from "./studentAptitudesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const AptitudesForm = ({ studentId }) => {
-  const [student, setStudent] = useState(null);
   const [input, setInput] = useState({
     studentAptitudesAux: [],
     aptitudeIdsToDelete: [],
@@ -20,20 +28,14 @@ const AptitudesForm = ({ studentId }) => {
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const studentAptitudes = useSelector(selectAllStudentAptitudes);
+  const status = useSelector((state) => state.studentAptitudes.status);
+  const error = useSelector((state) => state.studentAptitudes.error);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const populateWithData = async () => {
-      let studentResponse = await fetch("api/students/" + studentId);
-      let studentData = "";
-      if (studentResponse.ok) {
-        studentData = await studentResponse.json();
-        setStudent(studentData);
-      }
-
-      const studentAptitudesResponse = await fetch("api/aptitudes/student/" + studentId);
-      let studentAptitudesData = [];
-      if (studentAptitudesResponse.ok)
-        studentAptitudesData = await studentAptitudesResponse.json();
+      if (status === "idle") dispatch(fetchStudentAptitudes(studentId));
 
       const aptitudesResponse = await fetch("api/aptitudes");
       let aptitudesData = [];
@@ -42,26 +44,32 @@ const AptitudesForm = ({ studentId }) => {
       if (aptitudesResponse.ok) {
         aptitudesData = await aptitudesResponse.json();
         aptitudesOptions = getAptitudesOptions(aptitudesData);
+        setInput({
+          ...input,
+          aptitudes: aptitudesData,
+          aptitudesOptions: aptitudesOptions,
+        });
+        console.log(aptitudesData);
       }
 
-      setInput({
-        ...input,
-        studentAptitudes: studentAptitudesData,
-        aptitudes: aptitudesData,
-        studentAptitudesAux: studentAptitudesData,
-        aptitudesOptions: aptitudesOptions,
-      });
-
-      setLoading(false);
+      if (status === "succeeded") {
+        console.log(studentAptitudes);
+        setInput({
+          ...input,
+          studentAptitudesAux: [...studentAptitudes],
+        });
+        setLoading(false);
+      }
     };
     populateWithData();
-  }, []);
+  }, [status, dispatch]);
 
   const handleClose = () => {
     setInput({
       ...input,
-      studentAptitudesAux: input.studentAptitudes,
+      studentAptitudesAux: [...studentAptitudes],
       aptitudeIdsToDelete: [],
+      aptitudeIdsToInsert: [],
     });
     setIsOpen(false);
   };
@@ -71,14 +79,22 @@ const AptitudesForm = ({ studentId }) => {
       JSON.stringify(input.aptitudes.find((obj) => obj.name === changeEvent.value))
     );
 
-    if (
-      input.studentAptitudesAux.find((obj) => obj.name === searchedAptitude.name) ===
-      undefined
-    ) {
+    let searchedStudentAptitude = input.studentAptitudesAux.find(
+      (obj) => obj.aptitudeId === searchedAptitude.id
+    );
+
+    if (searchedStudentAptitude === undefined) {
+      console.log("Its undefined")
+      let newStudentAptitude = {
+        aptitudeId: searchedAptitude.id,
+        studentId: studentId,
+      };
+
       let modifiedStudentAptitudesAux = JSON.parse(
         JSON.stringify(input.studentAptitudesAux)
       );
-      modifiedStudentAptitudesAux.push(searchedAptitude);
+
+      modifiedStudentAptitudesAux.push(newStudentAptitude);
 
       let aptitudeIdsToDelete = JSON.parse(
         JSON.stringify(
@@ -106,8 +122,8 @@ const AptitudesForm = ({ studentId }) => {
 
     const filteredAptitudes = JSON.parse(
       JSON.stringify(
-        input.studentAptitudesAux.filter((aptitude) => {
-          return aptitude.id !== aptitudeId;
+        input.studentAptitudesAux.filter((studentAptitude) => {
+          return studentAptitude.aptitudeId !== aptitudeId;
         })
       )
     );
@@ -130,26 +146,20 @@ const AptitudesForm = ({ studentId }) => {
 
     for (let i = 0; i < input.aptitudeIdsToDelete.length; i++) {
       if (
-        input.studentAptitudes.find((obj) => obj.id === input.aptitudeIdsToDelete[i]) !==
+        studentAptitudes.find((obj) => obj.aptitudeId === input.aptitudeIdsToDelete[i]) !==
         undefined
       ) {
-        let aux =
-          "api/studentaptitudes/student/" +
-          studentId +
-          "/aptitude/" +
-          input.aptitudeIdsToDelete[i];
-        await fetch(aux, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        let item = {
+          studentId: studentId,
+          aptitudeId: input.aptitudeIdsToDelete[i],
+        };
+        dispatch(deleteStudentAptitude(item));
       }
     }
 
     for (let i = 0; i < input.aptitudeIdsToInsert.length; i++) {
       if (
-        input.studentAptitudes.find((obj) => obj.id === input.aptitudeIdsToInsert[i]) ===
+        studentAptitudes.find((obj) => obj.aptitudeId === input.aptitudeIdsToInsert[i]) ===
         undefined
       ) {
         const studentAptitude = {
@@ -157,21 +167,10 @@ const AptitudesForm = ({ studentId }) => {
           aptitudeId: input.aptitudeIdsToInsert[i],
         };
 
-        let aux = "api/studentaptitudes";
-        await fetch(aux, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(studentAptitude),
-        });
+        dispatch(addStudentAptitude(studentAptitude));
       }
     }
 
-    setInput({
-      ...input,
-      studentAptitudes: input.studentAptitudesAux,
-    });
     setIsOpen(false);
   };
 
@@ -202,8 +201,14 @@ const AptitudesForm = ({ studentId }) => {
                 display: "inline-block",
               }}
             >
-              {input.studentAptitudes !== []
-                ? input.studentAptitudes.map((aptitude) => aptitude.name).join(", ")
+              {studentAptitudes !== []
+                ? studentAptitudes
+                    .map(
+                      (studentAptitude) =>
+                        input.aptitudes.find((a) => a.id === studentAptitude.aptitudeId)
+                          .name
+                    )
+                    .join(", ")
                 : ""}
             </b>
           </div>
@@ -216,11 +221,14 @@ const AptitudesForm = ({ studentId }) => {
         <Form>
           <Modal.Body>
             {input.studentAptitudesAux !== []
-              ? input.studentAptitudesAux.map((aptitude) => (
+              ? input.studentAptitudesAux.map((studentAptitude) => (
                   <Aptitude
-                    key={aptitude.id}
-                    id={aptitude.id}
-                    name={aptitude.name}
+                    key={studentAptitude.aptitudeId}
+                    id={studentAptitude.aptitudeId}
+                    name={
+                      input.aptitudes.find((a) => a.id === studentAptitude.aptitudeId)
+                        .name
+                    }
                     onDelete={handleDelete}
                   />
                 ))

@@ -14,6 +14,12 @@ import BookmarkIcon from "@material-ui/icons/Bookmark";
 import { CardActionArea } from "@material-ui/core";
 import { SavedInternshipsContext } from "../../contexts/SavedInternshipsContext";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import {
+  addSavedInternship,
+  deleteSavedInternship,
+} from "../savedInternships/savedInternshipsSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,7 +61,9 @@ const InternshipCard = ({ internshipId, companyId }) => {
   const isStudent = useIsStudent();
   const [saved, setSaved] = useState(false);
   const { dispatchSavedInternships } = useContext(SavedInternshipsContext);
-
+  const dispatch = useDispatch();
+  const [addRequestStatus, setAddRequestStatus] = useState("idle");
+  const [deleteRequestStatus, setDeleteRequestStatus] = useState("idle");
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -128,7 +136,7 @@ const InternshipCard = ({ internshipId, companyId }) => {
       setLoading(false);
     }
     populateWithData();
-  }, [saved]);
+  }, [saved, addRequestStatus, deleteRequestStatus, dispatch]);
 
   const getShortString = (string, length) => {
     if (string !== undefined && string !== null && string.length > length)
@@ -143,29 +151,35 @@ const InternshipCard = ({ internshipId, companyId }) => {
       studentId: userId,
     };
 
-    // await fetch("api/savedStudentInternships", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(body),
-    // }).then((res) => {
-    //   if (res.ok) setSaved(true);
-    // });
-    // console.log("saved");
-    dispatchSavedInternships({ type: "ADD_SAVED_INTERNSHIP", savedInternship: body });
+    try {
+      setAddRequestStatus("pending");
+      const resultAction = await dispatch(addSavedInternship(body));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setAddRequestStatus("idle");
+      setSaved(true);
+    }
   };
 
   const handleDelete = async (event) => {
     event.stopPropagation();
-    await fetch(
-      "api/savedStudentInternships/student/" + userId + "/internship/" + internshipId,
-      {
-        method: "DELETE",
-      }
-    ).then((res) => {
-      if (res.ok) setSaved(false);
-    });
+    const body = {
+      internshipId: internshipId,
+      studentId: userId,
+    };
+
+    try {
+      setDeleteRequestStatus("pending");
+      const resultAction = await dispatch(deleteSavedInternship(body));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleteRequestStatus("idle");
+      setSaved(false);
+    }
   };
 
   return !loading ? (

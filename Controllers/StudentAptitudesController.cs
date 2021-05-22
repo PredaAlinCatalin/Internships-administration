@@ -29,6 +29,12 @@ namespace Licenta.Controllers
             return await _context.StudentAptitudes.ToListAsync();
         }
 
+        [HttpGet("student/{studentId}")]
+        public async Task<ActionResult<IEnumerable<StudentAptitude>>> GetStudentAptitudesByStudentId(int studentId)
+        {
+            return await _context.StudentAptitudes.Where(sa => sa.StudentId == studentId).ToListAsync();
+        }
+
         // GET: api/StudentAptitudes/student/1/aptitude/2
         [HttpGet("student/{studentId}/aptitude/{aptitudeId}")]
         public async Task<ActionResult<StudentAptitude>> GetStudentAptitude(int studentId, int aptitudeId)

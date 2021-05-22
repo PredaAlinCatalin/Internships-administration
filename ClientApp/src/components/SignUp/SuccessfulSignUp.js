@@ -2,11 +2,13 @@ import React from "react";
 import "./SuccessfulSignUp.css";
 import { withRouter } from "react-router-dom";
 import * as Icon from "react-bootstrap-icons";
+import Button from "@material-ui/core/Button";
 
 class SuccessfulSignUp extends React.Component {
   render() {
     return (
       <div className="text-center">
+        <br />
         <div style={{ color: "rgb(58, 181, 74)" }}>
           <Icon.CheckCircleFill size={50} />
         </div>
@@ -14,12 +16,13 @@ class SuccessfulSignUp extends React.Component {
         <h3>Înregistrarea a reușit</h3>
         <br />
         <div>
-          <button
-            className="btn btn-primary mt-2"
+          <Button
+            variant="contained"
+            color="primary"
             onClick={() => this.props.history.push("/Login")}
           >
             Login
-          </button>
+          </Button>
         </div>
       </div>
     );

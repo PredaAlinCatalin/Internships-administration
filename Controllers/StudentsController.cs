@@ -125,14 +125,18 @@ namespace Licenta.Controllers
             _context.Entry(student).State = EntityState.Modified;
 
             var user = await _userManager.FindByIdAsync(student.UserId);
+            if (user.PhoneNumber != studentFormDTO.PhoneNumber)
+            {
+                var changePhoneResult = await _userManager.SetPhoneNumberAsync(user, studentFormDTO.PhoneNumber);
+
+                if (!changePhoneResult.Succeeded)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, changePhoneResult.Errors);
+                }
+            }
 
             //var changePhoneNumberToken = await _userManager.GenerateChangePhoneNumberTokenAsync(user, studentFormDTO.PhoneNumber);
-            var changePhoneResult = await _userManager.SetPhoneNumberAsync(user, studentFormDTO.PhoneNumber);
-
-            if (!changePhoneResult.Succeeded)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, changePhoneResult.Errors);
-            }
+            
 
             try
             {

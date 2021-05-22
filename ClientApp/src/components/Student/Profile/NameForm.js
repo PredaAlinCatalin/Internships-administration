@@ -1,69 +1,70 @@
 import { TextField, Button } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
-import { Form } from "reactstrap";
+import { Form } from "react-bootstrap";
 import "./Profile.css";
+import * as Icon from "react-bootstrap-icons";
+import axios from "axios";
+import { fetchStudent, selectStudent, updateStudent } from "../studentSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const NameForm = ({ studentId }) => {
-  const [student, setStudent] = useState(null);
   const [input, setInput] = useState({
     firstName: "",
-    lastName: "",
+    lastName: ""
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [validated, setValidated] = useState(false);
+  const student = useSelector(selectStudent);
+  const status = useSelector((state) => state.student.status);
+  const error = useSelector((state) => state.student.error);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const populateWithData = async () => {
-      let studentResponse = await fetch("api/students/" + studentId);
-      let studentData = "";
-      if (studentResponse.ok) {
-        studentData = await studentResponse.json();
-        setStudent(studentData);
-        setInput({
-          firstName: studentData.firstName,
-          lastName: studentData.lastName,
-        });
+    async function populateWithData() {
+      if (status === "idle") {
+        dispatch(fetchStudent(studentId));
       }
-      setLoading(false);
-    };
+    }
     populateWithData();
-  }, []);
+    if (status === "succeeded")
+      setInput({
+        firstName: student.firstName,
+        lastName: student.lastName
+      });
+  }, [status, dispatch]);
 
   const handleClose = () => {
     setIsOpen(false);
     setInput({
       firstName: student.firstName,
-      lastName: student.lastName,
+      lastName: student.lastName
     });
+    setValidated(false);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setStudent({ ...student, firstName: input.firstName, lastName: input.lastName });
 
     let modifiedStudent = {
       ...student,
       firstName: input.firstName,
-      lastName: input.lastName,
+      lastName: input.lastName
     };
 
-    let aux = "api/students/" + studentId;
-    const response = await fetch(aux, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(modifiedStudent),
-    });
-    if (response.ok) {
-      console.log(response);
+    try {
+      const resultAction = await dispatch(updateStudent(modifiedStudent));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsOpen(false);
     }
   };
 
-  return !loading ? (
+  return status === "succeeded" ? (
     <>
       <div
         className="rounded col input-div"

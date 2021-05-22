@@ -269,6 +269,7 @@ namespace Licenta.Migrations
                     Deadline = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MaxNumberStudents = table.Column<int>(type: "int", nullable: false),
                     Paid = table.Column<bool>(type: "bit", nullable: false),
+                    Salary = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false)
@@ -550,8 +551,8 @@ namespace Licenta.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "e6842015-edc3-47b7-8e25-fc7027b381b5", "76f1c7f0-2382-468a-935d-af375f219f66", "Student", "STUDENT" },
-                    { "dda26482-b1f3-4487-8f33-9a23ba1451c0", "d24ea445-b075-49d2-bf15-5cdb25cae930", "Company", "COMPANY" }
+                    { "bf175c74-eda1-4744-ab9e-7a6ac7ceb2b7", "4fbe9997-8ac8-4c71-b2d1-4fab73f42e79", "Student", "STUDENT" },
+                    { "4ff076bd-08e4-428a-bd19-da0a68f91d59", "b09731f1-b339-4d09-b8c2-63e22cfa0c8b", "Company", "COMPANY" }
                 });
 
             migrationBuilder.InsertData(

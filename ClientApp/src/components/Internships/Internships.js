@@ -14,6 +14,8 @@ import { TextField, InputAdornment } from "@material-ui/core";
 import { useIsStudent } from "../Authentication/Authentication";
 import TabMenu from "../Universal/TabMenu";
 import "../Universal/CircleButton.css";
+import { fetchInternships, selectAllInternships } from "../internship/internshipsSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const customStyles = {
   control: (base, state) => ({
@@ -36,7 +38,6 @@ function SelectWrapped(props) {
 const Internships = () => {
   const [value, setValue] = useState(0);
   const [companies, setCompanies] = useState([]);
-  const [internships, setInternships] = useState([]);
   const [cities, setCities] = useState([]);
   const [citiesOptions, setCitiesOptions] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -67,6 +68,10 @@ const Internships = () => {
     currentCity: "",
   });
   const isStudent = useIsStudent();
+  const internships = useSelector(selectAllInternships);
+  const dispatch = useDispatch();
+  const status = useSelector((state) => state.internships.status);
+  const error = useSelector((state) => state.internships.error);
 
   useEffect(() => {
     async function populateInternshipsData() {
@@ -117,6 +122,10 @@ const Internships = () => {
       if (internshipsResponse.ok) internshipsData = await internshipsResponse.json();
       console.log(internshipsData);
 
+      if (status === "idle") {
+        dispatch(fetchInternships());
+      }
+
       let citiesData = [];
       let citiesOptionsData = [];
       await fetch("api/cities")
@@ -127,7 +136,6 @@ const Internships = () => {
         });
 
       setCompanies(companiesData);
-      setInternships(internshipsData);
       setCities(citiesData);
       setCitiesOptions(getCitiesOptions(citiesData));
       setLoading(false);
@@ -150,7 +158,7 @@ const Internships = () => {
     }
     populateInternshipsData();
     setSubmitted(false);
-  }, [submitted]);
+  }, [submitted, status, dispatch]);
 
   const handleClick = (event) => {
     let listid = Number(event.target.id);
@@ -252,7 +260,7 @@ const Internships = () => {
     history.push("/internships");
   };
 
-  return !loading ? (
+  return !loading && status === "succeeded" ? (
     <>
       {isStudent && <TabMenu />}
 

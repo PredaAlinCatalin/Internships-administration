@@ -91,7 +91,7 @@ const WebsiteForm = ({ companyId }) => {
         <Modal.Header closeButton>
           <Modal.Title>Website companie</Modal.Title>
         </Modal.Header>
-        <Form>
+        <Form id="WebsiteForm">
           <Modal.Body>
             <TextField
               label="Website"

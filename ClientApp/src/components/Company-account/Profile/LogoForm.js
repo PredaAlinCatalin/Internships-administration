@@ -116,7 +116,7 @@ const LogoPathForm = ({ companyId }) => {
         <Modal.Header closeButton>
           <Modal.Title>Industrie companie</Modal.Title>
         </Modal.Header>
-        <Form>
+        <Form id="LogoForm">
           <Modal.Body>
             <div id="thumbnail">
               Imagine companie:

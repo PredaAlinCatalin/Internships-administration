@@ -5,9 +5,11 @@ import { Form } from "react-bootstrap";
 import "./Profile.css";
 import * as Icon from "react-bootstrap-icons";
 import axios from "axios";
+import { fetchStudent, selectStudent, updateStudent } from "../studentSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const PersonalDescriptionForm = ({ studentId }) => {
-  const [student, setStudent] = useState(null);
   const [input, setInput] = useState({
     personalDescription: "",
   });
@@ -15,21 +17,23 @@ const PersonalDescriptionForm = ({ studentId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorPersonalDescription, setErrorPersonalDescription] = useState("");
   const [validated, setValidated] = useState(false);
+  const student = useSelector(selectStudent);
+  const status = useSelector((state) => state.student.status);
+  const error = useSelector((state) => state.student.error);
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    const populateWithData = async () => {
-      let studentResponse = await fetch("api/students/" + studentId);
-      let studentData = "";
-      if (studentResponse.ok) {
-        studentData = await studentResponse.json();
-        setStudent(studentData);
-        setInput({
-          personalDescription: studentData.personalDescription,
-        });
+    async function populateWithData() {
+      if (status === "idle") {
+        dispatch(fetchStudent(studentId));
       }
-      setLoading(false);
-    };
+    }
     populateWithData();
-  }, []);
+    if (status === "succeeded")
+      setInput({
+        personalDescription: student.personalDescription,
+      });
+  }, [status, dispatch]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -47,25 +51,14 @@ const PersonalDescriptionForm = ({ studentId }) => {
       personalDescription: input.personalDescription,
     };
 
-    let aux = "api/students/" + studentId;
-    await axios
-      .put(aux, modifiedStudent)
-      .then((response) => {
-        setStudent({
-          ...student,
-          personalDescription: input.personalDescription,
-        });
-        setIsOpen(false);
-      })
-      .catch((error) => {
-        if (error.response) {
-          let allErrors = error.response.data.errors;
-          if (allErrors.PersonalDescription !== undefined)
-            setErrorPersonalDescription(allErrors.PersonalDescription.join(", "));
-
-          setValidated(true);
-        }
-      });
+    try {
+      const resultAction = await dispatch(updateStudent(modifiedStudent));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsOpen(false);
+    }
   };
 
   const handlePersonalDescriptionChange = (event) => {
@@ -73,7 +66,7 @@ const PersonalDescriptionForm = ({ studentId }) => {
     setValidated(false);
   };
 
-  return !loading ? (
+  return status === "succeeded" ? (
     <>
       <div
         className="rounded col input-div"

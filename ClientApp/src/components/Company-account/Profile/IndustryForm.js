@@ -91,7 +91,7 @@ const IndustryForm = ({ companyId }) => {
         <Modal.Header closeButton>
           <Modal.Title>Industrie companie</Modal.Title>
         </Modal.Header>
-        <Form>
+        <Form id="IndustryForm">
           <Modal.Body>
             <TextField
               label="Industrie"

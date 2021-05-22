@@ -23,9 +23,9 @@ namespace Licenta.Models
         public int MaxNumberStudents { get; set; }
         [Required]
         public bool Paid { get; set; }
+        public int Salary { get; set; }
         [Required]
         public string Description { get; set; }
-        
         public virtual ICollection<StudentInternship> StudentInternships { get; set; }
         public virtual ICollection<InternshipCategory> InternshipCategories { get; set; }
         public virtual ICollection<InternshipAptitude> InternshipAptitudes { get; set; }

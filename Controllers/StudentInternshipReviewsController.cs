@@ -29,26 +29,26 @@ namespace Licenta.Controllers
         }
 
         [HttpGet("student/{id}")]
-        public async Task<ActionResult<StudentInternshipReview>> GetStudentInternshipReviewByStudentId(int id)
+        public async Task<ActionResult<IEnumerable<StudentInternshipReview>>> GetStudentInternshipReviewByStudentId(int id)
         {
-            //List<StudentInternshipReview> studentInternshipReviews = await _context.StudentInternshipReviews.ToListAsync();
+            List<StudentInternshipReview> studentInternshipReviews = await _context.StudentInternshipReviews.ToListAsync();
 
-            //List<StudentInternshipReview> result = new List<StudentInternshipReview>();
+            List<StudentInternshipReview> result = new List<StudentInternshipReview>();
 
-            //foreach (StudentInternshipReview studentInternshipReview in studentInternshipReviews)
-            //{
-            //    if (studentInternshipReview.StudentId == id)
-            //        result.Add(studentInternshipReview);
-            //}
+            foreach (StudentInternshipReview studentInternshipReview in studentInternshipReviews)
+            {
+                if (studentInternshipReview.StudentId == id)
+                    result.Add(studentInternshipReview);
+            }
 
-            //if (result.Count() == 0)
-            //    return NotFound();
+            if (result.Count() == 0)
+                return NotFound();
 
-            //return result;
+            return result;
 
-            return await _context.StudentInternshipReviews.FirstOrDefaultAsync(r => r.StudentId == id);
+            //return await _context.StudentInternshipReviews.FirstOrDefaultAsync(r => r.StudentId == id);
 
-            
+
         }
 
         [HttpGet("internship/{id}")]

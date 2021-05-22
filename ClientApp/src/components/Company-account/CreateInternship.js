@@ -37,6 +37,7 @@ const CreateInternship = () => {
   const [internshipName, setInternshipName] = useState("");
   const [internshipDescription, setInternshipDescription] = useState("");
   const [internshipPaid, setInternshipPaid] = useState(false);
+  const [internshipSalary, setInternshipSalary] = useState(0);
   const [internshipStartDate, setInternshipStartDate] = useState(new Date("2021-06-01"));
   const [internshipEndDate, setInternshipEndDate] = useState(new Date("2021-09-01"));
   const [internshipDeadline, setInternshipDeadline] = useState(new Date("2021-03-01"));
@@ -211,20 +212,20 @@ const CreateInternship = () => {
     let descriptionCopy = internshipDescription;
     descriptionCopy = descriptionCopy.replaceAll("\n", "<br/>");
 
-    let newInternship = {
-      name: internshipName,
-      startDate: internshipStartDate,
-      endDate: internshipEndDate,
-      deadline: internshipDeadline,
-      maxNumberStudents: internshipMaxNumberStudents,
-      paid: internshipPaid,
-      description: descriptionCopy,
-      companyId: userId,
-      cityId: searchedCity !== undefined ? searchedCity.id : null,
-    };
-
     for (let j = 0; j < count; j++) {
       try {
+        let newInternship = {
+          name: internshipName + j,
+          startDate: internshipStartDate,
+          endDate: internshipEndDate,
+          deadline: internshipDeadline,
+          maxNumberStudents: internshipMaxNumberStudents,
+          paid: internshipPaid,
+          salary: internshipSalary,
+          description: descriptionCopy,
+          companyId: userId,
+          cityId: searchedCity !== undefined ? searchedCity.id : null,
+        };
         let internshipData = "";
         let internshipResponse = await fetch("api/internships", {
           method: "POST",
@@ -370,6 +371,25 @@ const CreateInternship = () => {
             onChange={handleInternshipPaidChange}
             required={true}
           />
+
+          {internshipPaid ? (
+            <TextField
+              type="number"
+              label="Salariu"
+              style={{ margin: 15 }}
+              placeholder="Salariu"
+              fullWidth
+              margin="normal"
+              // InputLabelProps={{
+              //   shrink: true,
+              // }}
+              value={internshipSalary}
+              onChange={(event) => setInternshipSalary(event.target.value)}
+              required={true}
+            />
+          ) : (
+            ""
+          )}
 
           <div className="col-md-4">
             Oraș:

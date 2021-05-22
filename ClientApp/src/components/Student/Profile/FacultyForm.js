@@ -3,76 +3,68 @@ import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { Form } from "reactstrap";
 import "./Profile.css";
+import { fetchStudent, selectStudent, updateStudent } from "../studentSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const FacultyForm = ({ studentId }) => {
-  const [student, setStudent] = useState(null);
   const [input, setInput] = useState({
     faculty: "",
     specialization: "",
-    year: "",
+    year: ""
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const student = useSelector(selectStudent);
+  const status = useSelector((state) => state.student.status);
+  const error = useSelector((state) => state.student.error);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const populateWithData = async () => {
-      let studentResponse = await fetch("api/students/" + studentId);
-      let studentData = "";
-      if (studentResponse.ok) {
-        studentData = await studentResponse.json();
-        setStudent(studentData);
-        setInput({
-          faculty: studentData.faculty,
-          specialization: studentData.specialization,
-          year: studentData.year,
-        });
+    async function populateWithData() {
+      if (status === "idle") {
+        dispatch(fetchStudent(studentId));
       }
-      setLoading(false);
-    };
+      if (status === "succeeded")
+        setInput({
+          faculty: student.faculty,
+    specialization: student.specialization,
+    year: student.year
+        });
+    }
     populateWithData();
-  }, []);
+  }, [status, dispatch]);
 
   const handleClose = () => {
     setIsOpen(false);
     setInput({
       faculty: student.faculty,
-      specialization: student.specialization,
-      year: student.year,
+    specialization: student.specialization,
+    year: student.year
     });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setStudent({
-      ...student,
-      faculty: input.faculty,
-      specialization: input.specialization,
-      year: input.year,
-    });
 
     let modifiedStudent = {
       ...student,
       faculty: input.faculty,
-      specialization: input.specialization,
-      year: input.year,
+    specialization: input.specialization,
+    year: input.year
     };
 
-    let aux = "api/students/" + studentId;
-    const response = await fetch(aux, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(modifiedStudent),
-    });
-    if (response.ok) {
-      console.log(response);
+    try {
+      const resultAction = await dispatch(updateStudent(modifiedStudent));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsOpen(false);
     }
   };
 
-  return !loading ? (
+  return status === "succeeded" ? (
     <>
       <div
         className="rounded col input-div"
