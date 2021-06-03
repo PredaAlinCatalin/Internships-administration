@@ -12,7 +12,6 @@ import { useIsStudent } from "../Authentication/Authentication";
 import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import BookmarkIcon from "@material-ui/icons/Bookmark";
 import { CardActionArea } from "@material-ui/core";
-import { SavedInternshipsContext } from "../../contexts/SavedInternshipsContext";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import {
@@ -60,7 +59,6 @@ const InternshipCard = ({ internshipId, companyId }) => {
   const [userRole, setUserRole] = useState(null);
   const isStudent = useIsStudent();
   const [saved, setSaved] = useState(false);
-  const { dispatchSavedInternships } = useContext(SavedInternshipsContext);
   const dispatch = useDispatch();
   const [addRequestStatus, setAddRequestStatus] = useState("idle");
   const [deleteRequestStatus, setDeleteRequestStatus] = useState("idle");
@@ -93,20 +91,10 @@ const InternshipCard = ({ internshipId, companyId }) => {
         .then((res) => res.json())
         .then((data) => setCompany(data));
 
-      // await fetch("api/aptitudes/internship/" + internshipId)
-      //   .then((res) => res.json())
-      //   .then((data) => {
-      //     if (data.status === 404) return;
-      //     setAptitudes(data);
-      //   })
-      //   .catch((error) => console.log(error));
-
       await axios
         .get("api/aptitudes/internship/" + internshipId)
         .then((response) => {
-          if (response.status.ok) {
-            setAptitudes(response.data);
-          }
+          setAptitudes(response.data);
         })
         .catch((error) => console.log(error));
 

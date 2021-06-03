@@ -19,26 +19,13 @@ export const getFormattedDate = (fullDate) => {
 };
 
 export const getFormattedDateNoTime = (fullDate) => {
-  let year = fullDate.getFullYear();
-  let month = fullDate.getMonth() + 1;
-  if (month < 10) month = "0" + month;
-  let day = fullDate.getDate();
-  if (day < 10) day = "0" + day;
-  let result = year + "/" + month + "/" + day;
-  return result;
+  let parsedDate = moment(fullDate).format("YYYY-MM-DD");
+  return parsedDate;
 };
 
 export const checkDateIsPast = (date) => {
-  // date = getFormattedDateNoTime(date);
-
   let parsedDate = moment(date).format("YYYY-MM-DD");
-  let currentFullDate = new Date();
-  let year = currentFullDate.getFullYear();
-  let month = currentFullDate.getMonth() + 1;
-  if (month < 10) month = "0" + month;
-  let day = currentFullDate.getDate();
-  if (day < 10) day = "0" + day;
-  let currentDate = year + "-" + month + "-" + day;
+  let currentDate = moment(new Date()).format("YYYY-MM-DD");
   return parsedDate < currentDate;
 };
 
@@ -84,4 +71,15 @@ export const getForeignLanguagesOptions = (foreignlanguages) => {
     });
   }
   return foreignlanguagesOptions;
+};
+
+export const getSelectOptions = (list) => {
+  let options = [];
+  for (let i = 0; i < list.length; i++) {
+    options.push({
+      value: list[i].id,
+      label: list[i].name,
+    });
+  }
+  return options;
 };

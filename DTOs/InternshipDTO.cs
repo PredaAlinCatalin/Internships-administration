@@ -18,11 +18,14 @@ namespace Licenta.DTOs
         [Required]
         public string Deadline { get; set; }
         [Required]
+        public string CreationDate { get; set; }
+        [Required]
+        public string Status { get; set; }
+        [Required]
         public int MaxNumberStudents { get; set; }
         [Required]
         public bool Paid { get; set; }
         public int Salary { get; set; }
-
         [Required]
         public string Description { get; set; }
         [Required]

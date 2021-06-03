@@ -29,12 +29,20 @@ namespace Licenta.Repositories
                                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Internship>> GetInternshipsByCompanyIdAndStatus(int companyId, string status)
+        {
+            return await _context.Internships
+                                .Where(i => i.CompanyId.Equals(companyId) && (i.Status == status || status == "all"))
+                                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Internship>> GetInternshipsBySearchCityName(string searchString, string city)
         {
             
             if (string.IsNullOrEmpty(searchString) && string.IsNullOrEmpty(city))
             {
-                return await _context.Internships.ToListAsync();
+                return await _context.Internships
+                                     .Where(i => i.Status == "approved").ToListAsync();
             }
             else
             {
@@ -55,64 +63,68 @@ namespace Licenta.Repositories
 
                 foreach (Internship internship in internships)
                 {
-                    bool foundSearchString = false;
-                    bool foundCity = false;
-                    if (!string.IsNullOrEmpty(searchString))
+                    if (internship.Status == "approved")
                     {
-                        if (!string.IsNullOrEmpty(internship.Name) &&
-                            (internship.Name.ToLower().Contains(searchString) || searchString.Contains(internship.Name.ToLower())))
+                        bool foundSearchString = false;
+                        bool foundCity = false;
+                        if (!string.IsNullOrEmpty(searchString))
+                        {
+                            if (!string.IsNullOrEmpty(internship.Name) &&
+                                (internship.Name.ToLower().Contains(searchString) || searchString.Contains(internship.Name.ToLower())))
+                            {
+                                foundSearchString = true;
+                            }
+
+
+                            if (!string.IsNullOrEmpty(internship.Company.Name) &&
+                                (internship.Company.Name.ToLower().Contains(searchString) || searchString.Contains(internship.Company.Name.ToLower())))
+                            {
+                                foundSearchString = true;
+                            }
+
+                            if (!string.IsNullOrEmpty(internship.City.Name) &&
+                                (internship.City.Name.ToLower().Contains(searchString) || searchString.Contains(internship.City.Name.ToLower())))
+                            {
+                                foundSearchString = true;
+                            }
+
+
+                            InternshipCategory foundInternshipCategory = internship.InternshipCategories
+                                .FirstOrDefault(ic => ic.Category.Name.ToLower().Contains(searchString) || searchString.Contains(ic.Category.Name.ToLower()));
+                            if (foundInternshipCategory != null)
+                            {
+                                foundSearchString = true;
+                            }
+
+                            InternshipAptitude foundInternshipAptitude = internship.InternshipAptitudes
+                                .FirstOrDefault(ia => ia.Aptitude.Name.ToLower().Contains(searchString) || searchString.Contains(ia.Aptitude.Name.ToLower()));
+                            if (foundInternshipAptitude != null)
+                            {
+                                foundSearchString = true;
+                            }
+                        }
+                        else
                         {
                             foundSearchString = true;
                         }
 
-
-                        if (!string.IsNullOrEmpty(internship.Company.Name) &&
-                            (internship.Company.Name.ToLower().Contains(searchString) || searchString.Contains(internship.Company.Name.ToLower())))
+                        if (!string.IsNullOrEmpty(city))
                         {
-                            foundSearchString = true;
+                            if (!string.IsNullOrEmpty(internship.City.Name) &&
+                                (internship.City.Name.ToLower().Contains(city) || city.Contains(internship.City.Name.ToLower())))
+                            {
+                                foundCity = true;
+                            }
                         }
-
-                        if (!string.IsNullOrEmpty(internship.City.Name) &&
-                            (internship.City.Name.ToLower().Contains(searchString) || searchString.Contains(internship.City.Name.ToLower())))
-                        {
-                            foundSearchString = true;
-                        }
-
-
-                        InternshipCategory foundInternshipCategory = internship.InternshipCategories
-                            .FirstOrDefault(ic => ic.Category.Name.ToLower().Contains(searchString) || searchString.Contains(ic.Category.Name.ToLower()));
-                        if (foundInternshipCategory != null)
-                        {
-                            foundSearchString = true;
-                        }
-
-                        InternshipAptitude foundInternshipAptitude = internship.InternshipAptitudes
-                            .FirstOrDefault(ia => ia.Aptitude.Name.ToLower().Contains(searchString) || searchString.Contains(ia.Aptitude.Name.ToLower()));
-                        if (foundInternshipAptitude != null)
-                        {
-                            foundSearchString = true;
-                        }
-                    }
-                    else
-                    {
-                        foundSearchString = true;
-                    }
-
-                    if (!string.IsNullOrEmpty(city))
-                    {
-                        if (!string.IsNullOrEmpty(internship.City.Name) &&
-                            (internship.City.Name.ToLower().Contains(city) || city.Contains(internship.City.Name.ToLower())))
+                        else
                         {
                             foundCity = true;
                         }
-                    }
-                    else
-                    {
-                        foundCity = true;
-                    }
 
-                    if (foundSearchString && foundCity)
-                        result.Add(internship);
+                        if (foundSearchString && foundCity)
+                            result.Add(internship);
+                    }
+                    
                 }
 
                 return result;

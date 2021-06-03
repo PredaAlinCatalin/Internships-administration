@@ -4,9 +4,10 @@ import { Modal } from "react-bootstrap";
 import { Form } from "reactstrap";
 import "./Profile.css";
 import * as Icon from "react-bootstrap-icons";
-import { fetchStudent, selectStudent, updateStudent } from "../studentSlice";
+import { fetchStudents, selectStudentById, updateStudent } from "../studentsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
+import CreateIcon from "@material-ui/icons/Create";
 
 const AnnualAverageForm = ({ studentId }) => {
   const [input, setInput] = useState({
@@ -14,20 +15,23 @@ const AnnualAverageForm = ({ studentId }) => {
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
-  const student = useSelector(selectStudent);
-  const status = useSelector((state) => state.student.status);
-  const error = useSelector((state) => state.student.error);
+  const student = useSelector((state) =>
+    state.students.items.find((s) => s.id !== undefined && s.id == studentId)
+  );
+  const status = useSelector((state) => state.students.status);
+  const error = useSelector((state) => state.students.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function populateWithData() {
       if (status === "idle") {
-        dispatch(fetchStudent(studentId));
+        dispatch(fetchStudents());
       }
       if (status === "succeeded")
         setInput({
           annualAverage: student.annualAverage,
         });
+      setLoading(false);
     }
     populateWithData();
   }, [status, dispatch]);
@@ -57,10 +61,10 @@ const AnnualAverageForm = ({ studentId }) => {
     }
   };
 
-  return status === "succeeded" ? (
+  return !loading && status === "succeeded" ? (
     <>
       <div
-        className="rounded col input-div"
+        className="rounded col input-div pen-icon-parent"
         style={{
           marginTop: 10,
           padding: 10,
@@ -79,6 +83,9 @@ const AnnualAverageForm = ({ studentId }) => {
             }}
           >
             Medie anuală: <b>{student.annualAverage}</b>
+          </div>
+          <div className="hide">
+            <CreateIcon className="pen-icon" />
           </div>
         </div>
       </div>

@@ -11,11 +11,13 @@ import PersonalDescriptionForm from "./Profile/PersonalDescriptionForm";
 import AptitudesForm from "./Profile/AptitudesForm";
 import EducationForm from "./Profile/EducationForm";
 import ExperienceForm from "./Profile/ExperienceForm";
-import ProjectForm from "./Profile/Project";
+import ProjectForm from "./Profile/ProjectForm";
 import ForeignLanguagesForm from "./Profile/ForeignLanguagesForm";
 import PassionsForm from "./Profile/PassionsForm";
 import { Paper } from "@material-ui/core";
 import Loading from "../Universal/Loading";
+import CoverForm from "./Profile/CoverForm";
+import FormatQuoteIcon from "@material-ui/icons/FormatQuote";
 
 const Profile = () => {
   const [student, setStudent] = useState("");
@@ -44,23 +46,26 @@ const Profile = () => {
 
   return !loading ? (
     <div>
-      <Paper className="m-3 p-3" elevation={3} style={{ width: 900 }}>
-        <NameForm studentId={userId} />
-
+      <Paper className="m-3 p-3" elevation={3} style={{ maxWidth: 800 }}>
         <div className="container">
           <div className="row">
-            <div className="col-md-3">
+            <div className="col">
+              {/* <CoverForm studentId={userId} /> */}
+              <br />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-3 mr-4">
               <PhotoForm studentId={userId} />
             </div>
 
             <div className="col-md-8">
+              <NameForm studentId={userId} />
               <PhoneForm studentId={userId} />
 
-              <br />
-              <div style={{ paddingLeft: 10 }}>
+              <div className="p-2">
                 <Icon.EnvelopeFill /> {student.email}
               </div>
-              <br />
               <FacultyForm studentId={userId} />
 
               <AnnualAverageForm studentId={userId} />
@@ -68,140 +73,47 @@ const Profile = () => {
           </div>
         </div>
 
-        <br />
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            DESCRIERE PERSONALA
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
+        <hr className="break-line" />
+        <div>
+          <PersonalDescriptionForm studentId={userId} />
         </div>
-        <PersonalDescriptionForm studentId={userId} />
+        <hr className="break-line" />
 
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            APTITUDINI
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
+        <div className="d-flex flex-column">
+          <div>
+            <AptitudesForm studentId={userId} />
+          </div>
+
+          <div>
+            <ForeignLanguagesForm studentId={userId} />
+          </div>
+
+          <div>
+            <PassionsForm studentId={userId} />
+          </div>
         </div>
-        <AptitudesForm studentId={userId} />
 
         <br />
         <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            EDUCATIE
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
+          <hr className="underline" />
         </div>
 
         <EducationForm studentId={userId} />
 
+        <br />
+
         <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            EXPERIENTA
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
+          <hr className="underline" />
         </div>
 
         <ExperienceForm studentId={userId} />
 
         <br />
         <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            PROIECTE
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
+          <hr className="underline" />
         </div>
 
         <ProjectForm studentId={userId} />
-
-        <p></p>
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            LIMBI STRAINE
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-        <ForeignLanguagesForm studentId={userId} />
-
-        <br />
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            PASIUNI
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-
-        <PassionsForm studentId={userId} />
       </Paper>
       <br />
     </div>

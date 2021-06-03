@@ -36,6 +36,7 @@ namespace Licenta.Data
         public DbSet<InternshipAptitude> InternshipAptitudes { get; set; }
         public DbSet<SavedStudentInternship> SavedStudentInternships { get; set; }
         public DbSet<StudentInternshipReview> StudentInternshipReviews { get; set; }
+        public DbSet<Faculty> Faculties { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -206,7 +207,6 @@ namespace Licenta.Data
                 //      .HasForeignKey(si => si.InternshipId);
             });
 
-
         }
     }
 
@@ -239,10 +239,19 @@ namespace Licenta.Data
                 new Category { Id = 4, Name = "Linux" }
             );
 
-            modelBuilder.Entity<IdentityRole>().HasData(
-                new IdentityRole { Name = "Student", NormalizedName = "Student".ToUpper() },
-                new IdentityRole { Name = "Company", NormalizedName = "Company".ToUpper() }
+            modelBuilder.Entity<Faculty>().HasData(
+                new Faculty { Id = 1, Name = "Facultatea de Matematică-Informatică București"},
+                new Faculty { Id = 2, Name = "Facultatea de Automatică și Calculatoare București" },
+                new Faculty { Id = 3, Name = "Facultatea de Matematică-Informatică Cluj" },
+                new Faculty { Id = 4, Name = "Facultatea de Automatică și Calculatoare Cluj" },
+                new Faculty { Id = 5, Name = "Facultatea de Matematică-Informatică Timișoara" },
+                new Faculty { Id = 6, Name = "Facultatea de Automatică și Calculatoare Timișoara" }
             );
+
+            //modelBuilder.Entity<IdentityRole>().HasData(
+            //    new IdentityRole { Name = "Student", NormalizedName = "Student".ToUpper() },
+            //    new IdentityRole { Name = "Company", NormalizedName = "Company".ToUpper() }
+            //);
         }
     }
 }

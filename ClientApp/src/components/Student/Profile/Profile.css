@@ -1,4 +1,32 @@
-.input-div:hover {
-  background-color: lightgrey;
+.input-div:hover .hide {
+  background-color: lightgray;
   cursor: pointer;
+  visibility: visible;
+}
+
+.input-div .hide {
+  visibility: hidden;
+}
+
+.pen-icon-parent {
+  position: relative;
+}
+
+.pen-icon {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  /* top: 80%; */
+  /* left: 0%; */
+  /* transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%); */
+}
+
+.header {
+  font-weight: bold;
+  font-size: 16;
+}
+
+.right-col {
+  margin-left: -50px;
 }

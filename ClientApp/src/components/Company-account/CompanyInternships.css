@@ -1,0 +1,9 @@
+.add-button-parent {
+  position: relative;
+}
+
+.add-button {
+  position: absolute;
+  bottom: -22px;
+  left: -25px;
+}

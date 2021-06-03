@@ -11,7 +11,7 @@ import { useHistory } from "react-router-dom";
 import WorkIcon from "@material-ui/icons/Work";
 import BusinessIcon from "@material-ui/icons/Business";
 import AddIcon from "@material-ui/icons/Add";
-import { useIsStudent, useIsCompany } from "./Authentication/Authentication";
+import { useIsStudent, useIsCompany, useIsAdmin } from "./Authentication/Authentication";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import clsx from "clsx";
 import Drawer from "@material-ui/core/Drawer";
@@ -24,6 +24,7 @@ import NoteIcon from "@material-ui/icons/Note";
 import HistoryIcon from "@material-ui/icons/History";
 import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
 import ReactTooltip from "react-tooltip";
+import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme) => ({
   list: {
@@ -99,6 +100,7 @@ const useStyles = makeStyles((theme) => ({
 export default function NewNavMenu() {
   const isStudent = useIsStudent();
   const isCompany = useIsCompany();
+  const isAdmin = useIsAdmin();
   const navNumber =
     sessionStorage.getItem("navnumber") !== null
       ? sessionStorage.getItem("navnumber")
@@ -157,7 +159,7 @@ export default function NewNavMenu() {
           history.push("/companyProfile");
           break;
         case 1:
-          history.push("/companyInternships");
+          history.push("/companyInternships/all");
           break;
         case 2:
           history.push("/createInternship");
@@ -166,6 +168,12 @@ export default function NewNavMenu() {
           setValue(2);
           sessionStorage.setItem("navnumber", 2);
           history.push("/logout");
+          break;
+      }
+    } else if (isAdmin) {
+      switch (newValue) {
+        case 0:
+          history.push("/approveInternships");
           break;
       }
     } else {
@@ -231,7 +239,7 @@ export default function NewNavMenu() {
           <ListItem
             button
             key={"CompanyInternships"}
-            onClick={() => history.push("/CompanyInternships")}
+            onClick={() => history.push("/CompanyInternships/all")}
           >
             <ListItemIcon>
               <WorkIcon />
@@ -307,7 +315,20 @@ export default function NewNavMenu() {
           </ListItem>
         )}
 
-        {(isStudent || isCompany) && (
+        {isAdmin && (
+          <ListItem
+            button
+            key={"approveInternships"}
+            onClick={() => history.push("/approveInternships")}
+          >
+            <ListItemIcon>
+              <HistoryIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Aprobă stagii"} />
+          </ListItem>
+        )}
+
+        {(isStudent || isCompany || isAdmin) && (
           <ListItem button key={"Logout"} onClick={() => history.push("/Logout")}>
             <ListItemIcon>
               <ExitToAppIcon />
@@ -339,7 +360,7 @@ export default function NewNavMenu() {
           <a data-tip data-for="companyInternships">
             <IconButton
               color="inherit"
-              onClick={() => history.push("/companyInternships")}
+              onClick={() => history.push("/companyInternships/all")}
             >
               <WorkIcon />
             </IconButton>
@@ -402,7 +423,23 @@ export default function NewNavMenu() {
         </>
       )}
 
-      {(isStudent || isCompany) && (
+      {isAdmin && (
+        <>
+          <a data-tip data-for="approveInternships">
+            <IconButton
+              color="inherit"
+              onClick={() => history.push("/approveInternships")}
+            >
+              <PersonPinIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="approveInternships" place="bottom">
+            <span>Aprobă stagii</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {(isStudent || isCompany || isAdmin) && (
         <>
           <a data-tip data-for="logout">
             <IconButton color="inherit" onClick={() => history.push("/logout")}>
@@ -415,7 +452,7 @@ export default function NewNavMenu() {
         </>
       )}
 
-      {!isStudent && !isCompany && (
+      {!isStudent && !isCompany && !isAdmin && (
         <>
           <a data-tip data-for="internships">
             <IconButton color="inherit" onClick={() => history.push("/internships")}>
@@ -428,7 +465,7 @@ export default function NewNavMenu() {
         </>
       )}
 
-      {!isStudent && !isCompany && (
+      {!isStudent && !isCompany && !isAdmin && (
         <>
           <a data-tip data-for="companies">
             <IconButton color="inherit" onClick={() => history.push("/companies")}>
@@ -441,7 +478,7 @@ export default function NewNavMenu() {
         </>
       )}
 
-      {!isStudent && !isCompany && (
+      {!isStudent && !isCompany && !isAdmin && (
         <>
           <a data-tip data-for="login">
             <IconButton color="inherit" onClick={() => history.push("/login")}>
@@ -465,7 +502,10 @@ export default function NewNavMenu() {
       )}
 
       {isCompany && (
-        <IconButton color="inherit" onClick={() => history.push("/companyInternships")}>
+        <IconButton
+          color="inherit"
+          onClick={() => history.push("/companyInternships/all")}
+        >
           <WorkIcon />
         </IconButton>
       )}
@@ -494,25 +534,31 @@ export default function NewNavMenu() {
         </IconButton>
       )}
 
-      {(isStudent || isCompany) && (
+      {isAdmin && (
+        <IconButton color="inherit" onClick={() => history.push("/approveInternships")}>
+          <PersonPinIcon />
+        </IconButton>
+      )}
+
+      {(isStudent || isCompany || isAdmin) && (
         <IconButton color="inherit" onClick={() => history.push("/logout")}>
           <ExitToAppIcon />
         </IconButton>
       )}
 
-      {!isStudent && !isCompany && (
+      {!isStudent && !isCompany && !isAdmin && (
         <IconButton color="inherit" onClick={() => history.push("/internships")}>
           <WorkIcon />
         </IconButton>
       )}
 
-      {!isStudent && !isCompany && (
+      {!isStudent && !isCompany && !isAdmin && (
         <IconButton color="inherit" onClick={() => history.push("/companies")}>
           <BusinessIcon />
         </IconButton>
       )}
 
-      {!isStudent && !isCompany && (
+      {!isStudent && !isCompany && !isAdmin && (
         <IconButton color="inherit" onClick={() => history.push("/login")}>
           <ExitToAppIcon />
         </IconButton>
@@ -542,9 +588,9 @@ export default function NewNavMenu() {
               {list(anchor)}
             </Drawer>
           </React.Fragment>
-          {/* <Typography className={classes.title} variant="h6" noWrap>
-            Material-UI
-          </Typography> */}
+          <Typography className={classes.title} variant="h6" noWrap>
+            HaiLaStagii
+          </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />

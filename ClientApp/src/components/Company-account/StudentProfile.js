@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Loading from "../Universal/Loading";
+import Paper from "@material-ui/core/Paper";
+import FormatQuoteIcon from "@material-ui/icons/FormatQuote";
+import { getFormattedDateNoTime } from "../Utility/Utility";
+import * as Icon from "react-bootstrap-icons";
 
 const StudentProfile = ({ studentId }) => {
   const [student, setStudent] = useState(null);
@@ -8,6 +12,7 @@ const StudentProfile = ({ studentId }) => {
   const [studentEducations, setStudentEducations] = useState([]);
   const [studentExperiences, setStudentExperiences] = useState([]);
   const [studentProjects, setStudentProjects] = useState([]);
+  const [faculties, setFaculties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,485 +53,265 @@ const StudentProfile = ({ studentId }) => {
     if (studentProjectsResponse.ok)
       studentProjectsData = await studentProjectsResponse.json();
 
+    const facultiesResponse = await fetch("api/faculties");
+    var facultiesData = [];
+    if (facultiesResponse.ok) facultiesData = await facultiesResponse.json();
+
     setStudent(studentData);
     setStudentAptitudes(studentAptitudesData);
     setStudentEducations(studentEducationsData);
     setStudentExperiences(studentExperiencesData);
     setStudentForeignLanguages(studentForeignLanguagesData);
     setStudentProjects(studentProjectsData);
+    setFaculties(facultiesData);
     setLoading(false);
   };
   return loading ? (
     <Loading />
   ) : (
     <div>
-      <div
-        class="border border border-5 shadow p-3 mb-5 bg-body rounded"
-        style={{
-          width: 900,
-          backgroundColor: "lightblue",
-          margin: "auto",
-          padding: 50,
-        }}
-      >
-        <div
-          class="container rounded"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: "850",
-          }}
-        >
-          <div class="row">
-            <div
-              class="col-xs"
-              style={{
-                display: "inline-block",
-                whiteSpace: "pre-line",
-              }}
-            >
-              <h3
+      <Paper className="m-3 p-3" elevation={3} style={{ maxWidth: 800 }}>
+        <div className="container">
+          <div className="row">
+            <div className="col-md-3 mr-4">
+              <img
+                width="200"
+                height="200"
+                alt="photo"
+                src={"photos/" + student.photoPath}
+              />
+            </div>
+            <div className="col-md-8">
+              <div className="p-2">
+                <h5>
+                  {student["lastName"]}&nbsp;
+                  {student["firstName"]}
+                </h5>
+              </div>
+
+              <div
                 style={{
                   display: "inline-block",
                   color: "#0c56a5",
                 }}
+                className="p-2"
               >
-                {student["lastName"]}&nbsp;
-                {student["firstName"]}
-              </h3>
+                <Icon.TelephoneFill />
+                {student.phoneNumber}
+              </div>
+
+              <div className="p-2">
+                <Icon.EnvelopeFill /> {student.email}
+              </div>
+
+              <div className="p-2">
+                <b
+                  style={{
+                    display: "inline-block",
+                  }}
+                >
+                  {faculties.find((f) => f.id === student.facultyId).name}
+                  <br />
+                  anul&nbsp;{student["year"]}
+                </b>
+              </div>
+
+              <div class="p-2">
+                Medie anuala:&nbsp;&nbsp;
+                <b>{student["annualAverage"]}</b>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div style={{ paddingLeft: 10 }}>
-          (+40) 0732210896
-          <br />
-          Adresa de mail: predacatalin99@gmail.com
-          <br />
-        </div>
+          <hr className="break-line" />
 
-        <div
-          class="container rounded"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: 850,
-          }}
-        >
-          <div class="row">
-            <div
-              class="col-xs"
-              style={{
-                display: "inline-block",
-                whiteSpace: "pre-line",
-              }}
-            >
-              <b
-                style={{
-                  display: "inline-block",
-                }}
-              >
-                {student["faculty"]}
-                <br />
-                {student["specialization"]}, anul&nbsp;{student["year"]}
-              </b>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="container rounded"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: "850",
-          }}
-        >
-          <div class="row">
-            <div class="col-xs">Medie anuala:&nbsp;&nbsp;</div>
-            <div
-              class="col-xs"
-              style={{
-                display: "inline-block",
-                whiteSpace: "pre-line",
-              }}
-            >
-              <b>{student["annualAverage"]}</b>
-            </div>
-          </div>
-        </div>
-
-        <br />
-
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            DESCRIERE PERSONALA
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-
-        <div
-          class="container rounded"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: 850,
-          }}
-        >
-          <div style={{}} class="row">
-            <div class="col-xs" style={{ whiteSpace: "pre-line" }}>
-              <b
+          <div className="rounded row justify-content-center m-2 p-3 pen-icon-parent">
+            <div style={{ whiteSpace: "pre-line" }}>
+              <span
                 style={{
                   wordBreak: "break-all",
                   wordWrap: "break-word",
                 }}
               >
-                {student["personalDescription"]}
-              </b>
+                <FormatQuoteIcon style={{ color: "gray" }} />
+                {student.personalDescription}
+                <FormatQuoteIcon style={{ color: "gray" }} />
+              </span>
             </div>
           </div>
-        </div>
+          <hr className="break-line" />
 
-        <br />
-
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            APTITUDINI
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-
-        <div
-          class="container rounded"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: "850",
-          }}
-        >
-          <div class="row">
-            <div
-              class="col-xs"
-              style={{
-                display: "inline-block",
-                whiteSpace: "pre-line",
-              }}
-            >
-              <b
+          <div className="d-flex flex-column">
+            <div className="rounded row p-2 ml-2 mr-2 pen-icon-parent">
+              <div className="col-md-3 mr-2">
+                <div className="row justify-content-end">Aptitudini</div>
+              </div>
+              <div
+                className="col-md-7"
                 style={{
                   display: "inline-block",
+                  whiteSpace: "pre-line",
                 }}
               >
-                {studentAptitudes !== []
-                  ? studentAptitudes.map((aptitude) => aptitude.name).join(", ")
-                  : ""}
-              </b>
-            </div>
-          </div>
-        </div>
-
-        <br />
-
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            EDUCATIE
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-
-        <p></p>
-        {studentEducations.map((education) => (
-          <>
-            <div
-              class="container rounded"
-              style={{
-                padding: 10,
-                paddingRight: 25,
-                paddingLeft: 25,
-                width: "850",
-              }}
-            >
-              <div class="row">
-                <div class="col-xs">
-                  {education["startDate"]} -&nbsp;
-                  {education["endDate"]}
-                  &nbsp;&nbsp;
-                </div>
-                <div
-                  class="col-xs"
+                <b
                   style={{
                     display: "inline-block",
-                    whiteSpace: "pre-line",
                   }}
                 >
-                  <b
-                    style={{
-                      display: "inline-block",
-                    }}
-                  >
-                    {education["institution"]}
-                    <br />
-                    Specializarea: {education["specialization"]}
-                  </b>
-                </div>
+                  {studentAptitudes !== []
+                    ? studentAptitudes.map((aptitude) => aptitude.name).join(", ")
+                    : ""}
+                </b>
               </div>
             </div>
-          </>
-        ))}
-        <p></p>
 
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            EXPERIENTA
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-
-        <p></p>
-        {studentExperiences.map((experience) => (
-          <>
-            <div
-              class="container rounded"
-              style={{
-                padding: 10,
-                paddingRight: 25,
-                paddingLeft: 25,
-                width: "850",
-              }}
-            >
-              <div class="row">
-                <div class="col-xs">
-                  {experience["startDate"]} -&nbsp;
-                  {experience["endDate"]} &nbsp;&nbsp;
-                </div>
-                <div
-                  class="col-xs"
+            <div className="rounded row p-2 ml-2 mr-2 pen-icon-parent">
+              <div className="col-md-3 mr-2">
+                <div className="row justify-content-end">Limbi străine</div>
+              </div>
+              <div
+                className="col-md-7"
+                style={{
+                  display: "inline-block",
+                  whiteSpace: "pre-line",
+                }}
+              >
+                <b
                   style={{
-                    width: 600,
                     display: "inline-block",
-                    whiteSpace: "pre-line",
                   }}
                 >
-                  <b
+                  {studentForeignLanguages !== []
+                    ? studentForeignLanguages
+                        .map((foreignlanguage) => foreignlanguage.name)
+                        .join(", ")
+                    : ""}
+                </b>
+              </div>
+            </div>
+
+            <div className="rounded row p-2 ml-2 mr-2 pen-icon-parent">
+              <div className="col-md-3 mr-2">
+                <div className="row justify-content-end">Pasiuni</div>
+              </div>
+              <div className="col" style={{ whiteSpace: "pre-line" }}>
+                <b
+                  style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word",
+                  }}
+                >
+                  {student.passions}
+                </b>
+              </div>
+            </div>
+          </div>
+          <hr className="underline" />
+          <span className="header">EDUCAȚIE</span>
+          {studentEducations.map((education, index) => (
+            <span key={index}>
+              <div className="container rounded pen-icon-parent p-2">
+                <div className="row">
+                  <div className="col-4">
+                    {getFormattedDateNoTime(new Date(education.startDate))} -&nbsp;
+                    {getFormattedDateNoTime(new Date(education.endDate))}
+                  </div>
+                  <div
+                    className="col-8 right-col"
                     style={{
-                      wordBreak: "break-all",
-                      wordWrap: "break-word",
                       display: "inline-block",
+                      whiteSpace: "pre-line",
                     }}
                   >
-                    {experience["position"]} -&nbsp;
-                    {experience["company"]}
+                    <b
+                      style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word",
+                        display: "inline-block",
+                      }}
+                    >
+                      {education["institution"]}
+                      <br />
+                      {education["specialization"]}
+                    </b>
+                  </div>
+                </div>
+              </div>
+            </span>
+          ))}
+          <hr className="underline" />
+          <span className="header">EXPERIENȚĂ</span>
+
+          {studentExperiences.map((experience, index) => (
+            <span key={index}>
+              <div className="container rounded pen-icon-parent p-2">
+                <div className="row">
+                  <div className="col-4">
+                    {getFormattedDateNoTime(new Date(experience.startDate))} -&nbsp;
+                    {getFormattedDateNoTime(new Date(experience.endDate))}
+                  </div>
+                  <div
+                    className="col-8 right-col"
+                    style={{
+                      display: "inline-block",
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    <b
+                      style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word",
+                        display: "inline-block",
+                      }}
+                    >
+                      {experience["position"]} -&nbsp;
+                      {experience["company"]}
+                    </b>
                     <br />
                     {experience.description}
-                  </b>
+                  </div>
                 </div>
               </div>
-            </div>
-          </>
-        ))}
-        <br />
+            </span>
+          ))}
+          <hr className="underline" />
+          <span className="header">PROIECTE</span>
 
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            PROIECTE
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-
-        <p></p>
-        {studentProjects.map((project) => (
-          <>
-            <div
-              class="container rounded"
-              style={{
-                padding: 10,
-                paddingRight: 25,
-                paddingLeft: 25,
-                width: 850,
-              }}
-            >
-              <div class="row">
-                <div class="col-xs">
-                  {project["startDate"]} -&nbsp;
-                  {project["endDate"]} &nbsp;&nbsp;
-                </div>
-                <div
-                  class="col-xs"
-                  style={{
-                    width: 600,
-                    display: "inline-block",
-                    whiteSpace: "pre-line",
-                  }}
-                >
-                  <b
+          {studentProjects.map((project, index) => (
+            <span key={index}>
+              <div className="container rounded pen-icon-parent p-2">
+                <div className="row">
+                  <div className="col-4">
+                    {getFormattedDateNoTime(new Date(project.startDate))} -&nbsp;
+                    {getFormattedDateNoTime(new Date(project.endDate))}
+                  </div>
+                  <div
+                    className="col-8 right-col"
                     style={{
-                      wordBreak: "break-all",
-                      wordWrap: "break-word",
                       display: "inline-block",
+                      whiteSpace: "pre-line",
                     }}
                   >
-                    {project["title"]}
+                    <b
+                      style={{
+                        wordBreak: "break-all",
+                        wordWrap: "break-word",
+                        display: "inline-block",
+                      }}
+                    >
+                      {project["title"]}
+                    </b>
+
                     <br />
-                    {project["description"]}
-                  </b>
+                    {project.description}
+                  </div>
                 </div>
               </div>
-            </div>
-          </>
-        ))}
-        <p></p>
-
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            LIMBI STRAINE
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
+            </span>
+          ))}
+          <p></p>
         </div>
-
-        <div
-          class="container rounded"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: "850",
-          }}
-        >
-          <div class="row">
-            <div
-              class="col-xs"
-              style={{
-                display: "inline-block",
-                whiteSpace: "pre-line",
-              }}
-            >
-              <b
-                style={{
-                  display: "inline-block",
-                }}
-              >
-                {studentForeignLanguages !== []
-                  ? studentForeignLanguages
-                      .map((foreignLanguage) => foreignLanguage.name)
-                      .join(", ")
-                  : ""}
-              </b>
-            </div>
-          </div>
-        </div>
-
-        <br />
-
-        <div style={{ paddingLeft: 8 }}>
-          <b
-            style={{
-              color: "#0c56a5",
-              fontSize: 18,
-            }}
-          >
-            PASIUNI
-          </b>
-          <hr
-            style={{
-              marginTop: -5,
-              borderTop: "2px solid gray",
-            }}
-          />
-        </div>
-
-        <div
-          class="container rounded"
-          style={{
-            padding: 10,
-            paddingRight: 25,
-            paddingLeft: 25,
-            width: "850",
-          }}
-        >
-          <div class="row">
-            <div
-              class="col-xs"
-              style={{
-                display: "inline-block",
-                whiteSpace: "pre-line",
-              }}
-            >
-              <b
-                style={{
-                  display: "inline-block",
-                }}
-              >
-                {student["passions"]}
-              </b>
-            </div>
-          </div>
-        </div>
-      </div>
+      </Paper>
     </div>
   );
 };

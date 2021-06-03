@@ -41,7 +41,7 @@ const InternshipReviews = ({ internshipId }) => {
 
   useEffect(() => {
     let userStorage = JSON.parse(sessionStorage.getItem("user"));
-    setUser(userStorage);
+    if (userStorage !== null) setUser(userStorage);
     async function populateWithData() {
       await fetch("api/internships/" + internshipId)
         .then(async (res) => {
@@ -110,6 +110,7 @@ const InternshipReviews = ({ internshipId }) => {
           if (res.ok) {
             let data = await res.json();
             setStudents(data);
+            console.log(data);
           }
         })
         .catch((error) => console.log(error));
@@ -187,12 +188,17 @@ const InternshipReviews = ({ internshipId }) => {
   };
 
   const getStudent = (id) => {
-    return students.find((s) => s.id === id);
+    return students.find((s) => s.id == id);
   };
 
   const getReview = (studentId, internshipId) => {
+    console.log(reviews);
+    console.log(studentId, internshipId);
+    console.log(
+      reviews.find((r) => r.studentId == studentId && r.internshipId == internshipId)
+    );
     return reviews.find(
-      (r) => r.studentId === studentId && r.internshipId === internshipId
+      (r) => r.studentId == studentId && r.internshipId == internshipId
     );
   };
 
@@ -232,32 +238,37 @@ const InternshipReviews = ({ internshipId }) => {
         </h5>
       </div>
 
-      {user.id === "" && (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => history.pushState("/login")}
-        >
-          Loghează-te pentru a face review
-        </Button>
-      )}
-      {!hasGraded && canGrade && (
-        <div>
-          <b>Adaugă un review: </b>
-          <Box
-            component="fieldset"
-            mb={3}
-            borderColor="transparent"
-            onClick={() => setOpen(true)}
+      <div className="text-center">
+        {user.id === "" && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => history.push("/login")}
           >
-            <Rating
-              name="simple-controlled"
-              value={review.grade}
-              onChange={(event, newValue) => setReview({ ...review, grade: newValue })}
-            />
-          </Box>
-        </div>
-      )}
+            Loghează-te pentru a face review
+          </Button>
+        )}
+      </div>
+
+      <div className="text-center">
+        {!hasGraded && canGrade && (
+          <div>
+            <b>Adaugă un review: </b>
+            <Box
+              component="fieldset"
+              mb={3}
+              borderColor="transparent"
+              onClick={() => setOpen(true)}
+            >
+              <Rating
+                name="simple-controlled"
+                value={review.grade}
+                onChange={(event, newValue) => setReview({ ...review, grade: newValue })}
+              />
+            </Box>
+          </div>
+        )}
+      </div>
 
       {!hasGraded && isStudent && isApplied && !hasEnded && (
         <div className="text-center">
@@ -267,11 +278,13 @@ const InternshipReviews = ({ internshipId }) => {
         </div>
       )}
 
-      {!hasGraded && isStudent && isApplied && hasEnded && !isAccepted && (
-        <div>
-          <b>Nu poți face review deoarece nu ai fost acceptat la acest stagiu </b>
-        </div>
-      )}
+      <div className="text-center">
+        {!hasGraded && isStudent && isApplied && hasEnded && !isAccepted && (
+          <div>
+            <b>Nu poți face review deoarece nu ai fost acceptat la acest stagiu </b>
+          </div>
+        )}
+      </div>
 
       {hasGraded && isStudent && (
         <div>
@@ -290,19 +303,23 @@ const InternshipReviews = ({ internshipId }) => {
         </div>
       )}
 
-      {!isStudent && (
-        <div>
+      <div className="text-center">
+        {!isStudent && user.id !== "" && (
           <div>
-            <b>Îți trebuie un cont de student pentru a face review</b>
+            <div>
+              <b>Îți trebuie un cont de student pentru a face review</b>
+            </div>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => history.push("/login")}
+            >
+              {" "}
+              Loghează-te
+            </Button>
           </div>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => history.push("/login")}
-            Loghează-te
-          ></Button>
-        </div>
-      )}
+        )}
+      </div>
 
       <Modal show={open} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -365,15 +382,19 @@ const InternshipReviews = ({ internshipId }) => {
 
       <hr className="dividingLine"></hr>
 
-      {hasGraded && reviews.length === 1 && (
-        <div className="text-center text-muted">
-          Nu mai există alte review-uri ale acestui stagiu
-        </div>
-      )}
+      <div classname="text-center">
+        {hasGraded && reviews.length === 1 && (
+          <div className="text-center text-muted">
+            Nu mai există alte review-uri ale acestui stagiu
+          </div>
+        )}
+      </div>
 
       {(reviews.length > 1 || (reviews.length === 1 && !hasGraded)) && (
         <div>
-          <h5>Alte review-uri:</h5>
+          <div className="text-center">
+            <h5>Alte review-uri:</h5>
+          </div>
           {reviews.map(
             (rev) =>
               rev.studentId !== user.id && (

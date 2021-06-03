@@ -89,6 +89,7 @@ const SignUp = () => {
                     ),
                   }}
                   onChange={(e) => setInput({ ...input, email: e.target.value })}
+                  required={true}
                 />
               </Row>
               <br />
@@ -106,13 +107,14 @@ const SignUp = () => {
                     ),
                   }}
                   onChange={(e) => setInput({ ...input, password: e.target.value })}
+                  required={true}
                 />
               </Row>
               <br />
               <Row className="justify-content-center">
                 <TextField
                   fullWidth={true}
-                  label="Parolă"
+                  label="Confirmare parolă"
                   type="password"
                   value={input.confirmPassword}
                   InputProps={{

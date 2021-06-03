@@ -2,7 +2,9 @@
 import { Link, withRouter } from "react-router-dom";
 import * as Icon from "react-bootstrap-icons";
 import Loading from "../Universal/Loading";
-import { Paper } from "@material-ui/core";
+import { Button, Paper } from "@material-ui/core";
+import "../Universal/coverButton.css";
+import InternshipCard from "./InternshipCard";
 
 class Company extends Component {
   constructor(props) {
@@ -57,12 +59,12 @@ class Company extends Component {
     else return description;
   }
 
-  handleClickedAddress = (address) => {
-    window.open("https://www.google.ro/maps/place/" + address);
+  handleClickedAddress = () => {
+    window.open("https://www.google.ro/maps/place/" + this.state.company.address);
   };
 
-  handleClickedWebsite = (website) => {
-    window.open(website);
+  handleClickedWebsite = () => {
+    window.open("https://" + this.state.company.website);
   };
 
   getCity = (id) => {
@@ -84,16 +86,56 @@ class Company extends Component {
     return (
       <div>
         <br />
-        <div className="text-center">
-          <h3>{this.state.company.name}</h3>
-        </div>
-        <br />
 
         <div class="container">
           <div class="row">
-            <div class="col-lg-8">
+            <div
+              //  style={{width: 860}}
+              className="col-lg-8"
+            >
               <Paper>
-                <div className="p-4 mb-5">
+                <div className="cover-container">
+                  <img
+                    width="100%"
+                    alt="cover"
+                    src={"covers/" + this.state.company.coverPath}
+                  />
+                  <img
+                    className="cover-img"
+                    alt="logo"
+                    src={"logos/" + this.state.company.logoPath}
+                  />
+                </div>
+                <div className="p-4 mb-3">
+                  <h4>{this.state.company.name}</h4>
+                  <div style={{ marginTop: -10, fontSize: 15 }}>
+                    {this.state.company.industry} {this.state.company.address}
+                  </div>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={this.handleClickedWebsite}
+                  >
+                    Mergi la site-ul web
+                  </Button>
+                  <img
+                    style={{ marginLeft: 5 }}
+                    onMouseOver={(e) => (e.target.style.cursor = "pointer")}
+                    onMouseOut={(e) => (e.target.style.cursor = "normal")}
+                    onClick={this.handleClickedAddress}
+                    width="36"
+                    alt="Google Maps icon"
+                    src="googlemaps.png"
+                  />
+                  <br />
+                </div>
+              </Paper>
+
+              <Paper>
+                {/* <div className="p-4 mb-5">
+                  <h4>Stagiile companiei</h4>
+                  <br />
                   {this.state.internships !== []
                     ? this.state.internships.map((internship) => (
                         <span id={internship.id}>
@@ -131,6 +173,24 @@ class Company extends Component {
                         </span>
                       ))
                     : ""}
+                </div> */}
+
+                <div className="container">
+                  <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+                    {this.state.internships.map(
+                      (internship) =>
+                        internship.status === "approved" && (
+                          <div key={internship.id} className="mb-3 col">
+                            <div className="card">
+                              <InternshipCard
+                                internshipId={internship.id}
+                                companyId={internship.companyId}
+                              />
+                            </div>
+                          </div>
+                        )
+                    )}
+                  </div>
                 </div>
               </Paper>
             </div>
@@ -138,32 +198,9 @@ class Company extends Component {
             <div class="col-sm-4">
               <Paper>
                 <div className="p-3">
-                  <img
-                    width="70"
-                    alt={this.state.company.name}
-                    src={"/logos/" + this.state.company.logoPath}
-                  />
-                  <br />
+                  <h4>Despre</h4>
                   {this.state.company["description"]}
                   <br />
-                  <br />
-                  <img
-                    onMouseOver={(e) => (e.target.style.cursor = "pointer")}
-                    onMouseOut={(e) => (e.target.style.cursor = "normal")}
-                    onClick={() => this.handleClickedAddress(this.state.company.address)}
-                    width="32"
-                    alt="Google Maps icon"
-                    src="googlemaps.png"
-                  />
-
-                  <span
-                    style={{ marginLeft: 15, color: "#0366d6" }}
-                    onMouseOver={this.handleWebsiteMouseOver}
-                    onMouseOut={this.handleWebsiteMouseOut}
-                    onClick={() => this.handleClickedWebsite(this.state.company.website)}
-                  >
-                    Website
-                  </span>
                 </div>
               </Paper>
             </div>

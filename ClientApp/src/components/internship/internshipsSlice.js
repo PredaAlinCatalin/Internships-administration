@@ -10,16 +10,35 @@ const initialState = {
 export const fetchInternships = createAsyncThunk(
   "Internships/fetchInternships",
   async () => {
-    const response = await axios.get("api/Internships");
+    const response = await axios.get("api/internships");
     console.log(response.data);
     return response.data;
   }
 );
 
+// export const fetchInternshipsByCompanyIdAndStatus = createAsyncThunk(
+//   "Internships/fetchInternshipsByCompanyIdAndStatus",
+//   async (companyId, status) => {
+//     console.log(companyId);
+//     console.log(status);
+//     const response = await axios.get("api/Internships/company/" + companyId + "/status/" + status);
+//     console.log(response.data);
+//     return response.data;
+//   }
+// );
+
 export const addInternship = createAsyncThunk(
   "Internships/addInternship",
   async (internship) => {
-    const response = await axios.post("api/Internships", internship);
+    const response = await axios.post("api/internships", internship);
+    return response.data;
+  }
+);
+
+export const updateInternship = createAsyncThunk(
+  "Internships/updateInternship",
+  async (internship) => {
+    const response = await axios.put("api/internships/" + internship.id, internship);
     return response.data;
   }
 );
@@ -27,7 +46,7 @@ export const addInternship = createAsyncThunk(
 export const deleteInternship = createAsyncThunk(
   "Internships/deleteInternship",
   async (internshipId) => {
-    const url = "api/Internships/" + internshipId;
+    const url = "api/internships/" + internshipId;
     const response = await axios.delete(url);
     return response.data;
   }
@@ -55,9 +74,22 @@ const InternshipsSlice = createSlice({
     [deleteInternship.fulfilled]: (state, action) => {
       state.items = state.items.filter((item) => item.id !== action.payload.id);
     },
+    [updateInternship.fulfilled]: (state, action) => {
+      const existingInternship = state.items.find(
+        (item) => item.id === action.payload.id
+      );
+      if (existingInternship) {
+        existingInternship = action.payload;
+      }
+      // state.items = state.items.filter((item) => item.id !== action.payload.id);
+      // state.items.push(action.payload);
+    },
   },
 });
 
 export default InternshipsSlice.reducer;
 
 export const selectAllInternships = (state) => state.internships.items;
+
+export const selectInternshipsByStatus = (state, status) =>
+  state.internships.items.filter((item) => item.status === status);

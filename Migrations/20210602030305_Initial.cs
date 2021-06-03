@@ -86,6 +86,19 @@ namespace Licenta.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Faculties",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Faculties", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ForeignLanguages",
                 columns: table => new
                 {
@@ -212,6 +225,7 @@ namespace Licenta.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     LogoPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CoverPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Industry = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -237,12 +251,12 @@ namespace Licenta.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Faculty = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Specialization = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Year = table.Column<int>(type: "int", nullable: false),
                     AnnualAverage = table.Column<double>(type: "float", nullable: false),
                     PersonalDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhotoPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CoverPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FacultyId = table.Column<int>(type: "int", nullable: true),
                     Passions = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -253,6 +267,12 @@ namespace Licenta.Migrations
                         name: "FK_Students_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Students_Faculties_FacultyId",
+                        column: x => x.FacultyId,
+                        principalTable: "Faculties",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -267,6 +287,8 @@ namespace Licenta.Migrations
                     StartDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EndDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Deadline = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreationDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MaxNumberStudents = table.Column<int>(type: "int", nullable: false),
                     Paid = table.Column<bool>(type: "bit", nullable: false),
                     Salary = table.Column<int>(type: "int", nullable: false),
@@ -547,15 +569,6 @@ namespace Licenta.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[,]
-                {
-                    { "bf175c74-eda1-4744-ab9e-7a6ac7ceb2b7", "4fbe9997-8ac8-4c71-b2d1-4fab73f42e79", "Student", "STUDENT" },
-                    { "4ff076bd-08e4-428a-bd19-da0a68f91d59", "b09731f1-b339-4d09-b8c2-63e22cfa0c8b", "Company", "COMPANY" }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Categories",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -571,9 +584,22 @@ namespace Licenta.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Bucuresti" },
                     { 2, "Timisoara" },
-                    { 3, "Cluj" }
+                    { 3, "Cluj" },
+                    { 1, "Bucuresti" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Faculties",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Facultatea de Matematică-Informatică București" },
+                    { 2, "Facultatea de Automatică și Calculatoare București" },
+                    { 3, "Facultatea de Matematică-Informatică Cluj" },
+                    { 4, "Facultatea de Automatică și Calculatoare Cluj" },
+                    { 5, "Facultatea de Matematică-Informatică Timișoara" },
+                    { 6, "Facultatea de Automatică și Calculatoare Timișoara" }
                 });
 
             migrationBuilder.InsertData(
@@ -581,8 +607,8 @@ namespace Licenta.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Engleza" },
                     { 2, "Franceza" },
+                    { 1, "Engleza" },
                     { 3, "Germana" }
                 });
 
@@ -698,6 +724,11 @@ namespace Licenta.Migrations
                 column: "InternshipId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Students_FacultyId",
+                table: "Students",
+                column: "FacultyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Students_UserId",
                 table: "Students",
                 column: "UserId");
@@ -773,6 +804,9 @@ namespace Licenta.Migrations
 
             migrationBuilder.DropTable(
                 name: "Companies");
+
+            migrationBuilder.DropTable(
+                name: "Faculties");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

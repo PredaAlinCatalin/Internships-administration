@@ -16,6 +16,9 @@ import {
 } from "@material-ui/pickers";
 import { getFormattedDateNoTime } from "../../Utility/Utility";
 import axios from "axios";
+import CreateIcon from "@material-ui/icons/Create";
+import AddIcon from "@material-ui/icons/Add";
+import Fab from "@material-ui/core/Fab";
 
 const ProjectForm = ({ studentId }) => {
   const [student, setStudent] = useState(null);
@@ -266,8 +269,9 @@ const ProjectForm = ({ studentId }) => {
   return !loading ? (
     <>
       <div style={{ paddingLeft: 8 }}>
-        <button
-          className="btn btn-primary btn"
+        <Fab
+          color="primary"
+          aria-label="add"
           onClick={() => {
             setInput({
               ...input,
@@ -279,13 +283,16 @@ const ProjectForm = ({ studentId }) => {
             });
             setCreateIsOpen(true);
           }}
+          size="small"
+          style={{ marginLeft: -50, marginTop: -57 }}
         >
-          +
-        </button>
+          <AddIcon />
+        </Fab>
+        <span className="header">PROIECTE</span>
       </div>
       <Modal show={createIsOpen} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Experiență</Modal.Title>
+          <Modal.Title>Proiect</Modal.Title>
         </Modal.Header>
         <Form noValidate validated={validated}>
           <Modal.Body>
@@ -377,13 +384,7 @@ const ProjectForm = ({ studentId }) => {
       {input.studentProjects.map((project, index) => (
         <span key={index}>
           <div
-            className="container rounded input-div"
-            style={{
-              padding: 10,
-              paddingRight: 25,
-              paddingLeft: 25,
-              width: "850",
-            }}
+            className="container rounded input-div pen-icon-parent p-2"
             onClick={(event) => {
               setInput({
                 ...input,
@@ -397,14 +398,13 @@ const ProjectForm = ({ studentId }) => {
             }}
           >
             <div className="row">
-              <div className="col-xs">
+              <div className="col-4">
                 {getFormattedDateNoTime(new Date(project.startDate))} -&nbsp;
-                {getFormattedDateNoTime(new Date(project.endDate))} -&nbsp;
+                {getFormattedDateNoTime(new Date(project.endDate))}
               </div>
               <div
-                className="col-xs"
+                className="col-8 right-col"
                 style={{
-                  width: 600,
                   display: "inline-block",
                   whiteSpace: "pre-line",
                 }}
@@ -416,17 +416,21 @@ const ProjectForm = ({ studentId }) => {
                     display: "inline-block",
                   }}
                 >
-                  {project["title"]} -&nbsp;
-                  <br />
-                  {project.description}
+                  {project["title"]}
                 </b>
+
+                <br />
+                {project.description}
               </div>
+            </div>
+            <div className="hide">
+              <CreateIcon className="pen-icon" />
             </div>
           </div>
 
           <Modal show={modifyIsOpen} onHide={handleClose}>
             <Modal.Header closeButton>
-              <Modal.Title>Experiență</Modal.Title>
+              <Modal.Title>Proiect</Modal.Title>
             </Modal.Header>
             <Form noValidate validated={validated}>
               <Modal.Body>
@@ -468,9 +472,9 @@ const ProjectForm = ({ studentId }) => {
                 <TextField
                   error={errorTitle !== ""}
                   helperText={errorTitle}
-                  label="Poziție"
+                  label="Titlu"
                   style={{ margin: 15 }}
-                  placeholder="Poziție"
+                  placeholder="Titlu"
                   fullWidth
                   margin="normal"
                   // InputLabelProps={{
@@ -504,21 +508,21 @@ const ProjectForm = ({ studentId }) => {
                 </div>
                 <div>
                   <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleProjectDelete}
+                  >
+                    Sterge
+                  </Button>
+                </div>
+                <div>
+                  <Button
                     type="submit"
                     variant="contained"
                     color="primary"
                     onClick={handleProjectModifyForm}
                   >
                     Salvează
-                  </Button>
-                </div>
-                <div>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleProjectDelete}
-                  >
-                    Sterge
                   </Button>
                 </div>
               </Modal.Footer>

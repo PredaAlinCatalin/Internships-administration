@@ -20,6 +20,9 @@ import "./CreateInternship.css";
 import SaveIcon from "@material-ui/icons/Save";
 import Paper from "@material-ui/core/Paper";
 import axios from "axios";
+import { updateInternship } from "../internship/internshipsSlice";
+import { useDispatch } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
 
 const Select = (props) => (
   <FixRequiredSelect {...props} SelectComponent={BaseSelect} options={props.options} />
@@ -70,6 +73,7 @@ const ModifyInternship = ({ internshipId }) => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const populateModifyInternshipData = async () => {
@@ -132,6 +136,8 @@ const ModifyInternship = ({ internshipId }) => {
         }
 
         setInternshipMaxNumberStudents(internshipData.maxNumberStudents);
+        console.log(typeof internshipData.maxNumberStudents);
+        console.log(typeof internshipData.salary);
         setInternshipName(internshipData.name);
 
         let descriptionCopy = internshipData.description;
@@ -227,6 +233,7 @@ const ModifyInternship = ({ internshipId }) => {
   };
 
   const handleInternshipMaxNumberStudentsChange = (changeEvent) => {
+    console.log(typeof changeEvent.target.value);
     setInternshipMaxNumberStudents(changeEvent.target.value);
   };
 
@@ -348,7 +355,7 @@ const ModifyInternship = ({ internshipId }) => {
     );
 
     let modifiedInternship = {
-      id: internship.id,
+      ...internship,
       name: internshipName,
       startDate: internshipStartDate,
       endDate: internshipEndDate,
@@ -357,11 +364,8 @@ const ModifyInternship = ({ internshipId }) => {
       paid: internshipPaid,
       salary: internshipSalary,
       description: internshipDescription,
-      companyId: internship.companyId,
       cityId: searchedCity !== undefined ? searchedCity.id : null,
     };
-
-    console.log(modifiedInternship);
 
     modifiedInternship.description = modifiedInternship.description.replaceAll(
       "\n",
@@ -369,15 +373,17 @@ const ModifyInternship = ({ internshipId }) => {
     );
 
     // try {
-    await fetch("api/internships/" + internship.id, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(modifiedInternship),
-    }).then((res) => {
-      console.log(res);
-    });
+    // await fetch("api/internships/" + internship.id, {
+    //   method: "PUT",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(modifiedInternship),
+    // }).then((res) => {
+    //   console.log(res);
+    // });
+
+    dispatch(updateInternship(modifiedInternship));
 
     let axiosArray = [];
 
@@ -494,13 +500,12 @@ const ModifyInternship = ({ internshipId }) => {
       .then(
         axios.spread((...responses) => {
           responses.forEach((res) => console.log("Success"));
-          console.log("submitted all axios calls");
         })
       )
       .catch((error) => console.log(error));
 
     setInternshipAptitudes(internshipAptitudesAux);
-    history.push("/companyInternships");
+    history.push("/companyInternships/all");
   };
 
   return loading ? (
@@ -516,7 +521,6 @@ const ModifyInternship = ({ internshipId }) => {
 
         <Form onSubmit={handleInternshipModifyForm}>
           <TextField
-            id="standard-full-width"
             label="Nume"
             style={{ margin: 15 }}
             placeholder="Nume"
@@ -531,7 +535,6 @@ const ModifyInternship = ({ internshipId }) => {
           />
 
           <TextField
-            id="standard-full-width"
             type="number"
             label="Număr maxim studenți"
             style={{ margin: 15 }}
@@ -542,7 +545,7 @@ const ModifyInternship = ({ internshipId }) => {
             //   shrink: true,
             // }}
             value={internshipMaxNumberStudents}
-            onChange={handleInternshipMaxNumberStudentsChange}
+            onChange={(event) => setInternshipMaxNumberStudents(event.target.value)}
             required={true}
           />
 
@@ -596,7 +599,6 @@ const ModifyInternship = ({ internshipId }) => {
                 format="dd/MM/yyyy"
                 margin="normal"
                 style={{ margin: 15 }}
-                id="date-picker-inline"
                 label="Dată începere"
                 value={internshipStartDate}
                 onChange={handleInternshipStartDateChange}
@@ -611,7 +613,6 @@ const ModifyInternship = ({ internshipId }) => {
                 format="dd/MM/yyyy"
                 margin="normal"
                 style={{ margin: 15 }}
-                id="date-picker-inline2"
                 label="Dată sfârșit"
                 value={internshipEndDate}
                 onChange={handleInternshipEndDateChange}
@@ -626,7 +627,6 @@ const ModifyInternship = ({ internshipId }) => {
                 format="dd/MM/yyyy"
                 margin="normal"
                 style={{ margin: 15 }}
-                id="date-picker-inline3"
                 label="Deadline aplicări"
                 value={internshipDeadline}
                 onChange={handleInternshipDeadlineChange}
@@ -656,14 +656,14 @@ const ModifyInternship = ({ internshipId }) => {
             Categorii:{" "}
             {internshipCategoriesAux !== []
               ? internshipCategoriesAux.map((category) => (
-                  <>
+                  <span id={uuidv4()}>
                     <SelectElement
                       key={category.id}
                       id={category.id}
                       name={category.name}
                       onDelete={handleInternshipCategoryDelete}
                     />
-                  </>
+                  </span>
                 ))
               : ""}
           </div>
@@ -684,14 +684,14 @@ const ModifyInternship = ({ internshipId }) => {
             Aptitudini:{" "}
             {internshipAptitudesAux !== []
               ? internshipAptitudesAux.map((aptitude) => (
-                  <>
+                  <span key={uuidv4()}>
                     <SelectElement
                       key={aptitude.id}
                       id={aptitude.id}
                       name={aptitude.name}
                       onDelete={handleInternshipAptitudeDelete}
                     />
-                  </>
+                  </span>
                 ))
               : ""}
             <p></p>

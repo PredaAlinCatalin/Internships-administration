@@ -16,6 +16,9 @@ import {
 } from "@material-ui/pickers";
 import { getFormattedDateNoTime } from "../../Utility/Utility";
 import axios from "axios";
+import AddIcon from "@material-ui/icons/Add";
+import Fab from "@material-ui/core/Fab";
+import CreateIcon from "@material-ui/icons/Create";
 
 const EducationForm = ({ studentId }) => {
   const [student, setStudent] = useState(null);
@@ -277,8 +280,9 @@ const EducationForm = ({ studentId }) => {
   return !loading ? (
     <>
       <div style={{ paddingLeft: 8 }}>
-        <button
-          className="btn btn-primary btn"
+        <Fab
+          color="primary"
+          aria-label="add"
           onClick={() => {
             setInput({
               ...input,
@@ -290,9 +294,12 @@ const EducationForm = ({ studentId }) => {
             });
             setCreateIsOpen(true);
           }}
+          size="small"
+          style={{ marginLeft: -50, marginTop: -57 }}
         >
-          +
-        </button>
+          <AddIcon />
+        </Fab>
+        <span className="header">EDUCAȚIE</span>
       </div>
       <Modal show={createIsOpen} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -388,13 +395,7 @@ const EducationForm = ({ studentId }) => {
       {input.studentEducations.map((education, index) => (
         <span key={index}>
           <div
-            className="container rounded input-div"
-            style={{
-              padding: 10,
-              paddingRight: 25,
-              paddingLeft: 25,
-              width: "850",
-            }}
+            className="container rounded input-div pen-icon-parent p-2"
             onClick={(event) => {
               setInput({
                 ...input,
@@ -408,14 +409,13 @@ const EducationForm = ({ studentId }) => {
             }}
           >
             <div className="row">
-              <div className="col-xs">
+              <div className="col-4">
                 {getFormattedDateNoTime(new Date(education.startDate))} -&nbsp;
-                {getFormattedDateNoTime(new Date(education.endDate))} -&nbsp;
+                {getFormattedDateNoTime(new Date(education.endDate))}
               </div>
               <div
-                className="col-xs"
+                className="col-8 right-col"
                 style={{
-                  width: 600,
                   display: "inline-block",
                   whiteSpace: "pre-line",
                 }}
@@ -432,6 +432,9 @@ const EducationForm = ({ studentId }) => {
                   {education["specialization"]}
                 </b>
               </div>
+            </div>
+            <div className="hide">
+              <CreateIcon className="pen-icon" />
             </div>
           </div>
 
@@ -516,21 +519,21 @@ const EducationForm = ({ studentId }) => {
                 </div>
                 <div>
                   <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleEducationDelete}
+                  >
+                    Sterge
+                  </Button>
+                </div>
+                <div>
+                  <Button
                     type="submit"
                     variant="contained"
                     color="primary"
                     onClick={handleEducationModifyForm}
                   >
                     Salvează
-                  </Button>
-                </div>
-                <div>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleEducationDelete}
-                  >
-                    Sterge
                   </Button>
                 </div>
               </Modal.Footer>

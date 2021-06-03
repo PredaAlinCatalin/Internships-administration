@@ -9,6 +9,11 @@ import { Paper, TextField } from "@material-ui/core";
 import { Form } from "reactstrap";
 import Button from "@material-ui/core/Button";
 import { Modal } from "react-bootstrap";
+import TabMenuCompany from "./TabMenuCompany";
+import { getFormattedDateNoTime } from "../Utility/Utility";
+import axios from "axios";
+import { getSelectOptions } from "../Utility/Utility";
+import qs from "qs";
 
 class ManageStudentInternships extends Component {
   constructor(props) {
@@ -22,6 +27,10 @@ class ManageStudentInternships extends Component {
       statusOptions: [],
       isOpen: false,
       idSelected: -1,
+      faculty: "",
+      currentFaculty: "",
+      facultiesOptions: [],
+      submitted: false,
     };
   }
 
@@ -76,7 +85,29 @@ class ManageStudentInternships extends Component {
       })
       .catch((error) => console.log("Error on getting students", error));
 
+    await axios
+      .get("api/faculties")
+      .then((response) => {
+        console.log(response.data);
+        this.setState({ faculties: response.data });
+        this.setState({ facultiesOptions: getSelectOptions(response.data) });
+      })
+      .catch((error) => console.log(error));
+
     this.setState({ loading: false });
+
+    let search = this.props.location.search;
+    search = search.substring(1);
+    let searchJSON = qs.parse(search);
+    if (search !== "") {
+      this.setState({
+        currentFaculty: { value: searchJSON.faculty, label: searchJSON.faculty },
+      });
+      this.setState({
+        faculty: { value: searchJSON.faculty, label: searchJSON.faculty },
+      });
+    }
+    this.setState({ submitted: false });
   };
 
   handleSelectStudent = (id) => {
@@ -172,6 +203,31 @@ class ManageStudentInternships extends Component {
     });
   };
 
+  handleQuerySubmit = (event) => {
+    event.preventDefault();
+    if (this.state.currentFaculty.value !== undefined) {
+      this.setState({ faculty: this.state.currentFaculty });
+      let query = this.state.currentFaculty.value;
+      let url =
+        "/manageInternshipApplications/" +
+        this.props.internshipId +
+        "/query?faculty=" +
+        query;
+      this.props.history.push(url);
+      this.setState({ submitted: true });
+    }
+  };
+
+  handleResetFilters = () => {
+    this.setState({
+      faculty: "",
+      currentFaculty: "",
+      submitted: true,
+    });
+    let url = "/manageInternshipApplications/" + this.props.internshipId;
+    this.props.history.push(url);
+  };
+
   renderModal = () => {
     let studentInternship = this.state.studentInternships[this.state.idSelected];
     return this.state.idSelected !== -1 ? (
@@ -230,10 +286,43 @@ class ManageStudentInternships extends Component {
   renderManageStudentInternshipsData = () => {
     return (
       <>
+        <TabMenuCompany />
         {!this.state.emptyList ? (
           <div>
             <br />
             <h5 className="text-center">Aplicările la stagiu</h5>
+            <form onSubmit={this.handleQuerySubmit}>
+              <Select
+                placeholder="Selectează facultate"
+                value={this.state.currentFaculty}
+                options={this.state.facultiesOptions}
+                onChange={(e) => this.setState({ currentFaculty: e })}
+                isSearchable
+                required
+              />
+
+              <div className="col-lg-4 mt-lg-4 mb-lg-4">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  className="mr-lg-2"
+                >
+                  Caută
+                </Button>
+                {this.state.faculty !== "" ? (
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={this.handleResetFilters}
+                  >
+                    Resetează filtre
+                  </Button>
+                ) : (
+                  ""
+                )}
+              </div>
+            </form>
             <div className="m-3">
               <Paper>
                 <div className="container p-3 pb-2">
@@ -274,7 +363,9 @@ class ManageStudentInternships extends Component {
                                 </td>
 
                                 <td className="col-2">
-                                  {studentInternship.applicationDate}
+                                  {getFormattedDateNoTime(
+                                    studentInternship.applicationDate
+                                  )}
                                 </td>
 
                                 <td className="col-2">{studentInternship.status}</td>

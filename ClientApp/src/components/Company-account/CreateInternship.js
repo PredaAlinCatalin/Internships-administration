@@ -26,6 +26,14 @@ import {
 } from "../Utility/Utility";
 import Paper from "@material-ui/core/Paper";
 import axios from "axios";
+import { getFormattedDateNoTime } from "../Utility/Utility";
+import {
+  fetchInternships,
+  selectAllInternships,
+  addInternship,
+} from "../internship/internshipsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const Select = (props) => (
   <FixRequiredSelect {...props} SelectComponent={BaseSelect} options={props.options} />
@@ -38,8 +46,8 @@ const CreateInternship = () => {
   const [internshipDescription, setInternshipDescription] = useState("");
   const [internshipPaid, setInternshipPaid] = useState(false);
   const [internshipSalary, setInternshipSalary] = useState(0);
-  const [internshipStartDate, setInternshipStartDate] = useState(new Date("2021-06-01"));
-  const [internshipEndDate, setInternshipEndDate] = useState(new Date("2021-09-01"));
+  const [internshipStartDate, setInternshipStartDate] = useState(new Date("2021-04-01"));
+  const [internshipEndDate, setInternshipEndDate] = useState(new Date("2021-05-01"));
   const [internshipDeadline, setInternshipDeadline] = useState(new Date("2021-03-01"));
   const [internshipCategories, setInternshipCategories] = useState([]);
   const [internshipAptitudes, setInternshipAptitudes] = useState([]);
@@ -62,7 +70,10 @@ const CreateInternship = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState("");
   const [count, setCount] = useState(1);
-
+  const dispatch = useDispatch();
+  const status = useSelector((state) => state.internships.status);
+  const errorInternships = useSelector((state) => state.internships.error);
+  const [addRequestStatus, setAddRequestStatus] = useState("idle");
   useEffect(() => {
     async function populateCreateInternshipData() {
       let user = JSON.parse(sessionStorage.getItem("user"));
@@ -211,6 +222,7 @@ const CreateInternship = () => {
     );
     let descriptionCopy = internshipDescription;
     descriptionCopy = descriptionCopy.replaceAll("\n", "<br/>");
+    let currentDate = new Date();
 
     for (let j = 0; j < count; j++) {
       try {
@@ -219,6 +231,8 @@ const CreateInternship = () => {
           startDate: internshipStartDate,
           endDate: internshipEndDate,
           deadline: internshipDeadline,
+          creationDate: currentDate,
+          status: "pending",
           maxNumberStudents: internshipMaxNumberStudents,
           paid: internshipPaid,
           salary: internshipSalary,
@@ -227,18 +241,20 @@ const CreateInternship = () => {
           cityId: searchedCity !== undefined ? searchedCity.id : null,
         };
         let internshipData = "";
-        let internshipResponse = await fetch("api/internships", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newInternship),
-        });
 
-        console.log(internshipResponse);
-        if (internshipResponse.ok) {
-          internshipData = await internshipResponse.json();
+        try {
+          setAddRequestStatus("pending");
+          const resultAction = await dispatch(addInternship(newInternship));
+          unwrapResult(resultAction);
+          console.log(resultAction);
+          internshipData = resultAction.payload;
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setAddRequestStatus("idle");
+        }
 
+        if (internshipData !== "") {
           let axiosArray = [];
           for (let i = 0; i < internshipCategoriesAux.length; i++) {
             let internshipCategory = {
@@ -277,19 +293,10 @@ const CreateInternship = () => {
             )
             .catch((error) => console.log(error));
         }
-        history.push("/companyInternships");
+        history.push("/companyInternships/all");
       } catch (error) {
         setError(error.message);
         console.log(error);
-        // const response = error?.response;
-        // if (response && response.status === 400) {
-        //   const identityErrors = response.data;
-        //   const errorDescriptions = identityErrors.map((error) => error.description);
-        //   setError(errorDescriptions.join(" "));
-        // } else {
-        //   setError("Eroare la comunicarea cu serverul");
-        //   console.log(error);
-        // }
       }
     }
   };
@@ -317,7 +324,6 @@ const CreateInternship = () => {
 
         <Form onSubmit={handleInternshipCreateForm}>
           <TextField
-            id="standard-full-width"
             label="Nume"
             style={{ margin: 15 }}
             placeholder="Nume"
@@ -332,7 +338,6 @@ const CreateInternship = () => {
           />
 
           <TextField
-            id="standard-full-width"
             type="number"
             label="Număr maxim studenți"
             style={{ margin: 15 }}

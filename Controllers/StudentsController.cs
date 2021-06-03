@@ -34,32 +34,52 @@ namespace Licenta.Controllers
 
         // GET: api/Students
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
+        public async Task<ActionResult<IEnumerable<StudentDTO>>> GetStudents()
         {
-            return await _context.Students.ToListAsync();
+            IEnumerable<Student> students = await _context.Students.ToListAsync();
+            List<StudentDTO> studentsDTO = new List<StudentDTO>();
+            foreach(var student in students)
+            {
+                var user = await _userManager.FindByIdAsync(student.UserId);
+                var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+                var email = await _userManager.GetEmailAsync(user);
+
+                var studentDTO = _mapper.Map<StudentDTO>(student);
+                studentDTO.PhoneNumber = phoneNumber;
+                studentDTO.Email = email;
+                studentsDTO.Add(studentDTO);
+            }
+            return Ok(studentsDTO);
         }
 
 
         [HttpGet("internship/{id}")]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudentsByInternshipId(int id)
+        public async Task<ActionResult<IEnumerable<StudentDTO>>> GetStudentsByInternshipId(int id)
         {
-            List<Student> students = new List<Student>();
             List<StudentInternship> studentInternships = await _context.StudentInternships
                                                                 .Include(s => s.Student)
                                                                 .ToListAsync();
+            List<StudentDTO> studentsDTO = new List<StudentDTO>();
 
-            foreach(StudentInternship studentInternship in studentInternships)
+            foreach (StudentInternship studentInternship in studentInternships)
             {
                 if (studentInternship.InternshipId == id)
                 {
-                    students.Add(studentInternship.Student);
+                    var user = await _userManager.FindByIdAsync(studentInternship.Student.UserId);
+                    var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+                    var email = await _userManager.GetEmailAsync(user);
+
+                    var studentDTO = _mapper.Map<StudentDTO>(studentInternship.Student);
+                    studentDTO.PhoneNumber = phoneNumber;
+                    studentDTO.Email = email;
+                    studentsDTO.Add(studentDTO);
                 }
             }
 
-            if (students.Count == 0)
+            if (studentsDTO.Count == 0)
                 return NotFound();
 
-            return students; 
+            return Ok(studentsDTO); 
 
         }
 
@@ -84,16 +104,41 @@ namespace Licenta.Controllers
             return studentDTO;
         }
     
-        [HttpPost("savefile/{id}")]
-        public JsonResult SaveFile(int id)
+        [HttpPost("savePhoto/{id}")]
+        public JsonResult SavePhoto(int id)
         {
             try
             {
                 var httpRequest = Request.Form;
                 var postedFile = httpRequest.Files[0];
                 //string filename = postedFile.FileName;
-                string filename = "" + id + ".png";
+                string filename = "" + id + "1.png";
                 var physicalPath = _env.ContentRootPath + "/ClientApp/public/photos/" + filename;
+
+                using (var stream = new FileStream(physicalPath, FileMode.Create))
+                {
+                    postedFile.CopyTo(stream);
+                }
+
+                return new JsonResult(filename);
+
+            }
+            catch (Exception)
+            {
+                return new JsonResult("anonymous.png");
+            }
+        }
+
+        [HttpPost("savecover/{id}")]
+        public JsonResult SaveCover(String id)
+        {
+            try
+            {
+                var httpRequest = Request.Form;
+                var postedFile = httpRequest.Files[0];
+                //string filename = postedFile.FileName;
+                string filename = "" + id + "2.png";
+                var physicalPath = _env.ContentRootPath + "/ClientApp/public/covers/" + filename;
 
                 using (var stream = new FileStream(physicalPath, FileMode.Create))
                 {

@@ -24,6 +24,7 @@ import {
   ProvideAuthentication,
   useIsStudent,
   useIsCompany,
+  useIsAdmin,
 } from "./components/Authentication/Authentication";
 import SuccessfulApplication from "./components/Student/SuccessfulApplication";
 import MyEditor from "./components/Universal/MyEditor";
@@ -34,6 +35,7 @@ import SavedInternshipsContextProvider from "./contexts/SavedInternshipsContext"
 import SavedInternshipsFunctional from "./components/savedInternships/SavedInternshipsFunctional";
 import NotFound from "./components/NotFound/NotFound";
 import { InternshipsContextProvider } from "./contexts/InternshipsContext";
+import ApproveInternships from "./components/Admin/ApproveInternships";
 
 const App = () => {
   const renderCompany = (routerProps) => {
@@ -54,8 +56,14 @@ const App = () => {
 
   const renderManageInternshipApplications = (routerProps) => {
     let internshipIdCopy = parseInt(routerProps.match.params.id);
-
-    return <ManageInternshipApplications internshipId={internshipIdCopy} />;
+    let queryCopy = routerProps.match.params;
+    console.log(queryCopy);
+    return (
+      <ManageInternshipApplications
+        internshipId={internshipIdCopy}
+        query={queryCopy !== undefined ? queryCopy : ""}
+      />
+    );
   };
 
   const renderStudentProfile = (routerProps) => {
@@ -69,99 +77,103 @@ const App = () => {
     return <InternshipReviews internshipId={internshipIdCopy} />;
   };
 
+  const renderCompanyInternships = (routerProps) => {
+    let internshipStatus = routerProps.match.params.internshipStatus;
+    return <CompanyInternships internshipStatus={internshipStatus} />;
+  };
+
+  // const renderCompanyProfile = (routerProps) => {
+  //   let companyId = parseInt(routerProps.match.params.companyId);
+  //   return <CompanyProfile companyId={companyId} />;
+  // };
+
   return (
     <ProvideAuthentication>
-      <SavedInternshipsContextProvider>
-        <InternshipsContextProvider>
-          <Layout>
-            <Switch>
-              <Route exact path="/" component={StartPage} />
+      {/* <SavedInternshipsContextProvider>
+        <InternshipsContextProvider> */}
+      <Layout>
+        <Switch>
+          <Route exact path="/" component={StartPage} />
 
-              <Route exact path="/internships/:query?" component={Internships} />
+          <Route exact path="/internships/:query?" component={Internships} />
 
-              <Route exact path="/companies" component={Companies} />
+          <Route exact path="/companies" component={Companies} />
 
-              <Route exact path="/company/:id" render={renderCompany} />
+          <Route exact path="/company/:id" render={renderCompany} />
 
-              <Route exact path="/internship/:id" render={renderInternship} />
+          <Route exact path="/internship/:id" render={renderInternship} />
 
-              <Route exact path="/SignUp" component={SignUp} />
+          <Route exact path="/SignUp" component={SignUp} />
 
-              <Route exact path="/SuccessfulSignUp" component={SuccessfulSignUp} />
+          <Route exact path="/SuccessfulSignUp" component={SuccessfulSignUp} />
 
-              <Route exact path="/Login" component={Login} />
+          <Route exact path="/Login" component={Login} />
 
-              <Route
-                exact
-                path="/internshipReviews/:id"
-                render={renderInternshipReviews}
-              />
+          <Route exact path="/internshipReviews/:id" render={renderInternshipReviews} />
 
-              <Route exact path="/MyEditor" component={MyEditor} />
+          <Route exact path="/MyEditor" component={MyEditor} />
 
-              <Route exact path="/InternshipsList" component={InternshipsList} />
+          <Route exact path="/InternshipsList" component={InternshipsList} />
 
-              <Route exact path="/Logout" component={Logout} />
+          <Route exact path="/Logout" component={Logout} />
 
-              <CompanyRoute exact path="/companyProfile" component={CompanyProfile} />
+          <CompanyRoute exact path="/companyProfile" component={CompanyProfile} />
 
-              <CompanyRoute
-                exact
-                path="/companyInternships"
-                component={CompanyInternships}
-              />
+          <CompanyRoute
+            exact
+            path="/companyInternships/:internshipStatus"
+            component={renderCompanyInternships}
+          />
 
-              <CompanyRoute exact path="/createInternship" component={CreateInternship} />
+          <CompanyRoute exact path="/createInternship" component={CreateInternship} />
 
-              <CompanyRoute
-                exact
-                path="/modifyInternship/:id"
-                component={renderModifyInternship}
-              />
-              <CompanyRoute
-                exact
-                path="/manageInternshipApplications/:id"
-                component={renderManageInternshipApplications}
-              />
-              <CompanyRoute
-                exact
-                path="/studentProfile/:id"
-                component={renderStudentProfile}
-              />
+          <CompanyRoute
+            exact
+            path="/modifyInternship/:id"
+            component={renderModifyInternship}
+          />
+          <CompanyRoute
+            exact
+            path="/manageInternshipApplications/:id/:query?"
+            component={renderManageInternshipApplications}
+          />
+          <CompanyRoute
+            exact
+            path="/studentProfile/:id"
+            component={renderStudentProfile}
+          />
 
-              <StudentRoute
-                exact
-                path="/internshipHistory"
-                component={InternshipHistory}
-              />
+          <StudentRoute exact path="/internshipHistory" component={InternshipHistory} />
 
-              <StudentRoute
-                exact
-                path="/internshipApplications"
-                component={InternshipApplications}
-              />
+          <StudentRoute
+            exact
+            path="/internshipApplications"
+            component={InternshipApplications}
+          />
 
-              <StudentRoute exact path="/savedInternships" component={SavedInternships} />
+          <StudentRoute exact path="/savedInternships" component={SavedInternships} />
 
-              <StudentRoute
-                exact
-                path="/savedInternshipsfunctional"
-                component={SavedInternshipsFunctional}
-              />
+          <StudentRoute
+            exact
+            path="/savedInternshipsfunctional"
+            component={SavedInternshipsFunctional}
+          />
 
-              <StudentRoute exact path="/profile" component={Profile} />
+          <StudentRoute exact path="/profile" component={Profile} />
 
-              <StudentRoute
-                exact
-                path="/successfulApplication"
-                component={SuccessfulApplication}
-              />
+          <StudentRoute
+            exact
+            path="/successfulApplication"
+            component={SuccessfulApplication}
+          />
 
-              <Route component={NotFound} />
-            </Switch>
-          </Layout>
-        </InternshipsContextProvider>
-      </SavedInternshipsContextProvider>
+          <AdminRoute exact path="/approveInternships" component={ApproveInternships} />
+
+          <Route component={NotFound} />
+        </Switch>
+      </Layout>
+      {/* </InternshipsContextProvider>
+      </SavedInternshipsContextProvider> */}
     </ProvideAuthentication>
   );
 };
@@ -196,6 +208,29 @@ const CompanyRoute = ({ component: Component, ...rest }) => {
       {...rest}
       render={(props) =>
         isCompany ? (
+          <Component {...rest} {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: "/Login",
+              state: {
+                from: props.location,
+              },
+            }}
+          />
+        )
+      }
+    />
+  );
+};
+
+const AdminRoute = ({ component: Component, ...rest }) => {
+  const isAdmin = useIsAdmin();
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isAdmin ? (
           <Component {...rest} {...props} />
         ) : (
           <Redirect

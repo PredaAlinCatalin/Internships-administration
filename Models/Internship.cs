@@ -20,6 +20,10 @@ namespace Licenta.Models
         [Required]
         public string Deadline { get; set; }
         [Required]
+        public string CreationDate { get; set; }
+        [Required]
+        public string Status { get; set; }
+        [Required]
         public int MaxNumberStudents { get; set; }
         [Required]
         public bool Paid { get; set; }

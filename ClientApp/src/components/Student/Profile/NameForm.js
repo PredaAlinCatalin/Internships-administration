@@ -5,42 +5,46 @@ import { Form } from "react-bootstrap";
 import "./Profile.css";
 import * as Icon from "react-bootstrap-icons";
 import axios from "axios";
-import { fetchStudent, selectStudent, updateStudent } from "../studentSlice";
+import { fetchStudents, selectStudentById, updateStudent } from "../studentsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
+import CreateIcon from "@material-ui/icons/Create";
 
 const NameForm = ({ studentId }) => {
   const [input, setInput] = useState({
     firstName: "",
-    lastName: ""
+    lastName: "",
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [validated, setValidated] = useState(false);
-  const student = useSelector(selectStudent);
-  const status = useSelector((state) => state.student.status);
-  const error = useSelector((state) => state.student.error);
+  const student = useSelector((state) =>
+    state.students.items.find((s) => s.id !== undefined && s.id == studentId)
+  );
+  const status = useSelector((state) => state.students.status);
+  const error = useSelector((state) => state.students.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function populateWithData() {
       if (status === "idle") {
-        dispatch(fetchStudent(studentId));
+        dispatch(fetchStudents());
       }
     }
     populateWithData();
     if (status === "succeeded")
       setInput({
         firstName: student.firstName,
-        lastName: student.lastName
+        lastName: student.lastName,
       });
+    setLoading(false);
   }, [status, dispatch]);
 
   const handleClose = () => {
     setIsOpen(false);
     setInput({
       firstName: student.firstName,
-      lastName: student.lastName
+      lastName: student.lastName,
     });
     setValidated(false);
   };
@@ -51,7 +55,7 @@ const NameForm = ({ studentId }) => {
     let modifiedStudent = {
       ...student,
       firstName: input.firstName,
-      lastName: input.lastName
+      lastName: input.lastName,
     };
 
     try {
@@ -64,26 +68,20 @@ const NameForm = ({ studentId }) => {
     }
   };
 
-  return status === "succeeded" ? (
+  return !loading && status === "succeeded" ? (
     <>
       <div
-        className="rounded col input-div"
-        style={{
-          padding: 10,
-          paddingRight: 25,
-          paddingLeft: 25,
-          width: "850",
-        }}
+        className="rounded col input-div pen-icon-parent p-2"
         onClick={(event) => {
           setIsOpen(true);
         }}
       >
-        <div className="row">
-          <div className="col">
-            <h3>
-              Nume: {student.lastName} {student.firstName}
-            </h3>
-          </div>
+        <h5>
+          Nume: {student.lastName} {student.firstName}
+        </h5>
+
+        <div className="hide">
+          <CreateIcon className="pen-icon" />
         </div>
       </div>
 

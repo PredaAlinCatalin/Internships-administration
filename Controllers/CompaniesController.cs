@@ -110,18 +110,43 @@ namespace Licenta.Controllers
             return CreatedAtAction("GetCompany", new { id = company.Id }, company);
         }
 
-        [HttpPost("savefile/{id}")]
-        public JsonResult SaveFile(String id)
+        [HttpPost("savelogo/{id}")]
+        public JsonResult SaveLogo(String id)
         {
             try
             {
                 var httpRequest = Request.Form;
                 var postedFile = httpRequest.Files[0];
                 //string filename = postedFile.FileName;
-                string filename = "" + id + ".png";
+                string filename = "" + id + "1.png";
                 var physicalPath = _env.ContentRootPath + "/ClientApp/public/logos/" + filename;
 
                 using(var stream = new FileStream(physicalPath, FileMode.Create))
+                {
+                    postedFile.CopyTo(stream);
+                }
+
+                return new JsonResult(filename);
+
+            }
+            catch (Exception)
+            {
+                return new JsonResult("anonymous.png");
+            }
+        }
+
+        [HttpPost("savecover/{id}")]
+        public JsonResult SaveCover(String id)
+        {
+            try
+            {
+                var httpRequest = Request.Form;
+                var postedFile = httpRequest.Files[0];
+                //string filename = postedFile.FileName;
+                string filename = "" + id + "2.png";
+                var physicalPath = _env.ContentRootPath + "/ClientApp/public/covers/" + filename;
+
+                using (var stream = new FileStream(physicalPath, FileMode.Create))
                 {
                     postedFile.CopyTo(stream);
                 }

@@ -30,12 +30,12 @@ namespace Licenta.Controllers
         }
 
         //GET: api/Internships
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Internship>>> GetInternships()
-        //{
-        //    return await _context.Internships
-        //                    .ToListAsync();
-        //}
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Internship>>> GetInternships()
+        {
+            IEnumerable<Internship> internships = await _repository.GetAllInternshipsAsync();
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
+        }
 
         [HttpGet("company/{companyId}")]
         public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByCompanyId(int companyId)
@@ -45,7 +45,15 @@ namespace Licenta.Controllers
             return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
         }
 
-        [HttpGet("")]
+        [HttpGet("company/{companyId}/status/{status}")]
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsByCompanyIdAndStatus(int companyId, string status)
+        {
+            IEnumerable<Internship> internships = await _repository.GetInternshipsByCompanyIdAndStatus(companyId, status);
+
+            return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
+        }
+
+        [HttpGet("approved")]
         public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternshipsBySearchCityName(string searchString, string city)
         {
             IEnumerable<Internship> internships = await _repository.GetInternshipsBySearchCityName(searchString, city);
@@ -104,13 +112,12 @@ namespace Licenta.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutInternship(int id, Internship internship)
+        public async Task<ActionResult<InternshipDTO>> PutInternship(int id, Internship internship)
         {
             if (id != internship.Id)
             {
                 return BadRequest();
             }
-
 
             try
             {
@@ -128,7 +135,7 @@ namespace Licenta.Controllers
                 }
             }
 
-            return NoContent();
+            return _mapper.Map<InternshipDTO>(internship);
         }
 
         // POST: api/Internships

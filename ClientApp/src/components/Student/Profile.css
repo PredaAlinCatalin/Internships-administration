@@ -6,3 +6,14 @@
   width: 200px;
   height: 200px;
 }
+
+.underline {
+  margin-top: -5px;
+  margin-left: -10px;
+  border-top: 2px solid gray;
+}
+
+.break-line {
+  width: 40%;
+  border-top: 1px solid lightgray;
+}

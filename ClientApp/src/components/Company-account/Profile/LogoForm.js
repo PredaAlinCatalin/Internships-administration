@@ -3,8 +3,11 @@ import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { Form } from "reactstrap";
 import "./Profile.css";
+import "./coverButton.css";
+import PhotoCameraIcon from "@material-ui/icons/PhotoCamera";
+import IconButton from "@material-ui/core/IconButton";
 
-const LogoPathForm = ({ companyId }) => {
+const LogoForm = ({ companyId }) => {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -65,7 +68,7 @@ const LogoPathForm = ({ companyId }) => {
     formSubmitEvent.preventDefault();
     console.log(companyLogoPath);
     let path = "";
-    await fetch("api/companies/savefile/" + companyId, {
+    await fetch("api/companies/savelogo/" + companyId, {
       method: "POST",
       body: logoFormData,
     })
@@ -102,24 +105,26 @@ const LogoPathForm = ({ companyId }) => {
   };
 
   return !loading ? (
-    <div className="ml-2">
+    <div className="photo-container">
       <img
-        width="200"
+        width="100"
         height="100"
+        className="cover-img"
         alt="logo"
         src={"logos/" + company.logoPath}
         onMouseOver={(event) => (event.target.style.cursor = "pointer")}
         onMouseOut={(event) => (event.target.style.cursor = "normal")}
         onClick={() => setIsOpen(true)}
       />
+      <PhotoCameraIcon className="photo-btn" />
       <Modal show={isOpen} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Industrie companie</Modal.Title>
+          <Modal.Title>Logo companie</Modal.Title>
         </Modal.Header>
         <Form id="LogoForm">
           <Modal.Body>
             <div id="thumbnail">
-              Imagine companie:
+              Logo companie:
               <input type="file" onChange={handleChange} />
             </div>
           </Modal.Body>
@@ -148,4 +153,4 @@ const LogoPathForm = ({ companyId }) => {
   );
 };
 
-export default LogoPathForm;
+export default LogoForm;

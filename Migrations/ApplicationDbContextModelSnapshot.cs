@@ -16,7 +16,7 @@ namespace Licenta.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.4")
+                .HasAnnotation("ProductVersion", "5.0.6")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Licenta.Models.Aptitude", b =>
@@ -133,6 +133,9 @@ namespace Licenta.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CoverPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -233,6 +236,53 @@ namespace Licenta.Migrations
                     b.ToTable("Experiences");
                 });
 
+            modelBuilder.Entity("Licenta.Models.Faculty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Faculties");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Facultatea de Matematică-Informatică București"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Facultatea de Automatică și Calculatoare București"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Facultatea de Matematică-Informatică Cluj"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Facultatea de Automatică și Calculatoare Cluj"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Facultatea de Matematică-Informatică Timișoara"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Facultatea de Automatică și Calculatoare Timișoara"
+                        });
+                });
+
             modelBuilder.Entity("Licenta.Models.ForeignLanguage", b =>
                 {
                     b.Property<int>("Id")
@@ -279,6 +329,10 @@ namespace Licenta.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CreationDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Deadline")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -305,6 +359,10 @@ namespace Licenta.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("StartDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -409,8 +467,11 @@ namespace Licenta.Migrations
                     b.Property<double>("AnnualAverage")
                         .HasColumnType("float");
 
-                    b.Property<string>("Faculty")
+                    b.Property<string>("CoverPath")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("FacultyId")
+                        .HasColumnType("int");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
@@ -427,9 +488,6 @@ namespace Licenta.Migrations
                     b.Property<string>("PhotoPath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Specialization")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
@@ -437,6 +495,8 @@ namespace Licenta.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FacultyId");
 
                     b.HasIndex("UserId");
 
@@ -550,22 +610,6 @@ namespace Licenta.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "bf175c74-eda1-4744-ab9e-7a6ac7ceb2b7",
-                            ConcurrencyStamp = "4fbe9997-8ac8-4c71-b2d1-4fab73f42e79",
-                            Name = "Student",
-                            NormalizedName = "STUDENT"
-                        },
-                        new
-                        {
-                            Id = "4ff076bd-08e4-428a-bd19-da0a68f91d59",
-                            ConcurrencyStamp = "b09731f1-b339-4d09-b8c2-63e22cfa0c8b",
-                            Name = "Company",
-                            NormalizedName = "COMPANY"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -857,9 +901,15 @@ namespace Licenta.Migrations
 
             modelBuilder.Entity("Licenta.Models.Student", b =>
                 {
+                    b.HasOne("Licenta.Models.Faculty", "Faculty")
+                        .WithMany("Students")
+                        .HasForeignKey("FacultyId");
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Faculty");
 
                     b.Navigation("User");
                 });
@@ -1011,6 +1061,11 @@ namespace Licenta.Migrations
             modelBuilder.Entity("Licenta.Models.Company", b =>
                 {
                     b.Navigation("Internships");
+                });
+
+            modelBuilder.Entity("Licenta.Models.Faculty", b =>
+                {
+                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("Licenta.Models.ForeignLanguage", b =>

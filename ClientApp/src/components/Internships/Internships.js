@@ -12,10 +12,12 @@ import { getCitiesOptions } from "../Utility/Utility";
 import SearchIcon from "@material-ui/icons/Search";
 import { TextField, InputAdornment } from "@material-ui/core";
 import { useIsStudent } from "../Authentication/Authentication";
+import OldTabMenu from "../Universal/OldTabMenu";
 import TabMenu from "../Universal/TabMenu";
 import "../Universal/CircleButton.css";
 import { fetchInternships, selectAllInternships } from "../internship/internshipsSlice";
 import { useDispatch, useSelector } from "react-redux";
+import Pagination from "@material-ui/lab/Pagination";
 
 const customStyles = {
   control: (base, state) => ({
@@ -68,7 +70,9 @@ const Internships = () => {
     currentCity: "",
   });
   const isStudent = useIsStudent();
-  const internships = useSelector(selectAllInternships);
+  const internships = useSelector((state) =>
+    state.internships.items.filter((item) => item.status === "approved")
+  );
   const dispatch = useDispatch();
   const status = useSelector((state) => state.internships.status);
   const error = useSelector((state) => state.internships.error);
@@ -84,9 +88,7 @@ const Internships = () => {
       let search = location.search;
       search = search.substring(1);
       let searchJSON = qs.parse(search);
-      console.log("Egal cu sir vid", search === "");
       console.log(search);
-      console.log(searchJSON);
       if (search !== "") {
         setInput({ ...input, search: searchJSON.searchString });
         setInput({ ...input, currentSearch: searchJSON.searchString });
@@ -111,13 +113,11 @@ const Internships = () => {
         setInput({ ...input, currentCity: "" });
       }
 
-      console.log(input);
-
       const companiesResponse = await fetch("api/companies");
       let companiesData = [];
       if (companiesResponse.ok) companiesData = await companiesResponse.json();
 
-      const internshipsResponse = await fetch("api/internships/?" + search);
+      const internshipsResponse = await fetch("api/internships/approved/?" + search);
       let internshipsData = [];
       if (internshipsResponse.ok) internshipsData = await internshipsResponse.json();
       console.log(internshipsData);
@@ -198,6 +198,7 @@ const Internships = () => {
 
     setCurrentInternships(currentInternshipsData);
     setPageNumbers(pageNumbersData);
+    setSubmitted(true);
   };
   const btnIncrementClick = () => {
     setUpperPageBound(upperPageBound + pageBound);
@@ -207,6 +208,7 @@ const Internships = () => {
     setCurrentPage(listid);
 
     setPrevAndNextBtnClass(listid);
+    setSubmitted(true);
   };
   const btnDecrementClick = () => {
     setUpperPageBound(upperPageBound - pageBound);
@@ -215,6 +217,7 @@ const Internships = () => {
     let listid = upperPageBound - pageBound;
     setCurrentPage(listid);
     setPrevAndNextBtnClass(listid);
+    setSubmitted(true);
   };
   const btnPrevClick = () => {
     if ((currentPage - 1) % pageBound === 0) {
@@ -224,6 +227,7 @@ const Internships = () => {
     let listid = currentPage - 1;
     setCurrentPage(listid);
     setPrevAndNextBtnClass(listid);
+    setSubmitted(true);
   };
   const btnNextClick = () => {
     if (currentPage + 1 > upperPageBound) {
@@ -233,13 +237,17 @@ const Internships = () => {
     let listid = currentPage + 1;
     setCurrentPage(listid);
     setPrevAndNextBtnClass(listid);
+    setSubmitted(true);
   };
 
   const handleQuerySubmit = (event) => {
     event.preventDefault();
+    setInput({ ...input, search: input.currentSearch });
+    if (input.currentCity.value !== undefined)
+      setInput({ ...input, city: input.currentCity });
+
     console.log(input);
     if (input.currentSearch !== "" || input.currentCity.value !== undefined) {
-      console.log(input.currentCity.value ?? "UNDEFINED");
       let city = "";
       if (input.currentCity.value !== undefined) city = input.currentCity.value;
       let url =
@@ -331,16 +339,19 @@ const Internships = () => {
       <br />
       <div className="container">
         <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4">
-          {currentInternships.map((internship) => (
-            <div key={internship.id} className="mb-3 col">
-              <div className="card">
-                <InternshipCard
-                  internshipId={internship.id}
-                  companyId={internship.companyId}
-                />
-              </div>
-            </div>
-          ))}
+          {currentInternships.map(
+            (internship) =>
+              internship.status === "approved" && (
+                <div key={internship.id} className="mb-3 col">
+                  <div className="card">
+                    <InternshipCard
+                      internshipId={internship.id}
+                      companyId={internship.companyId}
+                    />
+                  </div>
+                </div>
+              )
+          )}
         </div>
       </div>
 
@@ -424,6 +435,8 @@ const Internships = () => {
           )}
         </ul>
       </div>
+
+      <Pagination count={10} variant="outlined" />
     </>
   ) : (
     <Loading />

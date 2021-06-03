@@ -30,8 +30,10 @@ const Login = () => {
       console.log(user);
       if (user !== null && user.role === "Company") {
         history.push("/companyprofile");
-      } else {
+      } else if (user != null && user.role === "Student") {
         history.push("/internships");
+      } else if (user != null && user.role === "Admin") {
+        history.push("/");
       }
     } catch (error) {
       setError(error.message);

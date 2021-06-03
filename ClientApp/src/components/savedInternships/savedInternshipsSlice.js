@@ -11,6 +11,8 @@ export const fetchSavedInternships = createAsyncThunk(
   "savedInternships/fetchSavedInternships",
   async (studentId) => {
     const response = await axios.get("api/savedStudentInternships/student/" + studentId);
+    console.log(response.status.ok);
+    console.log(response);
     return response.data;
   }
 );

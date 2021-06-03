@@ -7,10 +7,12 @@ import * as Icon from "react-bootstrap-icons";
 import { getForeignLanguagesOptions } from "../../Utility/Utility";
 import Select from "react-select";
 import ForeignLanguage from "../../Universal/SelectElement";
+import CreateIcon from "@material-ui/icons/Create";
 
 const ForeignLanguagesForm = ({ studentId }) => {
   const [student, setStudent] = useState(null);
   const [input, setInput] = useState({
+    studentForeignLanguages: [],
     studentForeignLanguagesAux: [],
     foreignlanguageIdsToDelete: [],
     foreignlanguageIdsToInsert: [],
@@ -191,37 +193,35 @@ const ForeignLanguagesForm = ({ studentId }) => {
   return !loading ? (
     <>
       <div
-        className="container input-div"
-        style={{
-          padding: 10,
-          paddingRight: 25,
-          paddingLeft: 25,
-          width: "850",
-        }}
+        className="rounded input-div row p-2 ml-2 mr-2 pen-icon-parent"
         onClick={(event) => {
           setIsOpen(true);
         }}
       >
-        <div className="row">
-          <div
-            className="col-xs"
+        <div className="col-md-3 mr-2">
+          <div className="row justify-content-end">Limbi străine</div>
+        </div>
+        <div
+          className="col-md-7"
+          style={{
+            display: "inline-block",
+            whiteSpace: "pre-line",
+          }}
+        >
+          <b
             style={{
               display: "inline-block",
-              whiteSpace: "pre-line",
             }}
           >
-            <b
-              style={{
-                display: "inline-block",
-              }}
-            >
-              {input.studentForeignLanguages !== []
-                ? input.studentForeignLanguages
-                    .map((foreignlanguage) => foreignlanguage.name)
-                    .join(", ")
-                : ""}
-            </b>
-          </div>
+            {input.studentForeignLanguages !== []
+              ? input.studentForeignLanguages
+                  .map((foreignlanguage) => foreignlanguage.name)
+                  .join(", ")
+              : ""}
+          </b>
+        </div>
+        <div className="hide">
+          <CreateIcon className="pen-icon" />
         </div>
       </div>
       <Modal show={isOpen} onHide={handleClose}>

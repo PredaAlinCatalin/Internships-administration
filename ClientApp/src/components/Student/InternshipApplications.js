@@ -7,7 +7,8 @@ import { Avatar, Paper } from "@material-ui/core";
 import { withRouter } from "react-router-dom";
 import { createMuiTheme } from "@material-ui/core/styles";
 import TabMenu from "../Universal/TabMenu";
-
+import OldTabMenu from "../Universal/OldTabMenu";
+import { getFormattedDateNoTime } from "../Utility/Utility";
 const theme = createMuiTheme({
   typography: {
     fontFamily: [
@@ -101,7 +102,7 @@ class InternshipApplications extends Component {
   renderInternshipApplicationsHeader = (studentInternship, status) => {
     return (
       <>
-        <td className="col-7">
+        <td className="col-4">
           <div className="container">
             <div className="row">
               <div className="column">
@@ -183,9 +184,13 @@ class InternshipApplications extends Component {
           </div>
         </td>
 
-        <td className="col-3">{studentInternship.applicationDate}</td>
+        <td className="col-2">
+          {getFormattedDateNoTime(studentInternship.applicationDate)}
+        </td>
 
         <td className="col-2">{status}</td>
+
+        <td className="col-4">{studentInternship.companyFeedback}</td>
       </>
     );
   };
@@ -194,81 +199,77 @@ class InternshipApplications extends Component {
     return (
       <>
         <TabMenu />
+        <br />
 
         {this.state.studentInternships.length > 0 ? (
           <div>
-            <div className="m-3">
-              <h5 className="text-center">Aplicările tale la stagii</h5>
-              <br />
-              <Paper>
-                <div className="container p-3 pb-2">
-                  <div className="table-responsive"></div>
-                  <table aria-labelledby="tabelLabel" className="table table-hover">
-                    <thead>
-                      <tr className="d-flex">
-                        <th className="col-7">Stagiu</th>
-                        <th className="col-3">Data aplicării</th>
-                        <th className="col-2">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {this.state.studentInternships !== []
-                        ? this.state.studentInternships.map((studentInternship) => (
-                            <tr className="d-flex">
-                              {studentInternship.status ===
-                                StudentInternshipStatus.accepted &&
-                              checkDateIsPast(
-                                this.getInternship(studentInternship.internshipId)
-                                  .deadline
-                              )
-                                ? this.renderInternshipApplicationsHeader(
-                                    studentInternship,
-                                    "accepted"
-                                  )
-                                : null}
-                            </tr>
-                          ))
-                        : ""}
-                      {this.state.studentInternships !== []
-                        ? this.state.studentInternships.map((studentInternship) => (
-                            <tr className="d-flex">
-                              {studentInternship.status ===
-                                StudentInternshipStatus.pending ||
-                              !checkDateIsPast(
-                                this.getInternship(studentInternship.internshipId)
-                                  .deadline
-                              )
-                                ? this.renderInternshipApplicationsHeader(
-                                    studentInternship,
-                                    "pending"
-                                  )
-                                : null}
-                            </tr>
-                          ))
-                        : ""}
+            <Paper className="p-3 ml-3 mr-3">
+              <h5 className="text-center">Aplicări la stagii</h5>
+              <div className="container p-3 pb-2">
+                <div className="table-responsive"></div>
+                <table aria-labelledby="tabelLabel" className="table table-hover">
+                  <thead>
+                    <tr className="d-flex">
+                      <th className="col-4">Stagiu</th>
+                      <th className="col-2">Data aplicării</th>
+                      <th className="col-2">Status</th>
+                      <th className="col-4">Feedback</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {studentInternship.status ===
+                              StudentInternshipStatus.accepted &&
+                            checkDateIsPast(
+                              this.getInternship(studentInternship.internshipId).deadline
+                            )
+                              ? this.renderInternshipApplicationsHeader(
+                                  studentInternship,
+                                  "accepted"
+                                )
+                              : null}
+                          </tr>
+                        ))
+                      : ""}
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {studentInternship.status ===
+                              StudentInternshipStatus.pending ||
+                            !checkDateIsPast(
+                              this.getInternship(studentInternship.internshipId).deadline
+                            )
+                              ? this.renderInternshipApplicationsHeader(
+                                  studentInternship,
+                                  "pending"
+                                )
+                              : null}
+                          </tr>
+                        ))
+                      : ""}
 
-                      {this.state.studentInternships !== []
-                        ? this.state.studentInternships.map((studentInternship) => (
-                            <tr className="d-flex">
-                              {studentInternship.status ===
-                                StudentInternshipStatus.refused &&
-                              checkDateIsPast(
-                                this.getInternship(studentInternship.internshipId)
-                                  .deadline
-                              )
-                                ? this.renderInternshipApplicationsHeader(
-                                    studentInternship,
-                                    "refused"
-                                  )
-                                : null}
-                            </tr>
-                          ))
-                        : ""}
-                    </tbody>
-                  </table>
-                </div>
-              </Paper>
-            </div>
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {studentInternship.status ===
+                              StudentInternshipStatus.refused &&
+                            checkDateIsPast(
+                              this.getInternship(studentInternship.internshipId).deadline
+                            )
+                              ? this.renderInternshipApplicationsHeader(
+                                  studentInternship,
+                                  "refused"
+                                )
+                              : null}
+                          </tr>
+                        ))
+                      : ""}
+                  </tbody>
+                </table>
+              </div>
+            </Paper>
           </div>
         ) : (
           <div className="text-center text-muted">

@@ -1,42 +1,46 @@
 import { TextField, Button } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
-import { Form } from "react-bootstrap";
+import { Form } from "reactstrap";
 import "./Profile.css";
 import * as Icon from "react-bootstrap-icons";
-import axios from "axios";
+import { fetchStudents, selectStudentById, updateStudent } from "../studentsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
+import CreateIcon from "@material-ui/icons/Create";
 
 const PassionsForm = ({ studentId }) => {
-  const [student, setStudent] = useState(null);
   const [input, setInput] = useState({
     passions: "",
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
-  const [errorPassions, setErrorPassions] = useState("");
-  const [validated, setValidated] = useState(false);
+  const student = useSelector((state) =>
+    state.students.items.find((s) => s.id !== undefined && s.id == studentId)
+  );
+  const status = useSelector((state) => state.students.status);
+  const error = useSelector((state) => state.students.error);
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    const populateWithData = async () => {
-      let studentResponse = await fetch("api/students/" + studentId);
-      let studentData = "";
-      if (studentResponse.ok) {
-        studentData = await studentResponse.json();
-        setStudent(studentData);
-        setInput({
-          passions: studentData.passions,
-        });
+    async function populateWithData() {
+      if (status === "idle") {
+        dispatch(fetchStudents());
       }
+      if (status === "succeeded")
+        setInput({
+          passions: student.passions,
+        });
       setLoading(false);
-    };
+    }
     populateWithData();
-  }, []);
+  }, [status, dispatch]);
 
   const handleClose = () => {
     setIsOpen(false);
     setInput({
       passions: student.passions,
     });
-    setValidated(false);
   };
 
   const handleSubmit = async (event) => {
@@ -47,56 +51,45 @@ const PassionsForm = ({ studentId }) => {
       passions: input.passions,
     };
 
-    let aux = "api/students/" + studentId;
-    await axios
-      .put(aux, modifiedStudent)
-      .then((response) => {
-        setStudent({
-          ...student,
-          passions: input.passions,
-        });
-        setIsOpen(false);
-      })
-      .catch((error) => {
-        if (error.response) {
-          let allErrors = error.response.data.errors;
-          if (allErrors.Passions !== undefined)
-            setErrorPassions(allErrors.Passions.join(", "));
-
-          setValidated(true);
-        }
-      });
+    try {
+      const resultAction = await dispatch(updateStudent(modifiedStudent));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsOpen(false);
+    }
   };
 
-  const handlePassionsChange = (event) => {
-    setInput({ ...input, passions: event.target.value });
-    setValidated(false);
-  };
-
-  return !loading ? (
+  return !loading && status === "succeeded" ? (
     <>
       <div
-        className="rounded col input-div"
-        style={{
-          marginTop: 10,
-          padding: 10,
-          paddingRight: 25,
-          paddingLeft: 25,
-          width: "850",
+        className="rounded input-div row p-2 ml-2 mr-2 pen-icon-parent"
+        onClick={(event) => {
+          setIsOpen(true);
         }}
-        onClick={() => setIsOpen(true)}
       >
-        <div style={{}} className="row">
-          <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
-            <b
-              style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-              }}
-            >
-              {student.passions}
-            </b>
-          </div>
+        <div className="col-md-3 mr-2">
+          <div className="row justify-content-end">Pasiuni</div>
+        </div>
+        <div
+          className="col-md-7"
+          style={{
+            display: "inline-block",
+            whiteSpace: "pre-line",
+          }}
+        >
+          <b
+            style={{
+              display: "inline-block",
+            }}
+          >
+            {student.passions}
+          </b>
+        </div>
+
+        <div className="hide">
+          <CreateIcon className="pen-icon" />
         </div>
       </div>
 
@@ -104,22 +97,18 @@ const PassionsForm = ({ studentId }) => {
         <Modal.Header closeButton>
           <Modal.Title>Pasiuni</Modal.Title>
         </Modal.Header>
-        <Form noValidate validated={validated}>
+        <Form>
           <Modal.Body>
-            <Form.Group className="col-md-12">
-              <Form.Label>Pasiuni</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                name="passions"
-                value={input.passions}
-                onChange={handlePassionsChange}
-                required={true}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errorPassions}
-              </Form.Control.Feedback>
-            </Form.Group>
+            <TextField
+              label="Pasiuni"
+              style={{ margin: 15 }}
+              placeholder="Pasiuni"
+              fullWidth
+              margin="normal"
+              value={input.passions}
+              onChange={(event) => setInput({ ...input, passions: event.target.value })}
+              required={true}
+            />
           </Modal.Body>
           <Modal.Footer>
             <div>

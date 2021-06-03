@@ -6,6 +6,10 @@ import { Avatar, Paper } from "@material-ui/core";
 import { withRouter } from "react-router-dom";
 import { createMuiTheme } from "@material-ui/core/styles";
 import TabMenu from "../Universal/TabMenu";
+import OldTabMenu from "../Universal/OldTabMenu";
+import { Box, Tooltip } from "@material-ui/core";
+import Rating from "@material-ui/lab/Rating";
+import { getFormattedDateNoTime } from "../Utility/Utility";
 
 const theme = createMuiTheme({
   typography: {
@@ -33,7 +37,9 @@ class InternshipHistory extends Component {
       companies: [],
       cities: [],
       loading: true,
-      reviewGrade: 0,
+      reviews: [],
+      userId: "",
+      userRole: "",
     };
   }
 
@@ -43,6 +49,8 @@ class InternshipHistory extends Component {
 
   async populateInternshipHistoryData() {
     let user = JSON.parse(sessionStorage.getItem("user"));
+    if (user !== null && user.role === "Student")
+      this.setState({ userId: user.id, userRole: user.role });
 
     var studentInternshipsData = [];
 
@@ -63,14 +71,12 @@ class InternshipHistory extends Component {
         );
       }
 
-      const reviewResponse = await fetch(
+      const reviewsResponse = await fetch(
         "api/studentInternshipreviews/student/" + user.id
       );
-      if (reviewResponse.ok) {
-        const reviewData = await reviewResponse.json();
-        this.setState({
-          reviewGrade: reviewData.grade,
-        });
+      if (reviewsResponse.ok) {
+        const reviewsData = await reviewsResponse.json();
+        this.setState({ reviews: reviewsData });
       }
     }
 
@@ -119,10 +125,16 @@ class InternshipHistory extends Component {
       if (this.state.cities[i].id === id) return this.state.cities[i];
   };
 
+  getReview = (internshipId) => {
+    return this.state.reviews.find(
+      (r) => r.internshipId === internshipId && r.studentId == this.state.userId
+    );
+  };
+
   renderInternshipHistoryHeader = (studentInternship) => {
     return (
       <>
-        <td className="col-7">
+        <td className="col-4">
           <div className="container">
             <div className="row">
               <div className="column">
@@ -227,7 +239,39 @@ class InternshipHistory extends Component {
           </div>
         </td>
 
-        <td className="col-3">{studentInternship.applicationDate}</td>
+        <td className="col-2">
+          {getFormattedDateNoTime(studentInternship.applicationDate)}
+        </td>
+
+        <td className="col-2">
+          {this.getReview(studentInternship.internshipId) !== undefined ? (
+            <Tooltip title="Vezi review">
+              <Box
+                component="fieldset"
+                // mb={3}
+                borderColor="transparent"
+                onClick={() =>
+                  this.props.history.push(
+                    "/internshipReviews/" + studentInternship.internshipId
+                  )
+                }
+                onMouseOver={(event) => (event.target.style.cursor = "pointer")}
+                onMouseOut={(event) => (event.target.style.cursor = "normal")}
+              >
+                <Rating
+                  name="half-rating-read"
+                  value={this.getReview(studentInternship.internshipId).grade}
+                  precision={0.5}
+                  readOnly
+                />
+              </Box>
+            </Tooltip>
+          ) : (
+            ""
+          )}
+        </td>
+
+        <td className="col-4">{studentInternship.companyFeedback}</td>
       </>
     );
   };
@@ -236,36 +280,35 @@ class InternshipHistory extends Component {
     return (
       <>
         <TabMenu />
+        <br />
 
         {this.state.studentInternships.length > 0 ? (
           <div>
-            <h5 className="text-center">Istoricul stagiilor tale</h5>
-            <br />
-            <div className="m-3">
-              <Paper>
-                <div className="container p-3 pb-2">
-                  <div className="table-responsive"></div>
-                  <table aria-labelledby="tabelLabel" className="table table-hover">
-                    <thead>
-                      <tr className="d-flex">
-                        <th className="col-7">Stagiu</th>
-                        <th className="col-3">Data aplicării</th>
-                        <th className="col-2">Review-ul tău</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {this.state.studentInternships !== []
-                        ? this.state.studentInternships.map((studentInternship) => (
-                            <tr className="d-flex">
-                              {this.renderInternshipHistoryHeader(studentInternship)}
-                            </tr>
-                          ))
-                        : ""}
-                    </tbody>
-                  </table>
-                </div>
-              </Paper>
-            </div>
+            <Paper className="p-3 ml-3 mr-3">
+              <h5 className="text-center">Istoricul stagiilor</h5>
+              <div className="container p-3 pb-2">
+                <div className="table-responsive"></div>
+                <table aria-labelledby="tabelLabel" className="table table-hover">
+                  <thead>
+                    <tr className="d-flex">
+                      <th className="col-4">Stagiu</th>
+                      <th className="col-2">Data aplicării</th>
+                      <th className="col-2">Review-ul tău</th>
+                      <th className="col-4">Feedback companie</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {this.state.studentInternships !== []
+                      ? this.state.studentInternships.map((studentInternship) => (
+                          <tr className="d-flex">
+                            {this.renderInternshipHistoryHeader(studentInternship)}
+                          </tr>
+                        ))
+                      : ""}
+                  </tbody>
+                </table>
+              </div>
+            </Paper>
           </div>
         ) : (
           <div className="text-center text-muted">

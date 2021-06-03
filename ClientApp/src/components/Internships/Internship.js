@@ -26,6 +26,12 @@ import { Paper } from "@material-ui/core";
 
 import { useIsStudent, useIsCompany } from "../Authentication/Authentication";
 import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {
+  addSavedInternship,
+  deleteSavedInternship,
+} from "../savedInternships/savedInternshipsSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -52,6 +58,9 @@ const Internship = ({ internshipId }) => {
   const isStudent = useIsStudent();
   const isCompany = useIsCompany();
   const history = useHistory();
+  const dispatch = useDispatch();
+  const [addRequestStatus, setAddRequestStatus] = useState("idle");
+  const [deleteRequestStatus, setDeleteRequestStatus] = useState("idle");
 
   useEffect(() => {
     async function populateInternshipData() {
@@ -149,7 +158,7 @@ const Internship = ({ internshipId }) => {
   }, []);
 
   const handleStudentInternshipCreate = async () => {
-    let currentDate = getFormattedDate(new Date());
+    let currentDate = new Date();
 
     let newStudentInternship = {
       studentId: userId,
@@ -273,31 +282,36 @@ const Internship = ({ internshipId }) => {
       studentId: userId,
     };
 
-    console.log(body);
-
-    await fetch("api/savedStudentInternships", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    }).then((res) => {
-      if (res.ok) setIsSaved(true);
-      console.log("saved");
-    });
+    try {
+      setAddRequestStatus("pending");
+      const resultAction = await dispatch(addSavedInternship(body));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setAddRequestStatus("idle");
+      setIsSaved(true);
+    }
   };
 
   const handleSavedStudentInternshipDelete = async (event) => {
     event.stopPropagation();
-    await fetch(
-      "api/savedStudentInternships/student/" + userId + "/internship/" + internship.id,
-      {
-        method: "DELETE",
-      }
-    ).then((res) => {
-      if (res.ok) setIsSaved(false);
-      console.log("Deleted");
-    });
+
+    const body = {
+      internshipId: internshipId,
+      studentId: userId,
+    };
+
+    try {
+      setDeleteRequestStatus("pending");
+      const resultAction = await dispatch(deleteSavedInternship(body));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleteRequestStatus("idle");
+      setIsSaved(false);
+    }
   };
 
   const renderInternshipHeader = () => {
@@ -346,7 +360,11 @@ const Internship = ({ internshipId }) => {
                       fontSize: 14,
                     }}
                   >
-                    {internship.paid ? "Platit" : "Neplatit"}
+                    {internship.paid ? (
+                      <span>Plătit({internship.salary}RON)</span>
+                    ) : (
+                      "Neplatit"
+                    )}
                   </span>
                   <span
                     style={{

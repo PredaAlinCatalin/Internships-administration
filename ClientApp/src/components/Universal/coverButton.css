@@ -1,0 +1,21 @@
+.cover-container {
+  position: relative;
+  /* width: 100%; */
+}
+
+.cover-container .cover-btn {
+  position: absolute;
+  top: 15%;
+  left: 96%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+}
+
+.cover-container .cover-img {
+  position: absolute;
+  top: 90%;
+  left: 10%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  border: 5px solid white;
+}

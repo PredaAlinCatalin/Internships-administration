@@ -5,9 +5,11 @@ import { Form } from "react-bootstrap";
 import "./Profile.css";
 import * as Icon from "react-bootstrap-icons";
 import axios from "axios";
-import { fetchStudent, selectStudent, updateStudent } from "../studentSlice";
+import { fetchStudents, selectStudentById, updateStudent } from "../studentsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
+import FormatQuoteIcon from "@material-ui/icons/FormatQuote";
+import CreateIcon from "@material-ui/icons/Create";
 
 const PersonalDescriptionForm = ({ studentId }) => {
   const [input, setInput] = useState({
@@ -17,15 +19,17 @@ const PersonalDescriptionForm = ({ studentId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [errorPersonalDescription, setErrorPersonalDescription] = useState("");
   const [validated, setValidated] = useState(false);
-  const student = useSelector(selectStudent);
-  const status = useSelector((state) => state.student.status);
-  const error = useSelector((state) => state.student.error);
+  const student = useSelector((state) =>
+    state.students.items.find((s) => s.id !== undefined && s.id == studentId)
+  );
+  const status = useSelector((state) => state.students.status);
+  const error = useSelector((state) => state.students.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function populateWithData() {
       if (status === "idle") {
-        dispatch(fetchStudent(studentId));
+        dispatch(fetchStudents());
       }
     }
     populateWithData();
@@ -33,6 +37,7 @@ const PersonalDescriptionForm = ({ studentId }) => {
       setInput({
         personalDescription: student.personalDescription,
       });
+    setLoading(false);
   }, [status, dispatch]);
 
   const handleClose = () => {
@@ -66,30 +71,26 @@ const PersonalDescriptionForm = ({ studentId }) => {
     setValidated(false);
   };
 
-  return status === "succeeded" ? (
+  return !loading && status === "succeeded" ? (
     <>
       <div
-        className="rounded col input-div"
-        style={{
-          marginTop: 10,
-          padding: 10,
-          paddingRight: 25,
-          paddingLeft: 25,
-          width: "850",
-        }}
+        className="rounded input-div row justify-content-center m-2 p-3 pen-icon-parent"
         onClick={() => setIsOpen(true)}
       >
-        <div style={{}} className="row">
-          <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
-            <b
-              style={{
-                wordBreak: "break-all",
-                wordWrap: "break-word",
-              }}
-            >
-              {student.personalDescription}
-            </b>
-          </div>
+        <div style={{ whiteSpace: "pre-line" }}>
+          <span
+            style={{
+              wordBreak: "break-all",
+              wordWrap: "break-word",
+            }}
+          >
+            <FormatQuoteIcon style={{ color: "gray" }} />
+            {student.personalDescription}
+            <FormatQuoteIcon style={{ color: "gray" }} />
+          </span>
+        </div>
+        <div className="hide">
+          <CreateIcon className="pen-icon" />
         </div>
       </div>
 

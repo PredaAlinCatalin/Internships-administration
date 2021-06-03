@@ -3,34 +3,64 @@ import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { Form } from "reactstrap";
 import "./Profile.css";
-import { fetchStudent, selectStudent, updateStudent } from "../studentSlice";
+import { fetchStudents, selectStudentById, updateStudent } from "../studentsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
-
+import CreateIcon from "@material-ui/icons/Create";
+import axios from "axios";
+import { getSelectOptions } from "../../Utility/Utility";
+import Select from "react-select";
 const FacultyForm = ({ studentId }) => {
   const [input, setInput] = useState({
-    faculty: "",
-    specialization: "",
-    year: ""
+    year: 0,
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
-  const student = useSelector(selectStudent);
-  const status = useSelector((state) => state.student.status);
-  const error = useSelector((state) => state.student.error);
+  const [faculties, setFaculties] = useState([]);
+  const [facultiesOptions, setFacultiesOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const student = useSelector((state) =>
+    state.students.items.find((s) => s.id !== undefined && s.id == studentId)
+  );
+  const status = useSelector((state) => state.students.status);
+  const error = useSelector((state) => state.students.error);
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function populateWithData() {
+      let facultiesData = [];
+      await axios
+        .get("api/faculties")
+        .then((response) => {
+          setFaculties(response.data);
+          facultiesData = response.data;
+          setFacultiesOptions(getSelectOptions(response.data));
+        })
+        .catch((error) => console.log(error));
+
       if (status === "idle") {
-        dispatch(fetchStudent(studentId));
+        dispatch(fetchStudents());
       }
-      if (status === "succeeded")
+      if (status === "succeeded") {
+        console.log(student);
         setInput({
-          faculty: student.faculty,
-    specialization: student.specialization,
-    year: student.year
+          facultyId: student.facultyId,
+          year: student.year,
         });
+        let faculty = facultiesData.find((f) => f.id === student.facultyId);
+        console.log(facultiesData);
+        console.log(student.facultyId);
+        console.log(typeof facultiesData[0].id);
+        console.log(typeof student.facultyId);
+        console.log(faculty);
+        if (faculty !== undefined) {
+          setSelectedOption({
+            value: faculty.id,
+            label: faculty.name,
+          });
+        }
+        setLoading(false);
+      }
     }
     populateWithData();
   }, [status, dispatch]);
@@ -38,10 +68,15 @@ const FacultyForm = ({ studentId }) => {
   const handleClose = () => {
     setIsOpen(false);
     setInput({
-      faculty: student.faculty,
-    specialization: student.specialization,
-    year: student.year
+      year: student.year,
     });
+    let faculty = faculties.find((f) => f.facultyId === student.facultyId);
+    if (faculty !== undefined) {
+      setSelectedOption({
+        value: faculty.id,
+        label: faculty.name,
+      });
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -49,9 +84,8 @@ const FacultyForm = ({ studentId }) => {
 
     let modifiedStudent = {
       ...student,
-      faculty: input.faculty,
-    specialization: input.specialization,
-    year: input.year
+      year: input.year,
+      facultyId: selectedOption.value,
     };
 
     try {
@@ -64,41 +98,27 @@ const FacultyForm = ({ studentId }) => {
     }
   };
 
-  return status === "succeeded" ? (
+  return !loading && status === "succeeded" ? (
     <>
       <div
-        className="rounded col input-div"
-        style={{
-          padding: 10,
-          paddingRight: 25,
-          paddingLeft: 25,
-          width: "850",
-        }}
+        className="rounded col input-div pen-icon-parent p-2"
         onClick={() => {
           setIsOpen(true);
         }}
       >
         <div className="row">
-          <div className="col-xs">Facultate:&nbsp;&nbsp;</div>
-          <div
-            className="col-xs"
-            style={{
-              display: "inline-block",
-              whiteSpace: "pre-line",
-            }}
-          >
-            <b
-              style={{
-                display: "inline-block",
-              }}
-            >
-              {student.faculty}
+          <div className="col-2">Facultate:&nbsp;&nbsp;</div>
+          <div className="col">
+            <b>
+              {selectedOption !== null ? selectedOption.label : ""}
               <br />
-              {student.specialization}
-              {student.year !== 0 ? ", anul" : ""}&nbsp;
-              {student.year !== 0 ? student.year : ""}
+              {student.year != 0 ? "Anul" : ""}&nbsp;
+              {student.year != 0 ? student.year : ""}
             </b>
           </div>
+        </div>
+        <div className="hide">
+          <CreateIcon className="pen-icon" />
         </div>
       </div>
 
@@ -108,28 +128,11 @@ const FacultyForm = ({ studentId }) => {
         </Modal.Header>
         <Form>
           <Modal.Body>
-            <TextField
-              label="Numele facultății"
-              style={{ margin: 15 }}
-              placeholder="Numele facultății"
-              fullWidth
-              margin="normal"
-              value={input.faculty}
-              onChange={(event) => setInput({ ...input, faculty: event.target.value })}
-              required={true}
-            />
-
-            <TextField
-              label="Specializarea"
-              style={{ margin: 15 }}
-              placeholder="Specializarea"
-              fullWidth
-              margin="normal"
-              value={input.specialization}
-              onChange={(event) =>
-                setInput({ ...input, specialization: event.target.value })
-              }
-              required={true}
+            <Select
+              placeholder="Selectează facultate"
+              value={selectedOption}
+              options={facultiesOptions}
+              onChange={(event) => setSelectedOption(event)}
             />
 
             <TextField

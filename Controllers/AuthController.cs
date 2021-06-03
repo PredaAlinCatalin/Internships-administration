@@ -56,7 +56,7 @@ namespace Licenta.Controllers
             {
                 try
                 {
-                    var student = new Student {UserId = user.Id, PhotoPath = "anonymousPhoto.png" };
+                    var student = new Student {UserId = user.Id, PhotoPath = "anonymousPhoto.png", CoverPath = "anonymousCover.png" };
                     _context.Students.Add(student);
                     await _context.SaveChangesAsync();
                 }
@@ -70,7 +70,7 @@ namespace Licenta.Controllers
             {
                 try
                 {
-                    var company = new Company { UserId = user.Id, LogoPath = "anonymousLogo.png" };
+                    var company = new Company { UserId = user.Id, LogoPath = "anonymousLogo.png", CoverPath = "anonymousCover.png" };
                     _context.Companies.Add(company);
                     await _context.SaveChangesAsync();
                 }
@@ -103,7 +103,7 @@ namespace Licenta.Controllers
             }
 
             // Retrieve user data which the front end needs
-            int userId;
+            string userId;
             string userRole;
             if (await _userManager.IsInRoleAsync(user, "Student"))
             {
@@ -112,18 +112,30 @@ namespace Licenta.Controllers
                             where s.UserId == user.Id
                             select s.Id;
 
-                userId = await query.FirstAsync();
+                userId = (await query.FirstAsync()).ToString();
                 userRole = "Student";
             }
             else if (await _userManager.IsInRoleAsync(user, "Company"))
             {
                 // Return the ID of this student to the front end
-                var query = from s in _context.Companies
-                            where s.UserId == user.Id
-                            select s.Id;
+                //var query = from s in _context.Companies
+                //            where s.UserId == user.Id
+                //            select s.Id;
 
-                userId = await query.FirstAsync();
+                //userId = (await query.FirstAsync()).ToString();
+                //userRole = "Company";
+
+                var companyId = await _context.Companies
+                                            .Where(c => c.UserId == user.Id)
+                                            .Select(c => c.Id)
+                                            .SingleOrDefaultAsync();
+                userId = companyId.ToString();
                 userRole = "Company";
+            }
+            else if (await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                userId = user.Id;
+                userRole = "Admin";
             }
             else
             {

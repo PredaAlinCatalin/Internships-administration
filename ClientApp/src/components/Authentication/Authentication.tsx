@@ -9,6 +9,7 @@ import React, { createContext, useContext, useState } from "react";
 export enum UserRole {
   Student = "Student",
   Company = "Company",
+  Admin = "Admin",
 }
 
 /**
@@ -108,7 +109,6 @@ const useProvideAuthentication = () => {
     if (response.ok) {
       const user = undefined;
       sessionStorage.removeItem("user");
-
       setUser(user);
     }
   };
@@ -137,4 +137,9 @@ export const useIsStudent = () => {
 export const useIsCompany = () => {
   const auth = useAuthentication();
   return auth.user?.role === UserRole.Company;
+};
+
+export const useIsAdmin = () => {
+  const auth = useAuthentication();
+  return auth.user?.role === UserRole.Admin;
 };

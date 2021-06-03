@@ -41,9 +41,6 @@ namespace Licenta.Controllers
                     result.Add(studentInternship);
             }
 
-            if (result.Count() == 0)
-                return NotFound();
-
             return result;
         }
 
@@ -59,9 +56,6 @@ namespace Licenta.Controllers
                 if (studentInternship.InternshipId == id)
                     result.Add(studentInternship);
             }
-
-            if (result.Count() == 0)
-                return NotFound();
 
             return result;
         }

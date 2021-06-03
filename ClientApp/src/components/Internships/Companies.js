@@ -52,7 +52,8 @@ class Companies extends Component {
         {this.state.companies.map((company, index) => (
           <span key={index} className="mr-3">
             <img
-              width="250"
+              width="200"
+              height="200"
               alt="picture"
               src={"logos/" + company.logoPath}
               onMouseOver={(e) => (e.target.style.cursor = "pointer")}

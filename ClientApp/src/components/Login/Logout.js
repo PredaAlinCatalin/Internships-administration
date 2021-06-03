@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useAuthentication } from "../Authentication/Authentication";
 import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const Logout = () => {
   const [error, setError] = useState("");
   const auth = useAuthentication();
   const history = useHistory();
+  const dispatch = useDispatch();
   useEffect(() => {
     async function LogoutFunction() {
       try {
         await auth.signOut("/auth/logout");
+        console.log("before logout");
+        dispatch({ type: "USER_LOGOUT", payload: {} });
+        console.log("after logout");
         history.push("/login");
       } catch (error) {
         const response = error?.response;
@@ -23,7 +28,7 @@ const Logout = () => {
       }
     }
     LogoutFunction();
-  }, []);
+  }, [dispatch]);
   return (
     <div
       style={{

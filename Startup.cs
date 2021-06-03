@@ -17,6 +17,7 @@ using System.IO;
 using System;
 using System.Linq;
 using Licenta.Repositories;
+using System.Threading.Tasks;
 
 namespace Licenta
 {
@@ -92,9 +93,9 @@ namespace Licenta
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext context)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            //CreateRoles(context);
+            CreateRoles(serviceProvider).Wait();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -142,26 +143,47 @@ namespace Licenta
 
         }
 
-        private static void CreateRoles(ApplicationDbContext context)
+        private async Task CreateRoles(IServiceProvider serviceProvider)
         {
-            // Initialize custom roles
-            string[] roleNames = { "Student", "Company" };
+            //initializing custom roles 
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            string[] roleNames = { "Admin", "Student", "Company" };
+            IdentityResult roleResult;
 
             foreach (var roleName in roleNames)
             {
-                var roleExists = context.Roles.Where(r => r.Name == roleName).Any();
-                if (!roleExists)
+                var roleExist = await RoleManager.RoleExistsAsync(roleName);
+                // ensure that the role does not exist
+                if (!roleExist)
                 {
-                    // Create the role and add it to the database
-                    var role = new IdentityRole(roleName)
-                    {
-                        NormalizedName = roleName.ToUpper()
-                    };
-                    context.Roles.Add(role);
+                    //create the roles and seed them to the database: 
+                    roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
 
-            context.SaveChanges();
+            // find the user with the admin email 
+            var _user = await UserManager.FindByEmailAsync("admin@email.com");
+
+            // check if the user exists
+            if (_user == null)
+            {
+                //Here you could create the super admin who will maintain the web app
+                var poweruser = new IdentityUser
+                {
+                    UserName = "Admin",
+                    Email = "admin@email.com",
+                };
+                string adminPassword = "1234aA!";
+
+                var createPowerUser = await UserManager.CreateAsync(poweruser, adminPassword);
+                if (createPowerUser.Succeeded)
+                {
+                    //here we tie the new user to the role
+                    await UserManager.AddToRoleAsync(poweruser, "Admin");
+
+                }
+            }
         }
 
     }

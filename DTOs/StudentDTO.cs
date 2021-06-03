@@ -11,15 +11,15 @@ namespace Licenta.DTOs
         public int Id { get; set; }
         public string LastName { get; set; }
         public string FirstName { get; set; }
-        public string Faculty { get; set; }
-        public string Specialization { get; set; }
         public int Year { get; set; }
         public double AnnualAverage { get; set; }
         public string PersonalDescription { get; set; }
         public string PhotoPath { get; set; }
+        public string CoverPath { get; set; }
         public string Passions { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public string UserId { get; set; }
+        public int? FacultyId { get; set; }
     }
 }

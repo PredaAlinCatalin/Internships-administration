@@ -4,28 +4,30 @@ import { Modal } from "react-bootstrap";
 import { Form } from "reactstrap";
 import "./Profile.css";
 import { Link } from "react-router-dom";
+import { fetchStudents, selectStudentById, updateStudent } from "../studentsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const PhotoForm = ({ studentId }) => {
-  const [student, setStudent] = useState(null);
   const [input, setInput] = useState({
     path: "",
     data: "",
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const student = useSelector((state) =>
+    state.students.items.find((s) => s.id !== undefined && s.id == studentId)
+  );
+  const status = useSelector((state) => state.students.status);
+  const error = useSelector((state) => state.students.error);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const populateWithData = async () => {
-      let studentResponse = await fetch("api/students/" + studentId);
-      let studentData = "";
-      if (studentResponse.ok) {
-        studentData = await studentResponse.json();
-        setStudent(studentData);
-        setInput({
-          data: "",
-          path: studentData.photoPath,
-        });
+      if (status === "idle") {
+        dispatch(fetchStudents());
       }
+
       setLoading(false);
     };
     populateWithData();
@@ -42,7 +44,7 @@ const PhotoForm = ({ studentId }) => {
     formSubmitEvent.preventDefault();
 
     let modifiedStudent = null;
-    await fetch("api/students/savefile/" + student.id, {
+    await fetch("api/students/savephoto/" + student.id, {
       method: "POST",
       body: input.data,
     })
@@ -50,7 +52,6 @@ const PhotoForm = ({ studentId }) => {
       .then(
         (result) => {
           setInput({ ...input, path: result });
-          setStudent({ ...student, photoPath: result });
           modifiedStudent = { ...student, photoPath: result };
         },
         (error) => {
@@ -58,19 +59,14 @@ const PhotoForm = ({ studentId }) => {
         }
       );
 
-    var aux = "api/students/" + student.id;
-    await fetch(aux, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(modifiedStudent),
-    }).then((res) => {
-      if (res.ok) {
-        setIsOpen(false);
-      }
-    });
+    try {
+      const resultAction = await dispatch(updateStudent(modifiedStudent));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsOpen(false);
+    }
   };
 
   const handleChange = (event) => {
@@ -104,19 +100,19 @@ const PhotoForm = ({ studentId }) => {
     handleFiles(event.target.files[0]);
   };
 
-  return !loading ? (
+  return !loading && status === "succeeded" ? (
     <>
-      <Link to="#">
-        <img
-          width="200"
-          height="200"
-          alt="photo"
-          src={"photos/" + student.photoPath}
-          onClick={() => {
-            setIsOpen(true);
-          }}
-        />
-      </Link>
+      <img
+        width="200"
+        height="200"
+        alt="photo"
+        src={"photos/" + student.photoPath}
+        onMouseOver={(event) => (event.target.style.cursor = "pointer")}
+        onMouseOut={(event) => (event.target.style.cursor = "normal")}
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      />
 
       <Modal show={isOpen} onHide={handleClose}>
         <Modal.Header closeButton>

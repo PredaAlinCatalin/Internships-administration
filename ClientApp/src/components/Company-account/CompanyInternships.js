@@ -1,172 +1,249 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import * as Icon from "react-bootstrap-icons";
-import { withRouter, Link } from "react-router-dom";
+import { withRouter, Link, useHistory } from "react-router-dom";
 import Loading from "../Universal/Loading";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
+import "./CompanyInternships.css";
+import Tooltip from "@material-ui/core/Tooltip";
+import TabMenuCompany from "./TabMenuCompany";
+import {
+  fetchInternships,
+  selectAllInternships,
+  deleteInternship,
+  updateInternship,
+} from "../internship/internshipsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
+import { getFormattedDateNoTime } from "../Utility/Utility";
+import { v4 as uuidv4 } from "uuid";
 
-class CompanyInternships extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      internships: [],
-      cities: [],
-      loading: true,
-    };
-    this.renderCompanyInternshipsData = this.renderCompanyInternshipsData.bind(this);
-  }
+const CompanyInternships = ({ internshipStatus }) => {
+  const [company, setCompany] = useState("");
+  const [cities, setCities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const history = useHistory();
+  const internships = useSelector(selectAllInternships);
+  const dispatch = useDispatch();
+  const status = useSelector((state) => state.internships.status);
+  const error = useSelector((state) => state.internships.error);
+  const [deleteRequestStatus, setDeleteRequestStatus] = useState("idle");
+  const [updateRequestStatus, setUpdateRequestStatus] = useState("idle");
+  useEffect(() => {
+    async function populateCompanyInternshipsData() {
+      let user = JSON.parse(sessionStorage.getItem("user"));
 
-  componentDidMount() {
-    this.populateCompanyInternshipsData();
-  }
+      let companyData = "";
+      const companyResponse = await fetch("api/companies/" + user.id);
+      if (companyResponse.ok) companyData = await companyResponse.json();
 
-  async populateCompanyInternshipsData() {
-    let user = JSON.parse(sessionStorage.getItem("user"));
+      if (status === "idle") dispatch(fetchInternships());
 
-    const internshipsResponse = await fetch("api/internships/company/" + user.id);
-    var internshipsData = [];
-    if (internshipsResponse.ok) internshipsData = await internshipsResponse.json();
+      const citiesResponse = await fetch("api/cities");
+      var citiesData = [];
+      if (citiesResponse.ok) citiesData = await citiesResponse.json();
 
-    const citiesResponse = await fetch("api/cities");
-    var citiesData = [];
-    if (citiesResponse.ok) citiesData = await citiesResponse.json();
+      setCompany(companyData);
+      setCities(citiesData);
+      setLoading(false);
+    }
 
-    this.setState({
-      internships: internshipsData,
-      cities: citiesData,
-      loading: false,
-    });
-  }
+    populateCompanyInternshipsData();
+  }, [status, dispatch, internshipStatus]);
 
-  handleSelectInternship = (id) => {
-    this.props.history.push("/internship/" + id);
+  const handleSelectInternship = (id) => {
+    history.push("/internship/" + id);
   };
 
-  handleManageApplications = (id) => {
-    this.props.history.push("/manageInternshipApplications/" + id);
+  const handleManageApplications = (id) => {
+    history.push("/manageInternshipApplications/" + id);
   };
 
-  handleModifyInternship = (id) => {
-    this.props.history.push("/modifyInternship/" + id);
+  const handleModifyInternship = (id) => {
+    history.push("/modifyInternship/" + id);
   };
 
-  handleCreateInternship = () => {
-    this.props.history.push("/createInternship");
+  const handleCreateInternship = () => {
+    history.push("/createInternship");
   };
 
-  handleDeleteInternship = async (id) => {
-    var internshipResponse = await fetch("api/internships/" + id, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (internshipResponse.ok) {
-      var internshipsCopy = JSON.parse(JSON.stringify(this.state.internships));
-      internshipsCopy = internshipsCopy.filter((obj) => obj.id !== id);
-      this.setState({
-        internships: internshipsCopy,
-      });
+  const handleDeleteInternship = async (id) => {
+    try {
+      setDeleteRequestStatus("pending");
+      const resultAction = await dispatch(deleteInternship(id));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDeleteRequestStatus("idle");
     }
   };
 
-  getInternshipDescriptionShort(description, length) {
+  const handleCloseInternship = async (internship) => {
+    let modifiedInternship = { ...internship };
+    modifiedInternship.status = "closed";
+    try {
+      setUpdateRequestStatus("pending");
+      const resultAction = await dispatch(updateInternship(modifiedInternship));
+      unwrapResult(resultAction);
+    } catch (error) {
+    } finally {
+      setUpdateRequestStatus("idle");
+    }
+  };
+
+  const getInternshipDescriptionShort = (description, length) => {
     description = description.replaceAll("<br/>", "\n");
     if (description.length > length) return description.substring(0, length) + "...";
     else return description;
-  }
-
-  getCity = (id) => {
-    for (let i = 0; i < this.state.cities.length; i++)
-      if (this.state.cities[i].id === id) return this.state.cities[i];
   };
 
-  renderCompanyInternshipsData() {
-    return (
-      <>
-        <div className="m-3">
-          <h3 className="text-center">Stagiile companiei </h3>
-          <Fab
-            color="primary"
-            aria-label="add"
-            onClick={this.handleCreateInternship}
-            size="medium"
-          >
-            <AddIcon />
-          </Fab>
-        </div>
+  const getCity = (id) => {
+    for (let i = 0; i < cities.length; i++) if (cities[i].id === id) return cities[i];
+  };
 
-        <p> </p>
+  const getNumberInternshipsByStatus = () => {
+    let nr = 0;
+    for (let i = 0; i < internships.length; i++)
+      if (internships[i].status === internshipStatus || internshipStatus === "all") nr++;
+    return nr;
+  };
 
-        {this.state.internships !== []
-          ? this.state.internships.map((internship, index) => (
-              <Paper className="p-3 m-3">
-                <span key={index}>
-                  <Link to={"internship/" + internship.id}>
-                    <b style={{ fontSize: 18 }}> {internship.name} </b>
-                  </Link>
-                  <br />
-                  <span style={{ fontSize: 14 }}>
-                    {internship.paid ? "Platit" : "Neplatit"}
-                  </span>
-                  <span
-                    style={{
-                      paddingLeft: 6,
-                      fontSize: 14,
-                    }}
-                  >
-                    {this.getCity(internship.cityId).name}
-                    <Icon.GeoAltFill />
-                  </span>
-                  <br />
-                  <span>
-                    {this.getInternshipDescriptionShort(internship.description, 200)}
-                  </span>
-                  <p> </p>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    style={{ width: 200 }}
-                    className="btn btn-primary mt-2"
-                    onClick={() => this.handleManageApplications(internship.id)}
-                  >
-                    Gestionează aplicări
-                  </Button>
-                  &nbsp;
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    style={{ width: 200 }}
-                    className="btn btn-primary mt-2"
-                    onClick={() => this.handleModifyInternship(internship.id)}
-                  >
-                    Modifică
-                  </Button>
-                  &nbsp;
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    style={{ width: 200 }}
-                    className="btn btn-danger mt-2"
-                    onClick={() => this.handleDeleteInternship(internship.id)}
-                  >
-                    Șterge
-                  </Button>
-                </span>
+  return !loading ? (
+    <>
+      <TabMenuCompany />
+
+      {getNumberInternshipsByStatus() > 0 ? (
+        <>
+          <div>
+            <div className="m-3">
+              <Paper elevation={3}>
+                <div className="container p-3 pb-2">
+                  <div className="table-responsive"></div>
+                  <table aria-labelledby="tabelLabel" className="table table-hover">
+                    <thead>
+                      <tr className="d-flex">
+                        <th className="col-4">Stagiu</th>
+                        <th className="col-2">Data creării</th>
+                        <th className="col-1">Status</th>
+                        <th className="col-5">Acțiuni</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {internships.map((internship, index) => (
+                        <>
+                          {(internshipStatus === "all" ||
+                            (internshipStatus === "approved" &&
+                              internship.status === "approved") ||
+                            (internshipStatus === "pending" &&
+                              internship.status === "pending") ||
+                            (internshipStatus === "refused" &&
+                              internship.status === "refused") ||
+                            (internshipStatus === "closed" &&
+                              internship.status === "closed")) && (
+                            <tr key={internship.id} className="d-flex">
+                              {
+                                <>
+                                  <td className="col-4">
+                                    <Link to={"/internship/" + internship.id}>
+                                      <b style={{ fontSize: 18 }}> {internship.name} </b>
+                                    </Link>
+                                    <br />
+
+                                    <span
+                                      style={{
+                                        // paddingLeft: 6,
+                                        fontSize: 14,
+                                      }}
+                                    >
+                                      {getCity(internship.cityId).name}
+                                      <Icon.GeoAltFill />
+                                    </span>
+                                  </td>
+
+                                  <td className="col-2">
+                                    <span style={{ fontSize: 14 }}>
+                                      {getFormattedDateNoTime(internship.creationDate)}
+                                    </span>
+                                  </td>
+
+                                  <td className="col-1">
+                                    <span style={{ fontSize: 14 }}>
+                                      {internship.status}
+                                    </span>
+                                  </td>
+
+                                  <td className="col-5">
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      className="btn btn-primary mt-2"
+                                      onClick={() =>
+                                        handleManageApplications(internship.id)
+                                      }
+                                    >
+                                      Candidări
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      className="btn btn-primary mt-2"
+                                      onClick={() =>
+                                        handleModifyInternship(internship.id)
+                                      }
+                                    >
+                                      Modifică
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                      variant="contained"
+                                      color="secondary"
+                                      className="btn btn-danger mt-2"
+                                      onClick={() =>
+                                        handleDeleteInternship(internship.id)
+                                      }
+                                    >
+                                      Șterge
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                      variant="contained"
+                                      color="secondary"
+                                      className="btn btn-danger mt-2"
+                                      onClick={() => handleCloseInternship(internship)}
+                                    >
+                                      Închide
+                                    </Button>
+                                  </td>
+                                </>
+                              }
+                            </tr>
+                          )}
+                        </>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </Paper>
-            ))
-          : ""}
-      </>
-    );
-  }
-
-  render() {
-    let contents = this.state.loading ? <Loading /> : this.renderCompanyInternshipsData();
-
-    return <div>{contents}</div>;
-  }
-}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="text-center text-muted mt-3">
+          {internshipStatus === "all" && "Nu există niciun stagiu la această companie"}
+          {internshipStatus === "pending" && "Nu există niciun stagiu în așteptare"}
+          {internshipStatus === "approved" && "Nu există niciun stagiu aprobat"}
+          {internshipStatus === "refused" && "Nu există niciun stagiu refuzat"}
+          {internshipStatus === "closed" && "Nu există niciun stagiu închis"}
+        </div>
+      )}
+    </>
+  ) : (
+    <Loading />
+  );
+};
 
 export default withRouter(CompanyInternships);

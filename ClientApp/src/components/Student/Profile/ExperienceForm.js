@@ -16,6 +16,9 @@ import {
 } from "@material-ui/pickers";
 import { getFormattedDateNoTime } from "../../Utility/Utility";
 import axios from "axios";
+import CreateIcon from "@material-ui/icons/Create";
+import AddIcon from "@material-ui/icons/Add";
+import Fab from "@material-ui/core/Fab";
 
 const ExperienceForm = ({ studentId }) => {
   const [student, setStudent] = useState(null);
@@ -293,8 +296,9 @@ const ExperienceForm = ({ studentId }) => {
   return !loading ? (
     <>
       <div style={{ paddingLeft: 8 }}>
-        <button
-          className="btn btn-primary btn"
+        <Fab
+          color="primary"
+          aria-label="add"
           onClick={() => {
             setInput({
               ...input,
@@ -307,9 +311,12 @@ const ExperienceForm = ({ studentId }) => {
             });
             setCreateIsOpen(true);
           }}
+          size="small"
+          style={{ marginLeft: -50, marginTop: -57 }}
         >
-          +
-        </button>
+          <AddIcon />
+        </Fab>
+        <span className="header">EXPERIENȚĂ</span>
       </div>
       <Modal show={createIsOpen} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -420,13 +427,7 @@ const ExperienceForm = ({ studentId }) => {
       {input.studentExperiences.map((experience, index) => (
         <span key={index}>
           <div
-            className="container rounded input-div"
-            style={{
-              padding: 10,
-              paddingRight: 25,
-              paddingLeft: 25,
-              width: "850",
-            }}
+            className="container rounded input-div pen-icon-parent p-2"
             onClick={(event) => {
               setInput({
                 ...input,
@@ -441,14 +442,13 @@ const ExperienceForm = ({ studentId }) => {
             }}
           >
             <div className="row">
-              <div className="col-xs">
+              <div className="col-4">
                 {getFormattedDateNoTime(new Date(experience.startDate))} -&nbsp;
-                {getFormattedDateNoTime(new Date(experience.endDate))} -&nbsp;
+                {getFormattedDateNoTime(new Date(experience.endDate))}
               </div>
               <div
-                className="col-xs"
+                className="col-8 right-col"
                 style={{
-                  width: 600,
                   display: "inline-block",
                   whiteSpace: "pre-line",
                 }}
@@ -462,10 +462,13 @@ const ExperienceForm = ({ studentId }) => {
                 >
                   {experience["position"]} -&nbsp;
                   {experience["company"]}
-                  <br />
-                  {experience.description}
                 </b>
+                <br />
+                {experience.description}
               </div>
+            </div>
+            <div className="hide">
+              <CreateIcon className="pen-icon" />
             </div>
           </div>
 
@@ -565,21 +568,21 @@ const ExperienceForm = ({ studentId }) => {
                 </div>
                 <div>
                   <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleExperienceDelete}
+                  >
+                    Sterge
+                  </Button>
+                </div>
+                <div>
+                  <Button
                     type="submit"
                     variant="contained"
                     color="primary"
                     onClick={handleExperienceModifyForm}
                   >
                     Salvează
-                  </Button>
-                </div>
-                <div>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleExperienceDelete}
-                  >
-                    Sterge
                   </Button>
                 </div>
               </Modal.Footer>

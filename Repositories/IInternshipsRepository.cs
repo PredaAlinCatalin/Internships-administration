@@ -9,6 +9,7 @@ namespace Licenta.Repositories
     public interface IInternshipsRepository
     {
         Task<IEnumerable<Internship>> GetInternshipsByCompanyId(int companyId);
+        Task<IEnumerable<Internship>> GetInternshipsByCompanyIdAndStatus(int companyId, string status);
         Task<IEnumerable<Internship>> GetAllInternshipsAsync();
         Task<IEnumerable<Internship>> GetInternshipsBySearchCityName(string searchString, string city);
         Task<IEnumerable<Internship>> GetInternshipsByCategoryId(int categoryId);

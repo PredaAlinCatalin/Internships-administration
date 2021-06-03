@@ -3,30 +3,38 @@ import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { Form } from "reactstrap";
 import "./Profile.css";
+import * as Icon from "react-bootstrap-icons";
+import { fetchCompanies, selectCompanyById, updateCompany } from "../companiesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
+import CreateIcon from "@material-ui/icons/Create";
 
 const WebsiteForm = ({ companyId }) => {
-  const [company, setCompany] = useState(null);
   const [input, setInput] = useState({
     website: "",
   });
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const company = useSelector((state) =>
+    state.companies.items.find((c) => c.id !== undefined && c.id == companyId)
+  );
+  const status = useSelector((state) => state.companies.status);
+  const error = useSelector((state) => state.companies.error);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const populateWithData = async () => {
-      let companyResponse = await fetch("api/companies/" + companyId);
-      let companyData = "";
-      if (companyResponse.ok) {
-        companyData = await companyResponse.json();
-        setCompany(companyData);
-        setInput({
-          website: companyData.website,
-        });
+    async function populateWithData() {
+      if (status === "idle") {
+        dispatch(fetchCompanies());
       }
+      if (status === "succeeded")
+        setInput({
+          website: company.website,
+        });
       setLoading(false);
-    };
+    }
     populateWithData();
-  }, [companyId]);
+  }, [status, dispatch]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -37,44 +45,33 @@ const WebsiteForm = ({ companyId }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setCompany({ ...company, website: input.website });
 
     let modifiedCompany = {
       ...company,
       website: input.website,
     };
 
-    let aux = "api/companies/" + companyId;
-    const response = await fetch(aux, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(modifiedCompany),
-    });
-    if (response.ok) {
-      console.log(response);
+    try {
+      const resultAction = await dispatch(updateCompany(modifiedCompany));
+      unwrapResult(resultAction);
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsOpen(false);
     }
   };
 
-  return !loading ? (
+  return !loading && status === "succeeded" ? (
     <>
       <div
-        className="container rounded input-div"
-        style={{
-          padding: 10,
-          paddingRight: 25,
-          paddingLeft: 25,
-          width: 850,
-        }}
+        className="container rounded input-div row p-2 ml-2 mr-2 pen-icon-parent"
         onClick={(event) => {
           setIsOpen(true);
         }}
+        style={{ minHeight: 40 }}
       >
         <div style={{}} className="row">
-          <div className="col-xs" style={{ whiteSpace: "pre-line" }}>
+          <div className="col" style={{ whiteSpace: "pre-line" }}>
             <b
               style={{
                 wordBreak: "break-all",
@@ -84,6 +81,9 @@ const WebsiteForm = ({ companyId }) => {
               {company.website}
             </b>
           </div>
+        </div>
+        <div className="hide">
+          <CreateIcon className="pen-icon" />
         </div>
       </div>
 
