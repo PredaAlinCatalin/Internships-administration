@@ -169,6 +169,7 @@ namespace Licenta.Repositories
         public async Task<Internship> GetInternshipById(int internshipId)
         {
            return await _context.Internships
+                                    .Include(i => i.InternshipAptitudes)
                                     .FirstOrDefaultAsync(i => i.Id == internshipId);
 
         }

@@ -20,8 +20,8 @@ import "./CreateInternship.css";
 import SaveIcon from "@material-ui/icons/Save";
 import Paper from "@material-ui/core/Paper";
 import axios from "axios";
-import { updateInternship } from "../internship/internshipsSlice";
-import { useDispatch } from "react-redux";
+import { updateInternship, fetchInternships } from "../internship/internshipsSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
 const Select = (props) => (
@@ -29,7 +29,6 @@ const Select = (props) => (
 );
 const ModifyInternship = ({ internshipId }) => {
   const history = useHistory();
-  const [internship, setInternship] = useState(null);
   const [internshipMaxNumberStudents, setInternshipMaxNumberStudents] = useState(0);
   const [internshipName, setInternshipName] = useState("");
   const [internshipDescription, setInternshipDescription] = useState("");
@@ -71,6 +70,8 @@ const ModifyInternship = ({ internshipId }) => {
     setInternshipCategoryIdsToInsertAux,
   ] = useState([]);
 
+  // const internship = useSelector(state.internships.items.find(i => i.id == internshipId))
+  const [internship, setInternship] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
@@ -365,6 +366,7 @@ const ModifyInternship = ({ internshipId }) => {
       salary: internshipSalary,
       description: internshipDescription,
       cityId: searchedCity !== undefined ? searchedCity.id : null,
+      internshipAptitudes: []
     };
 
     modifiedInternship.description = modifiedInternship.description.replaceAll(

@@ -79,7 +79,7 @@ const InternshipsSlice = createSlice({
         (item) => item.id === action.payload.id
       );
       if (existingInternship) {
-        existingInternship = action.payload;
+        existingInternship = {...action.payload};
       }
       // state.items = state.items.filter((item) => item.id !== action.payload.id);
       // state.items.push(action.payload);

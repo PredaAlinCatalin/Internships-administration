@@ -35,7 +35,7 @@ namespace Licenta
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    Configuration.GetConnectionString("MyDbConnection")));
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
