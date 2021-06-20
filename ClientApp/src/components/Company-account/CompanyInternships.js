@@ -14,11 +14,12 @@ import {
   selectAllInternships,
   deleteInternship,
   updateInternship,
-} from "../internship/internshipsSlice";
+} from "../Anonymous/internshipsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { getFormattedDateNoTime } from "../Utility/Utility";
 import { v4 as uuidv4 } from "uuid";
+import {InternshipStatus} from '../Constants';
 
 const CompanyInternships = ({ internshipStatus }) => {
   const [company, setCompany] = useState("");
@@ -81,18 +82,21 @@ const CompanyInternships = ({ internshipStatus }) => {
     }
   };
 
-  const handleCloseInternship = async (internship) => {
-    let modifiedInternship = { ...internship };
-    modifiedInternship.status = "closed";
-    try {
-      setUpdateRequestStatus("pending");
-      const resultAction = await dispatch(updateInternship(modifiedInternship));
-      unwrapResult(resultAction);
-    } catch (error) {
-    } finally {
-      setUpdateRequestStatus("idle");
+  const handleInternshipStatusChange = async (internship, internshipStatus) => {
+    if (internship.status !== internshipStatus) {
+      let modifiedInternship = { ...internship };
+      modifiedInternship.status = internshipStatus;
+      try {
+        setUpdateRequestStatus("pending");
+        const resultAction = await dispatch(updateInternship(modifiedInternship));
+        unwrapResult(resultAction);
+      } catch (error) {
+      } finally {
+        setUpdateRequestStatus("idle");
+      }
     }
-  };
+    }
+    
 
   const getInternshipDescriptionShort = (description, length) => {
     description = description.replaceAll("<br/>", "\n");
@@ -107,7 +111,7 @@ const CompanyInternships = ({ internshipStatus }) => {
   const getNumberInternshipsByStatus = () => {
     let nr = 0;
     for (let i = 0; i < internships.length; i++)
-      if (internships[i].status === internshipStatus || internshipStatus === "all") nr++;
+      if (internships[i].companyId === company.id && internships[i].status === internshipStatus || internshipStatus === "all") nr++;
     return nr;
   };
 
@@ -125,28 +129,28 @@ const CompanyInternships = ({ internshipStatus }) => {
                   <table aria-labelledby="tabelLabel" className="table table-hover">
                     <thead>
                       <tr className="d-flex">
-                        <th className="col-4">Stagiu</th>
-                        <th className="col-2">Data creării</th>
+                        <th className="col-3">Stagiu</th>
+                        <th className="col-1">Data creării</th>
                         <th className="col-1">Status</th>
-                        <th className="col-5">Acțiuni</th>
+                        <th className="col-7">Acțiuni</th>
                       </tr>
                     </thead>
                     <tbody>
                       {internships.map((internship, index) => (
                         <>
-                          {(internshipStatus === "all" ||
-                            (internshipStatus === "approved" &&
-                              internship.status === "approved") ||
-                            (internshipStatus === "pending" &&
-                              internship.status === "pending") ||
-                            (internshipStatus === "refused" &&
-                              internship.status === "refused") ||
-                            (internshipStatus === "closed" &&
-                              internship.status === "closed")) && (
+                          {internship.companyId === company.id && (internshipStatus === "all" ||
+                            (internshipStatus === InternshipStatus.approved &&
+                              internship.status === InternshipStatus.approved) ||
+                            (internshipStatus === InternshipStatus.pending &&
+                              internship.status === InternshipStatus.pending) ||
+                            (internshipStatus === InternshipStatus.refused &&
+                              internship.status === InternshipStatus.refused) ||
+                            (internshipStatus === InternshipStatus.closed &&
+                              internship.status === InternshipStatus.closed)) && (
                             <tr key={internship.id} className="d-flex">
                               {
                                 <>
-                                  <td className="col-4">
+                                  <td className="col-3">
                                     <Link to={"/internship/" + internship.id}>
                                       <b style={{ fontSize: 18 }}> {internship.name} </b>
                                     </Link>
@@ -163,7 +167,7 @@ const CompanyInternships = ({ internshipStatus }) => {
                                     </span>
                                   </td>
 
-                                  <td className="col-2">
+                                  <td className="col-1">
                                     <span style={{ fontSize: 14 }}>
                                       {getFormattedDateNoTime(internship.creationDate)}
                                     </span>
@@ -175,7 +179,7 @@ const CompanyInternships = ({ internshipStatus }) => {
                                     </span>
                                   </td>
 
-                                  <td className="col-5">
+                                  <td className="col-7">
                                     <Button
                                       variant="contained"
                                       color="primary"
@@ -213,9 +217,36 @@ const CompanyInternships = ({ internshipStatus }) => {
                                       variant="contained"
                                       color="secondary"
                                       className="btn btn-danger mt-2"
-                                      onClick={() => handleCloseInternship(internship)}
+                                      onClick={() => handleInternshipStatusChange(internship, InternshipStatus.closed)}
                                     >
                                       Închide
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      className="btn btn-primary mt-2"
+                                      onClick={() => handleInternshipStatusChange(internship, InternshipStatus.pending)}
+                                    >
+                                      Deschide
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      className="btn btn-primary mt-2"
+                                      onClick={() => handleInternshipStatusChange(internship, InternshipStatus.approved)}
+                                    >
+                                      Aprobă
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                      variant="contained"
+                                      color="secondary"
+                                      className="btn btn-danger mt-2"
+                                      onClick={() => handleInternshipStatusChange(internship, InternshipStatus.refused)}
+                                    >
+                                      Refuză
                                     </Button>
                                   </td>
                                 </>

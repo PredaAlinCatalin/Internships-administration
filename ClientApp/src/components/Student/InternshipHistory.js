@@ -6,7 +6,6 @@ import { Avatar, Paper } from "@material-ui/core";
 import { withRouter } from "react-router-dom";
 import { createMuiTheme } from "@material-ui/core/styles";
 import TabMenu from "../Universal/TabMenu";
-import OldTabMenu from "../Universal/OldTabMenu";
 import { Box, Tooltip } from "@material-ui/core";
 import Rating from "@material-ui/lab/Rating";
 import { getFormattedDateNoTime } from "../Utility/Utility";

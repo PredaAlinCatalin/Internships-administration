@@ -110,9 +110,16 @@ const StudentProfile = ({ studentId }) => {
                     display: "inline-block",
                   }}
                 >
+                  {student.facultyId !== null ? 
+                  <>
                   {faculties.find((f) => f.id === student.facultyId).name}
                   <br />
                   anul&nbsp;{student["year"]}
+                  </>
+                  :
+                  "Nicio facultate"
+                  }
+                  
                 </b>
               </div>
 

@@ -103,6 +103,7 @@ class Company extends Component {
                   <img
                     className="cover-img"
                     alt="logo"
+                    width="100"
                     src={"logos/" + this.state.company.logoPath}
                   />
                 </div>
@@ -132,48 +133,7 @@ class Company extends Component {
                 </div>
               </Paper>
 
-              <Paper>
-                {/* <div className="p-4 mb-5">
-                  <h4>Stagiile companiei</h4>
-                  <br />
-                  {this.state.internships !== []
-                    ? this.state.internships.map((internship) => (
-                        <span id={internship.id}>
-                          <Link to={"/internship/" + internship.id}>
-                            <b
-                              style={{
-                                fontSize: 18,
-                              }}
-                            >
-                              {" "}
-                              {internship.name}{" "}
-                            </b>
-                          </Link>
-                          <br />
-                          <span style={{ fontSize: 14 }}>
-                            {internship.paid ? "Platit" : "Neplatit"}
-                          </span>
-                          <span
-                            style={{
-                              paddingLeft: 6,
-                              fontSize: 14,
-                            }}
-                          >
-                            {this.getCity(internship.cityId).name}
-                            <Icon.GeoAltFill />
-                          </span>
-                          <br />
-                          <span>
-                            {this.getInternshipDescriptionShort(
-                              internship.description,
-                              200
-                            )}
-                          </span>
-                          <p> </p>
-                        </span>
-                      ))
-                    : ""}
-                </div> */}
+              <Paper className="p-3">
 
                 <div className="container">
                   <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3">

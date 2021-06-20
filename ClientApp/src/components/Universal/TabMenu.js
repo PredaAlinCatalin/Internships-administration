@@ -15,7 +15,7 @@ const TabMenu = () => {
             <div
               className="col-md-2 mr-3 mt-2 mb-2"
               style={{ padding: 0 }}
-              onClick={() => history.push("/savedinternshipsfunctional")}
+              onClick={() => history.push("/savedinternships")}
               onMouseOver={(e) => (e.target.style.cursor = "pointer")}
               onMouseOut={(e) => (e.target.style.cursor = "normal")}
             >

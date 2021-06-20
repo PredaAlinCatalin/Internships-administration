@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Input from "../Universal/Input";
 import { Form, Row } from "react-bootstrap";
 // import Select from 'react-select';
 import BaseSelect from "react-select";
@@ -138,7 +137,9 @@ const SignUp = () => {
                 />
               </Row>
               <Row className="justify-content-center">
-                <div style={{ width: "100%" }}>
+                <div 
+                  style={{ width: "100%" }}
+                  >
                   Tip de cont:
                   <Select
                     placeholder="Selecteaza tip de cont"
@@ -173,4 +174,4 @@ const SignUp = () => {
   );
 };
 
-export default withRouter(SignUp);
+export default SignUp;

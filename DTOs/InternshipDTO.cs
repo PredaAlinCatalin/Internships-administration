@@ -33,6 +33,5 @@ namespace Licenta.DTOs
         public int CompanyId { get; set; }
         [Required]
         public int CityId { get; set; }
-        public virtual ICollection<InternshipAptitudeDTO> InternshipAptitudes { get; set; }
     }
 }

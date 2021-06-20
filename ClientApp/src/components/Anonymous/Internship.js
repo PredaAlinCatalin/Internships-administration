@@ -30,7 +30,7 @@ import { useDispatch } from "react-redux";
 import {
   addSavedInternship,
   deleteSavedInternship,
-} from "../savedInternships/savedInternshipsSlice";
+} from "../Student/savedInternshipsSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 
 function Alert(props) {

@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 import LoadingIndicator from "./components/Universal/LoadingIndicator";
+import Loading from "./components/Universal/Loading";
 import theme from "./Theme";
 import { ThemeProvider } from "@material-ui/core/styles";
 import store from "./app/store";

@@ -1,218 +1,608 @@
-import React, { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import {
-  Collapse,
-  Container,
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  NavItem,
-  NavLink,
-} from "reactstrap";
-import { Link } from "react-router-dom";
-import "./NavMenu.css";
-import { useIsCompany, useIsStudent } from "./Authentication/Authentication";
-import { lightBlue } from "@material-ui/core/colors";
-import { useAuthentication } from "./Authentication/Authentication";
+import React, { useState, useEffect } from "react";
+import { fade, makeStyles } from "@material-ui/core/styles";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import InputBase from "@material-ui/core/InputBase";
+import MenuIcon from "@material-ui/icons/Menu";
+import SearchIcon from "@material-ui/icons/Search";
+import PersonPinIcon from "@material-ui/icons/PersonPin";
+import { useHistory } from "react-router-dom";
+import WorkIcon from "@material-ui/icons/Work";
+import BusinessIcon from "@material-ui/icons/Business";
+import AddIcon from "@material-ui/icons/Add";
+import { useIsStudent, useIsCompany, useIsAdmin } from "./Authentication/Authentication";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import clsx from "clsx";
+import Drawer from "@material-ui/core/Drawer";
+import List from "@material-ui/core/List";
+import Divider from "@material-ui/core/Divider";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import NoteIcon from "@material-ui/icons/Note";
+import HistoryIcon from "@material-ui/icons/History";
+import BookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
+import ReactTooltip from "react-tooltip";
+import Typography from "@material-ui/core/Typography";
+import {Container} from 'reactstrap';
 
 const useStyles = makeStyles((theme) => ({
-  avatar: {
-    backgroundColor: lightBlue[500],
-    width: 15,
-    height: 15,
-    // display: "inline-block"
+  list: {
+    width: 250,
+  },
+  fullList: {
+    width: "auto",
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  // title: {
+  //   display: "none",
+  //   [theme.breakpoints.up("sm")]: {
+  //     display: "block",
+  //   },
+  // },
+  search: {
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    "&:hover": {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("md")]: {
+      marginLeft: theme.spacing(3),
+      width: "auto",
+    },
+  },
+  searchIcon: {
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inputRoot: {
+    color: "inherit",
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    transition: theme.transitions.create("width"),
+    width: "100%",
+    // width: 20
+    [theme.breakpoints.up("md")]: {
+      width: "20ch",
+    },
+  },
+  sectionDesktop: {
+    display: "none",
+    [theme.breakpoints.up("md")]: {
+      display: "flex",
+    },
+  },
+  sectionMobile: {
+    display: "flex",
+    [theme.breakpoints.up("md")]: {
+      display: "none",
+    },
   },
 }));
 
-const NavMenu = () => {
-  const [collapsed, setCollapsed] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const classes = useStyles();
-  const isCompany = useIsCompany();
+export default function NavMenu() {
   const isStudent = useIsStudent();
-  const [student, setStudent] = useState(null);
-  const auth = useAuthentication();
-  const toggleNavbar = () => {
-    setCollapsed(!collapsed);
+  const isCompany = useIsCompany();
+  const isAdmin = useIsAdmin();
+  const navNumber =
+    sessionStorage.getItem("navnumber") !== null
+      ? sessionStorage.getItem("navnumber")
+      : 0;
+  const [value, setValue] = useState(parseInt(navNumber));
+  const history = useHistory();
+  const [state, setState] = React.useState({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
+  const anchor = "left";
+  const classes = useStyles();
+
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
+      return;
+    }
+
+    setState({ ...state, [anchor]: open });
   };
 
   useEffect(() => {
-    // console.log(sessionStorage.getItem("user"));
-    // console.log(isStudent);
-    // async function PopulateWithData() {
-    //   const userData = JSON.parse(sessionStorage.getItem("user"));
-    //   if (userData !== null) {
-    //     let studentData = "";
-    //     const response = await fetch("api/students/" + userData.id);
-    //     if (response.ok) {
-    //       console.log(studentData);
-    //       studentData = await response.json();
-    //       setStudent(studentData);
-    //     }
-    //   }
-    //   setLoading(false);
-    // }
-    // PopulateWithData();
-    setLoading(false);
-  }, []);
+    const navNumber =
+      sessionStorage.getItem("navnumber") !== null
+        ? sessionStorage.getItem("navnumber")
+        : 0;
+    setValue(parseInt(navNumber));
+  }, [value, isStudent, isCompany]);
 
-  return !loading ? (
-    <header>
-      <Navbar
-        className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3"
-        light
-      >
-        <Container>
-          <NavbarBrand tag={Link} to="/">
-            HaiLaStagii
-          </NavbarBrand>
-          <NavbarToggler onClick={toggleNavbar} className="mr-2" />
-          <Collapse
-            className="d-sm-inline-flex flex-sm-row-reverse"
-            isOpen={!collapsed}
-            navbar
+  const handleChange = (event, newValue) => {
+    sessionStorage.setItem("navnumber", newValue);
+    setValue(newValue);
+
+    if (isStudent) {
+      switch (newValue) {
+        case 0:
+          history.push("/internships");
+          break;
+        case 1:
+          history.push("/companies");
+          break;
+        case 2:
+          history.push("/profile");
+          break;
+        case 3:
+          setValue(2);
+          sessionStorage.setItem("navnumber", 2);
+          history.push("/logout");
+          break;
+      }
+    } else if (isCompany) {
+      switch (newValue) {
+        case 0:
+          history.push("/companyProfile");
+          break;
+        case 1:
+          history.push("/companyInternships/all");
+          break;
+        case 2:
+          history.push("/createInternship");
+          break;
+        case 3:
+          setValue(2);
+          sessionStorage.setItem("navnumber", 2);
+          history.push("/logout");
+          break;
+      }
+    } else if (isAdmin) {
+      switch (newValue) {
+        case 0:
+          history.push("/approveInternships");
+          break;
+      }
+    } else {
+      switch (newValue) {
+        case 0:
+          history.push("/internships");
+          break;
+        case 1:
+          history.push("/companies");
+          break;
+        case 2:
+          // sessionStorage.setItem("navnumber", 0);
+          // setValue(0);
+          history.push("/login");
+          // setValue(0);
+          break;
+      }
+    }
+  };
+
+  const list = (anchor) => (
+    <div
+      className={clsx(classes.list, {
+        [classes.fullList]: anchor === "top" || anchor === "bottom",
+      })}
+      role="presentation"
+      onClick={toggleDrawer(anchor, false)}
+      onKeyDown={toggleDrawer(anchor, false)}
+    >
+      <List>
+        {!isCompany && (
+          <ListItem
+            button
+            key={"Internships"}
+            onClick={() => history.push("/internships")}
           >
-            <ul className="navbar-nav flex-grow">
-              {!isCompany && (
-                <>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/internships">
-                      Stagii
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/companies">
-                      Companii
-                    </NavLink>
-                  </NavItem>
-                </>
-              )}
+            <ListItemIcon>
+              <WorkIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Stagii"} />
+          </ListItem>
+        )}
 
-              {!isStudent && !isCompany && (
-                <>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/Signup">
-                      Înregistrează-te
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/Login">
-                      Loghează-te
-                    </NavLink>
-                  </NavItem>
-                </>
-              )}
+        {!isCompany && (
+          <ListItem button key={"Companies"} onClick={() => history.push("/companies")}>
+            <ListItemIcon>
+              <BusinessIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Companii"} />
+          </ListItem>
+        )}
 
-              {isStudent && (
-                <>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/profile">
-                      Profil
-                    </NavLink>
-                  </NavItem>
-                  {/* <NavItem tag={Link} className="text-dark" to="/profile">
-                    <NavLink>
-                      <IconButton
-                        aria-label="account of current user"
-                        aria-controls="primary-search-account-menu"
-                        aria-haspopup="true"
-                        color="inherit"
-                      >
-                        <Avatar
-                          aria-label="recipe"
-                          className={classes.avatar}
-                          alt="logo"
-                          src={"/photos/" + student.photoPath}
-                          variant="rounded"
-                        ></Avatar>
-                        <br />
-                        Profil
-                      </IconButton>
-                    </NavLink>
-                  </NavItem> */}
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/internshipHistory">
-                      Istoric stagii
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink
-                      tag={Link}
-                      className="text-dark"
-                      to="/internshipApplications"
-                    >
-                      Aplicări la stagii
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/savedInternships">
-                      Stagii salvate
-                    </NavLink>
-                  </NavItem>
-                </>
-              )}
+        {isStudent && (
+          <ListItem button key={"Profile"} onClick={() => history.push("/profile")}>
+            <ListItemIcon>
+              <PersonPinIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Profil"} />
+          </ListItem>
+        )}
 
-              {isCompany && (
-                <>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/companyProfile">
-                      Profil
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/companyInternships">
-                      Stagii
-                    </NavLink>
-                  </NavItem>
-                  <NavItem>
-                    <NavLink tag={Link} className="text-dark" to="/createInternship">
-                      Creează stagiu
-                    </NavLink>
-                  </NavItem>
-                </>
-              )}
+        {isCompany && (
+          <ListItem
+            button
+            key={"CompanyInternships"}
+            onClick={() => history.push("/CompanyInternships/all")}
+          >
+            <ListItemIcon>
+              <WorkIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Stagiile companiei"} />
+          </ListItem>
+        )}
 
-              {(isStudent || isCompany) && (
-                <NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/Logout">
-                    Logout
-                  </NavLink>
-                </NavItem>
-              )}
+        {isCompany && (
+          <ListItem
+            button
+            key={"CompanyProfile"}
+            onClick={() => history.push("/CompanyProfile")}
+          >
+            <ListItemIcon>
+              <BusinessIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Profil companie"} />
+          </ListItem>
+        )}
 
-              {/*<NavItem>
-                  <NavLink tag={Link} className="text-dark" to="/companies">Companies</NavLink>
-              </NavItem>
-              {this.state.isAuthenticated &&
-                  <>
-                      <NavItem>
-                          <NavLink tag={Link} className="text-dark" to="/internshipHistory">Internship History</NavLink>
-                      </NavItem>
-                      <NavItem>
-                          <NavLink tag={Link} className="text-dark" to="/internshipApplications">Internship Applications</NavLink>
-                      </NavItem>
-                      <NavItem>
-                          <NavLink tag={Link} className="text-dark" to="/profile">Profile</NavLink>
-                      </NavItem>
-                      <NavItem>
-                          <NavLink tag={Link} className="text-dark" to="/companyProfile">Company Profile</NavLink>
-                      </NavItem>
-                      <NavItem>
-                          <NavLink tag={Link} className="text-dark" to="/companyInternships">Company Internships</NavLink>
-                      </NavItem>
-                      <NavItem>
-                          <NavLink tag={Link} className="text-dark" to="/createInternship">Create internship</NavLink>
-                      </NavItem>
-                  </>
-              } */}
-            </ul>
-          </Collapse>
-        </Container>
-      </Navbar>
-    </header>
-  ) : (
-    ""
+        {isCompany && (
+          <ListItem
+            button
+            key={"CreateInternship"}
+            onClick={() => history.push("/CreateInternship")}
+          >
+            <ListItemIcon>
+              <AddIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Creare stagiu"} />
+          </ListItem>
+        )}
+      </List>
+      <Divider />
+      <List>
+        {isStudent && (
+          <ListItem
+            button
+            key={"SavedInternships"}
+            onClick={() => history.push("/savedInternships")}
+          >
+            <ListItemIcon>
+              <BookmarkBorderIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Stagii salvate"} />
+          </ListItem>
+        )}
+
+        {isStudent && (
+          <ListItem
+            button
+            key={"InternshipApplications"}
+            onClick={() => history.push("/internshipApplications")}
+          >
+            <ListItemIcon>
+              <NoteIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Aplicări stagii"} />
+          </ListItem>
+        )}
+
+        {isStudent && (
+          <ListItem
+            button
+            key={"InternshipHistory"}
+            onClick={() => history.push("/InternshipHistory")}
+          >
+            <ListItemIcon>
+              <HistoryIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Istoric stagii"} />
+          </ListItem>
+        )}
+
+        {isAdmin && (
+          <ListItem
+            button
+            key={"approveInternships"}
+            onClick={() => history.push("/approveInternships")}
+          >
+            <ListItemIcon>
+              <HistoryIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Aprobă stagii"} />
+          </ListItem>
+        )}
+
+        {(isStudent || isCompany || isAdmin) && (
+          <ListItem button key={"Logout"} onClick={() => history.push("/Logout")}>
+            <ListItemIcon>
+              <ExitToAppIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Logout"} />
+          </ListItem>
+        )}
+      </List>
+    </div>
   );
-};
 
-export default NavMenu;
+  const renderMenu = (
+    <>
+      {isCompany && (
+        <>
+          <a data-tip data-for="companyProfile">
+            <IconButton color="inherit" onClick={() => history.push("/companyProfile")}>
+              <PersonPinIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="companyProfile" place="bottom">
+            <span>Profil</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {isCompany && (
+        <>
+          <a data-tip data-for="companyInternships">
+            <IconButton
+              color="inherit"
+              onClick={() => history.push("/companyInternships/all")}
+            >
+              <WorkIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="companyInternships" place="bottom">
+            <span>Stagiile companiei</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {isCompany && (
+        <>
+          <a data-tip data-for="createInternship">
+            <IconButton color="inherit" onClick={() => history.push("/createInternship")}>
+              <AddIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="createInternship" place="bottom">
+            <span>Creează stagiu</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {isStudent && (
+        <>
+          <a data-tip data-for="internships">
+            <IconButton color="inherit" onClick={() => history.push("/internships")}>
+              <WorkIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="internships" place="bottom">
+            <span>Stagii</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {isStudent && (
+        <>
+          <a data-tip data-for="companies">
+            <IconButton color="inherit" onClick={() => history.push("/companies")}>
+              <BusinessIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="companies" place="bottom">
+            <span>Companii</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {isStudent && (
+        <>
+          <a data-tip data-for="profile">
+            <IconButton color="inherit" onClick={() => history.push("/profile")}>
+              <PersonPinIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="profile" place="bottom">
+            <span>Profil</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {isAdmin && (
+        <>
+          <a data-tip data-for="approveInternships">
+            <IconButton
+              color="inherit"
+              onClick={() => history.push("/approveInternships")}
+            >
+              <PersonPinIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="approveInternships" place="bottom">
+            <span>Aprobă stagii</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {(isStudent || isCompany || isAdmin) && (
+        <>
+          <a data-tip data-for="logout">
+            <IconButton color="inherit" onClick={() => history.push("/logout")}>
+              <ExitToAppIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="logout" place="bottom">
+            <span>Logout</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {!isStudent && !isCompany && !isAdmin && (
+        <>
+          <a data-tip data-for="internships">
+            <IconButton color="inherit" onClick={() => history.push("/internships")}>
+              <WorkIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="internships" place="bottom">
+            <span>Stagii</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {!isStudent && !isCompany && !isAdmin && (
+        <>
+          <a data-tip data-for="companies">
+            <IconButton color="inherit" onClick={() => history.push("/companies")}>
+              <BusinessIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="companies" place="bottom">
+            <span>Companii</span>
+          </ReactTooltip>
+        </>
+      )}
+
+      {!isStudent && !isCompany && !isAdmin && (
+        <>
+          <a data-tip data-for="login">
+            <IconButton color="inherit" onClick={() => history.push("/login")}>
+              <ExitToAppIcon />
+            </IconButton>
+          </a>
+          <ReactTooltip id="login" place="bottom">
+            <span>Login</span>
+          </ReactTooltip>
+        </>
+      )}
+    </>
+  );
+
+  const renderMobileMenu = (
+    <>
+      {isCompany && (
+        <IconButton color="inherit" onClick={() => history.push("/companyProfile")}>
+          <PersonPinIcon />
+        </IconButton>
+      )}
+
+      {isCompany && (
+        <IconButton
+          color="inherit"
+          onClick={() => history.push("/companyInternships/all")}
+        >
+          <WorkIcon />
+        </IconButton>
+      )}
+
+      {isCompany && (
+        <IconButton color="inherit" onClick={() => history.push("/createInternship")}>
+          <AddIcon />
+        </IconButton>
+      )}
+
+      {isStudent && (
+        <IconButton color="inherit" onClick={() => history.push("/internships")}>
+          <WorkIcon />
+        </IconButton>
+      )}
+
+      {isStudent && (
+        <IconButton color="inherit" onClick={() => history.push("/companies")}>
+          <BusinessIcon />
+        </IconButton>
+      )}
+
+      {isStudent && (
+        <IconButton color="inherit" onClick={() => history.push("/profile")}>
+          <PersonPinIcon />
+        </IconButton>
+      )}
+
+      {isAdmin && (
+        <IconButton color="inherit" onClick={() => history.push("/approveInternships")}>
+          <PersonPinIcon />
+        </IconButton>
+      )}
+
+      {(isStudent || isCompany || isAdmin) && (
+        <IconButton color="inherit" onClick={() => history.push("/logout")}>
+          <ExitToAppIcon />
+        </IconButton>
+      )}
+
+      {!isStudent && !isCompany && !isAdmin && (
+        <IconButton color="inherit" onClick={() => history.push("/internships")}>
+          <WorkIcon />
+        </IconButton>
+      )}
+
+      {!isStudent && !isCompany && !isAdmin && (
+        <IconButton color="inherit" onClick={() => history.push("/companies")}>
+          <BusinessIcon />
+        </IconButton>
+      )}
+
+      {!isStudent && !isCompany && !isAdmin && (
+        <IconButton color="inherit" onClick={() => history.push("/login")}>
+          <ExitToAppIcon />
+        </IconButton>
+      )}
+    </>
+  );
+
+  return (
+    
+    <div className={classes.grow}>
+      <AppBar position="static">
+        <Container>
+        <Toolbar>
+          
+          <React.Fragment key={anchor}>
+            <IconButton
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="open drawer"
+              onClick={toggleDrawer(anchor, true)}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Drawer
+              anchor={anchor}
+              open={state[anchor]}
+              onClose={toggleDrawer(anchor, false)}
+            >
+              {list(anchor)}
+            </Drawer>
+          </React.Fragment>
+          <Typography className={classes.title} variant="h6" noWrap>
+            HaiLaStagii
+          </Typography>
+
+          <div className={classes.sectionDesktop}>{renderMenu}</div>
+          <div className={classes.sectionMobile}>{renderMobileMenu}</div>
+          
+        </Toolbar>
+        </Container>
+      </AppBar>
+    </div>
+    
+  );
+}

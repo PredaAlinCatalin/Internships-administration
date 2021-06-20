@@ -16,17 +16,6 @@ export const fetchInternships = createAsyncThunk(
   }
 );
 
-// export const fetchInternshipsByCompanyIdAndStatus = createAsyncThunk(
-//   "Internships/fetchInternshipsByCompanyIdAndStatus",
-//   async (companyId, status) => {
-//     console.log(companyId);
-//     console.log(status);
-//     const response = await axios.get("api/Internships/company/" + companyId + "/status/" + status);
-//     console.log(response.data);
-//     return response.data;
-//   }
-// );
-
 export const addInternship = createAsyncThunk(
   "Internships/addInternship",
   async (internship) => {
@@ -79,7 +68,18 @@ const InternshipsSlice = createSlice({
         (item) => item.id === action.payload.id
       );
       if (existingInternship) {
-        existingInternship = {...action.payload};
+        // existingInternship = {...action.payload};
+        existingInternship.name = action.payload.name
+        existingInternship.startDate = action.payload.startDate
+        existingInternship.endDate = action.payload.endDate
+        existingInternship.deadline = action.payload.deadline
+        existingInternship.status = action.payload.status
+        existingInternship.maxNumberStudents = action.payload.maxNumberStudents
+        existingInternship.paid = action.payload.paid
+        existingInternship.salary = action.payload.salary
+        existingInternship.description = action.payload.description
+        existingInternship.cityId = action.payload.cityId
+
       }
       // state.items = state.items.filter((item) => item.id !== action.payload.id);
       // state.items.push(action.payload);

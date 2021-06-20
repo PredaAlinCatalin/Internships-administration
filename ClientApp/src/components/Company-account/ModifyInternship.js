@@ -7,7 +7,6 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Loading from "../Universal/Loading";
-import "../Universal/Div3D.scss";
 import TextField from "@material-ui/core/TextField";
 import "date-fns";
 import Grid from "@material-ui/core/Grid";
@@ -20,7 +19,7 @@ import "./CreateInternship.css";
 import SaveIcon from "@material-ui/icons/Save";
 import Paper from "@material-ui/core/Paper";
 import axios from "axios";
-import { updateInternship, fetchInternships } from "../internship/internshipsSlice";
+import { updateInternship, fetchInternships } from "../Anonymous/internshipsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
@@ -137,8 +136,6 @@ const ModifyInternship = ({ internshipId }) => {
         }
 
         setInternshipMaxNumberStudents(internshipData.maxNumberStudents);
-        console.log(typeof internshipData.maxNumberStudents);
-        console.log(typeof internshipData.salary);
         setInternshipName(internshipData.name);
 
         let descriptionCopy = internshipData.description;
@@ -374,17 +371,6 @@ const ModifyInternship = ({ internshipId }) => {
       "<br/>"
     );
 
-    // try {
-    // await fetch("api/internships/" + internship.id, {
-    //   method: "PUT",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(modifiedInternship),
-    // }).then((res) => {
-    //   console.log(res);
-    // });
-
     dispatch(updateInternship(modifiedInternship));
 
     let axiosArray = [];
@@ -407,9 +393,6 @@ const ModifyInternship = ({ internshipId }) => {
         });
         axiosArray.push(newPromise);
 
-        // await fetch(aux, {
-        //   method: "DELETE",
-        // });
       }
     }
 
@@ -430,15 +413,6 @@ const ModifyInternship = ({ internshipId }) => {
           data: internshipCategory,
         });
         axiosArray.push(newPromise);
-
-        // let aux = "api/internshipCategories";
-        // await fetch(aux, {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(internshipCategory),
-        // });
       }
     }
     setInternshipCategories(internshipCategoriesAux);
@@ -460,10 +434,6 @@ const ModifyInternship = ({ internshipId }) => {
           url: url,
         });
         axiosArray.push(newPromise);
-
-        // await fetch(aux, {
-        //   method: "DELETE",
-        // });
       }
     }
 
@@ -486,14 +456,6 @@ const ModifyInternship = ({ internshipId }) => {
           data: internshipAptitude,
         });
         axiosArray.push(newPromise);
-
-        // await fetch(aux, {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(internshipAptitude),
-        // });
       }
     }
 
@@ -518,8 +480,6 @@ const ModifyInternship = ({ internshipId }) => {
         <div className="text-center">
           <h3>Modifică stagiu </h3>
         </div>
-
-        <Link to="/MyEditor">Mergi la editor</Link>
 
         <Form onSubmit={handleInternshipModifyForm}>
           <TextField

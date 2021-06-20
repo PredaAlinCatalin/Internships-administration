@@ -1,7 +1,6 @@
 import { TextField, Button } from "@material-ui/core";
 import React, { useState, useEffect } from "react";
-import { Modal } from "react-bootstrap";
-import { Form } from "reactstrap";
+import { Form, Modal } from "react-bootstrap";
 import "./Profile.css";
 import * as Icon from "react-bootstrap-icons";
 import { fetchCompanies, selectCompanyById, updateCompany } from "../companiesSlice";
@@ -105,6 +104,19 @@ const DescriptionForm = ({ companyId }) => {
               }
               required={true}
             />
+            <Form.Group className="col-md-12">
+            <Form.Label>Descriere</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={5}
+              name="description"
+              value={input.description}
+              onChange={(event) =>
+                setInput({ ...input, description: event.target.value })
+              }
+              required={true}
+            />
+          </Form.Group>
           </Modal.Body>
           <Modal.Footer>
             <div>

@@ -8,6 +8,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Licenta.Models;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace Licenta.Controllers
 {
@@ -18,14 +24,17 @@ namespace Licenta.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
         public AuthController(UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
+            _configuration = configuration;
         }
 
         [HttpPost("Register")]
@@ -34,7 +43,8 @@ namespace Licenta.Controllers
             var user = new IdentityUser
             {
                 UserName = register.Email,
-                Email = register.Email
+                Email = register.Email,
+                SecurityStamp = Guid.NewGuid().ToString()
             };
 
             var result = await _userManager.CreateAsync(user, register.Password);
@@ -142,10 +152,30 @@ namespace Licenta.Controllers
                 throw new Exception("User doesn't have a known role");
             }
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+            foreach (var role in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+            var authSigninKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:Secret"]));
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddDays(30),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authSigninKey, SecurityAlgorithms.HmacSha256Signature)
+                );
+
             var response = new LoginResponseDTO
             {
                 UserId = userId,
                 UserRole = userRole,
+                Token = new JwtSecurityTokenHandler().WriteToken(token)
             };
             return Ok(response);
         }

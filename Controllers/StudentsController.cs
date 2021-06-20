@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Licenta.DTOs;
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Licenta.Controllers
 {
@@ -103,7 +104,7 @@ namespace Licenta.Controllers
 
             return studentDTO;
         }
-    
+
         [HttpPost("savePhoto/{id}")]
         public JsonResult SavePhoto(int id)
         {

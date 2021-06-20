@@ -86,6 +86,8 @@ const PhotoForm = ({ studentId }) => {
         const img = document.createElement("img");
         img.classList.add("photo");
         img.file = file;
+        img.style.width = '100px';
+        img.style.height = '100px';
         preview.appendChild(img); // Assuming that "preview" is the div output where the content will be displayed.
 
         const reader = new FileReader();

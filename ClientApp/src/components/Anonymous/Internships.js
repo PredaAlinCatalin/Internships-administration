@@ -12,12 +12,10 @@ import { getCitiesOptions } from "../Utility/Utility";
 import SearchIcon from "@material-ui/icons/Search";
 import { TextField, InputAdornment } from "@material-ui/core";
 import { useIsStudent } from "../Authentication/Authentication";
-import OldTabMenu from "../Universal/OldTabMenu";
 import TabMenu from "../Universal/TabMenu";
 import "../Universal/CircleButton.css";
-import { fetchInternships, selectAllInternships } from "../internship/internshipsSlice";
+import { fetchInternships, selectAllInternships } from "./internshipsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import Pagination from "@material-ui/lab/Pagination";
 
 const customStyles = {
   control: (base, state) => ({
@@ -52,7 +50,7 @@ const Internships = () => {
   const [currentSearchInput, setCurrentSearchInput] = useState("");
   const [currentCity, setCurrentCity] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const internshipsPerPage = 10;
+  const internshipsPerPage = 8;
   const [upperPageBound, setUpperPageBound] = useState(3);
   const [lowerPageBound, setLowerPageBound] = useState(0);
   const [isPrevBtnActive, setIsPrevBtnActive] = useState("disabled");
@@ -424,7 +422,7 @@ const Internships = () => {
           ) : (
             <li className={isNextBtnActive}>
               <button
-                className="btn btn-primary btn-circle"
+                className="btn btn-primary"
                 id="btnNext"
                 onClick={btnNextClick}
               >
@@ -436,7 +434,6 @@ const Internships = () => {
         </ul>
       </div>
 
-      <Pagination count={10} variant="outlined" />
     </>
   ) : (
     <Loading />

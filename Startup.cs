@@ -18,6 +18,9 @@ using System;
 using System.Linq;
 using Licenta.Repositories;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Licenta
 {
@@ -35,7 +38,7 @@ namespace Licenta
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("MyDbConnection")));
+                    Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
@@ -61,10 +64,38 @@ namespace Licenta
                 options.User.RequireUniqueEmail = true;
             });
 
-            services.AddAuthorization();
 
             services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            //Adding Authentication
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+
+            //Adding Jwt Bearer
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = Configuration["JWT:ValidAudience"],
+                    ValidIssuer = Configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWT:Secret"])),
+
+
+                };
+            });
+
+            services.AddAuthorization();
+
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<IInternshipsRepository, InternshipsRepository>();
@@ -95,7 +126,7 @@ namespace Licenta
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            CreateRoles(serviceProvider).Wait();
+            CreateRolesAndAdmin(serviceProvider).Wait();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -143,9 +174,8 @@ namespace Licenta
 
         }
 
-        private async Task CreateRoles(IServiceProvider serviceProvider)
+        private async Task CreateRolesAndAdmin(IServiceProvider serviceProvider)
         {
-            //initializing custom roles 
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             string[] roleNames = { "Admin", "Student", "Company" };
@@ -154,32 +184,26 @@ namespace Licenta
             foreach (var roleName in roleNames)
             {
                 var roleExist = await RoleManager.RoleExistsAsync(roleName);
-                // ensure that the role does not exist
                 if (!roleExist)
                 {
-                    //create the roles and seed them to the database: 
                     roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
 
-            // find the user with the admin email 
             var _user = await UserManager.FindByEmailAsync("admin@email.com");
 
-            // check if the user exists
             if (_user == null)
             {
-                //Here you could create the super admin who will maintain the web app
                 var poweruser = new IdentityUser
                 {
-                    UserName = "Admin",
-                    Email = "admin@email.com",
+                    UserName = Configuration["Admin:UserName"],
+                    Email = Configuration["Admin:UserEmail"]
                 };
-                string adminPassword = "1234aA!";
+                string adminPassword = Configuration["Admin:UserPassword"];
 
                 var createPowerUser = await UserManager.CreateAsync(poweruser, adminPassword);
                 if (createPowerUser.Succeeded)
                 {
-                    //here we tie the new user to the role
                     await UserManager.AddToRoleAsync(poweruser, "Admin");
 
                 }

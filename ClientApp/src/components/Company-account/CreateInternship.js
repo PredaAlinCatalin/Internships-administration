@@ -8,7 +8,6 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { Form, Modal } from "react-bootstrap";
 import { withRouter, Link } from "react-router-dom";
 import Loading from "../Universal/Loading";
-import "../Universal/Div3D.scss";
 import TextField from "@material-ui/core/TextField";
 import "date-fns";
 import Grid from "@material-ui/core/Grid";
@@ -31,7 +30,7 @@ import {
   fetchInternships,
   selectAllInternships,
   addInternship,
-} from "../internship/internshipsSlice";
+} from "../Anonymous/internshipsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 
@@ -319,8 +318,6 @@ const CreateInternship = () => {
         <div className="text-center">
           <h3>Creare stagiu </h3>
         </div>
-
-        <Link to="/MyEditor">Mergi la editor</Link>
 
         <Form onSubmit={handleInternshipCreateForm}>
           <TextField

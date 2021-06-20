@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Licenta.Data;
 using Licenta.Models;
-using Microsoft.AspNetCore.Identity;
-using IdentityServer4.Models;
 using Licenta.DTOs;
 using AutoMapper;
 using Licenta.Repositories;
@@ -31,7 +25,7 @@ namespace Licenta.Controllers
 
         //GET: api/Internships
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Internship>>> GetInternships()
+        public async Task<ActionResult<IEnumerable<InternshipDTO>>> GetInternships()
         {
             IEnumerable<Internship> internships = await _repository.GetAllInternshipsAsync();
             return Ok(_mapper.Map<IEnumerable<InternshipDTO>>(internships));
@@ -109,8 +103,6 @@ namespace Licenta.Controllers
         }
 
         // PUT: api/Internships/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
         public async Task<ActionResult<InternshipDTO>> PutInternship(int id, Internship internship)
         {
@@ -139,8 +131,6 @@ namespace Licenta.Controllers
         }
 
         // POST: api/Internships
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for
-        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
         public async Task<ActionResult<Internship>> PostInternship(Internship internship)
         {

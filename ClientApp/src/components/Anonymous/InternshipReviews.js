@@ -397,7 +397,7 @@ const InternshipReviews = ({ internshipId }) => {
           </div>
           {reviews.map(
             (rev) =>
-              rev.studentId !== user.id && (
+              rev.studentId != user.id && (
                 <InternshipReview
                   internship={internship}
                   student={getStudent(rev.studentId)}

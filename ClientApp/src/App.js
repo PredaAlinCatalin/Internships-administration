@@ -2,10 +2,10 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import React from "react";
 import { Layout } from "./components/Layout";
 import Profile from "./components/Student/Profile";
-import Internships from "./components/Internships/Internships";
-import Companies from "./components/Internships/Companies";
-import Company from "./components/Internships/Company";
-import Internship from "./components/Internships/Internship";
+import Internships from "./components/Anonymous/Internships";
+import Companies from "./components/Anonymous/Companies";
+import Company from "./components/Anonymous/Company";
+import Internship from "./components/Anonymous/Internship";
 import InternshipHistory from "./components/Student/InternshipHistory";
 import InternshipApplications from "./components/Student/InternshipApplications";
 import CompanyProfile from "./components/Company-account/CompanyProfile";
@@ -14,11 +14,11 @@ import CreateInternship from "./components/Company-account/CreateInternship";
 import ModifyInternship from "./components/Company-account/ModifyInternship";
 import ManageInternshipApplications from "./components/Company-account/ManageInternshipApplications";
 import StudentProfile from "./components/Company-account/StudentProfile";
-import SignUp from "./components/SignUp/SignUp";
-import SuccessfulSignUp from "./components/SignUp/SuccessfulSignUp";
-import Login from "./components/Login/Login";
-import Logout from "./components/Login/Logout";
-import InternshipReviews from "./components/Internships/InternshipReviews";
+import SignUp from "./components/Authentication/SignUp";
+import SuccessfulSignUp from "./components/Authentication/SuccessfulSignUp";
+import Login from "./components/Authentication/Login";
+import Logout from "./components/Authentication/Logout";
+import InternshipReviews from "./components/Anonymous/InternshipReviews";
 import "./custom.css";
 import {
   ProvideAuthentication,
@@ -27,14 +27,9 @@ import {
   useIsAdmin,
 } from "./components/Authentication/Authentication";
 import SuccessfulApplication from "./components/Student/SuccessfulApplication";
-import MyEditor from "./components/Universal/MyEditor";
-import InternshipsList from "./components/Internships/InternshipsList";
 import SavedInternships from "./components/Student/SavedInternships";
-import StartPage from "./components/Start/StartPage";
-import SavedInternshipsContextProvider from "./contexts/SavedInternshipsContext";
-import SavedInternshipsFunctional from "./components/savedInternships/SavedInternshipsFunctional";
-import NotFound from "./components/NotFound/NotFound";
-import { InternshipsContextProvider } from "./contexts/InternshipsContext";
+import StartPage from "./components/Anonymous/StartPage";
+import NotFound from "./components/Universal/NotFound";
 import ApproveInternships from "./components/Admin/ApproveInternships";
 
 const App = () => {
@@ -89,8 +84,6 @@ const App = () => {
 
   return (
     <ProvideAuthentication>
-      {/* <SavedInternshipsContextProvider>
-        <InternshipsContextProvider> */}
       <Layout>
         <Switch>
           <Route exact path="/" component={StartPage} />
@@ -110,10 +103,6 @@ const App = () => {
           <Route exact path="/Login" component={Login} />
 
           <Route exact path="/internshipReviews/:id" render={renderInternshipReviews} />
-
-          <Route exact path="/MyEditor" component={MyEditor} />
-
-          <Route exact path="/InternshipsList" component={InternshipsList} />
 
           <Route exact path="/Logout" component={Logout} />
 
@@ -151,12 +140,10 @@ const App = () => {
             component={InternshipApplications}
           />
 
-          <StudentRoute exact path="/savedInternships" component={SavedInternships} />
-
           <StudentRoute
             exact
-            path="/savedInternshipsfunctional"
-            component={SavedInternshipsFunctional}
+            path="/savedInternships"
+            component={SavedInternships}
           />
 
           <StudentRoute exact path="/profile" component={Profile} />
@@ -172,8 +159,6 @@ const App = () => {
           <Route component={NotFound} />
         </Switch>
       </Layout>
-      {/* </InternshipsContextProvider>
-      </SavedInternshipsContextProvider> */}
     </ProvideAuthentication>
   );
 };

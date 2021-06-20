@@ -27,10 +27,6 @@ class ManageStudentInternships extends Component {
       statusOptions: [],
       isOpen: false,
       idSelected: -1,
-      faculty: "",
-      currentFaculty: "",
-      facultiesOptions: [],
-      submitted: false,
     };
   }
 
@@ -85,29 +81,7 @@ class ManageStudentInternships extends Component {
       })
       .catch((error) => console.log("Error on getting students", error));
 
-    await axios
-      .get("api/faculties")
-      .then((response) => {
-        console.log(response.data);
-        this.setState({ faculties: response.data });
-        this.setState({ facultiesOptions: getSelectOptions(response.data) });
-      })
-      .catch((error) => console.log(error));
-
     this.setState({ loading: false });
-
-    let search = this.props.location.search;
-    search = search.substring(1);
-    let searchJSON = qs.parse(search);
-    if (search !== "") {
-      this.setState({
-        currentFaculty: { value: searchJSON.faculty, label: searchJSON.faculty },
-      });
-      this.setState({
-        faculty: { value: searchJSON.faculty, label: searchJSON.faculty },
-      });
-    }
-    this.setState({ submitted: false });
   };
 
   handleSelectStudent = (id) => {
@@ -203,30 +177,6 @@ class ManageStudentInternships extends Component {
     });
   };
 
-  handleQuerySubmit = (event) => {
-    event.preventDefault();
-    if (this.state.currentFaculty.value !== undefined) {
-      this.setState({ faculty: this.state.currentFaculty });
-      let query = this.state.currentFaculty.value;
-      let url =
-        "/manageInternshipApplications/" +
-        this.props.internshipId +
-        "/query?faculty=" +
-        query;
-      this.props.history.push(url);
-      this.setState({ submitted: true });
-    }
-  };
-
-  handleResetFilters = () => {
-    this.setState({
-      faculty: "",
-      currentFaculty: "",
-      submitted: true,
-    });
-    let url = "/manageInternshipApplications/" + this.props.internshipId;
-    this.props.history.push(url);
-  };
 
   renderModal = () => {
     let studentInternship = this.state.studentInternships[this.state.idSelected];
@@ -291,38 +241,7 @@ class ManageStudentInternships extends Component {
           <div>
             <br />
             <h5 className="text-center">Aplicările la stagiu</h5>
-            <form onSubmit={this.handleQuerySubmit}>
-              <Select
-                placeholder="Selectează facultate"
-                value={this.state.currentFaculty}
-                options={this.state.facultiesOptions}
-                onChange={(e) => this.setState({ currentFaculty: e })}
-                isSearchable
-                required
-              />
-
-              <div className="col-lg-4 mt-lg-4 mb-lg-4">
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  className="mr-lg-2"
-                >
-                  Caută
-                </Button>
-                {this.state.faculty !== "" ? (
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={this.handleResetFilters}
-                  >
-                    Resetează filtre
-                  </Button>
-                ) : (
-                  ""
-                )}
-              </div>
-            </form>
+           
             <div className="m-3">
               <Paper>
                 <div className="container p-3 pb-2">

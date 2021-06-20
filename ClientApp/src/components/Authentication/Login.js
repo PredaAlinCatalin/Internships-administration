@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Row } from "react-bootstrap";
-import { useAuthentication } from "../Authentication/Authentication";
+import { useAuthentication } from "./Authentication";
 import { useHistory, Link } from "react-router-dom";
 import { InputAdornment, Paper, TextField } from "@material-ui/core";
 import { AccountCircle } from "@material-ui/icons";

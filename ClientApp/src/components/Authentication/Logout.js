@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAuthentication } from "../Authentication/Authentication";
+import { useAuthentication } from "./Authentication";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
